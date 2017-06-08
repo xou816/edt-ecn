@@ -68,14 +68,14 @@ exports.getOnlineCalendar = function(id) {
 				let day = parseInt(node.get('day').text(), 10);
 				let week = parseInt(node.get('prettyweeks').text(), 10);
 				let date = dates[week][day];
-				let subject = safeGet(node, ['resources/module/item', 'notes']).toUpperCase();
+				let subject = safeGet(node, ['resources/module/item', 'notes']).toUpperCase().split('-').shift();
 				if (reg.test(subject)) {
 					subject = subject.split(' ').shift();
 				}
 				return {
 					start: dateFromCourseTime(date, node.get('starttime').text()),
 					end: dateFromCourseTime(date, node.get('endtime').text()),
-					subject: subject,
+					subject: subject.trim(),
 					location: safeGet(node, ['resources/room/item']),
 					description: safeGet(node, ['notes'])
 				}
@@ -86,7 +86,7 @@ exports.getOnlineCalendar = function(id) {
 
 exports.getSubjects = function(events) {
 	return events
-		.map((e) => e = e.subject.split('-').shift().trim())
+		.map((e) => e = e.subject)
 		.sort()
 		.filter((item, pos, arr) => (item.length && (!pos || item != arr[pos - 1])));
 };
@@ -103,7 +103,7 @@ exports.getCustomCalendar = function(id) {
 				let filter = filters[Math.floor(pos/MAX_BITS)];
 				filter = (typeof filter === 'undefined') ? 0 : filter;
 				let bin = (1 << (pos%MAX_BITS)) & filter;
-				return bin > 0;
+				return bin > 0 ;
 			});
 		});
 };
