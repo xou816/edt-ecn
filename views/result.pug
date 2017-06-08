@@ -1,0 +1,10 @@
+extends base.pug
+
+block content
+	.card
+		h4.card-header
+			| Emploi du temps #{name}
+		.card-block
+			| Emploi du temps généré! 
+			.form-group.mt-1
+				input.form-control(type='text', value='/calendar/custom/'+id+'.ics')
