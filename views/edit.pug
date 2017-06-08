@@ -10,7 +10,7 @@ block content
 					each batch, bi in subjects
 						ul.list-unstyled(class='col-md-'+col_size)
 							each subject, i in batch
-								- var index = i+batch_size*(bi+1)
+								- var index = i+batch_size*bi
 								li
 									label.custom-control.custom-checkbox(for='subject_'+index)
 										input.custom-control-input(type='checkbox', name='subject_'+index, id='subject_'+index, checked)
