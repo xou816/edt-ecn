@@ -26,6 +26,7 @@ app.get('/calendar/list', function(req, res) {
 });
 
 app.get('/calendar/:name.ics', function(req, res) {
+	res.setHeader('Content-Type', 'text/calendar');
 	calendar.getIdFromName(req.params.name)
 		.then((id) => calendar.getOnlineCalendar(id))
 		.then((cal) => calendar.calendarToIcs(cal))
@@ -48,7 +49,7 @@ app.get('/calendar/:name', function(req, res) {
 });
 
 app.get('/calendar/custom/:id.ics', function(req, res) {
-	// res.setHeader('Content-Type', 'text/calendar');
+	res.setHeader('Content-Type', 'text/calendar');
 	calendar.getCustomCalendar(req.params.id)
 		.then((cal) => calendar.calendarToIcs(cal))
 		.then((cal) => res.send(cal));
@@ -80,7 +81,7 @@ app.get('/calendar/:name/customize', function(req, res) {
 			return calendar.getOnlineCalendar(id)
 		})
 		.then((cal) => calendar.getSubjects(cal))
-		.then((subjects) => res.render('index', {
+		.then((subjects) => res.render('edit', {
 			subjects: batch(subjects, 15),
 			batch_size: 15,
 			col_size: Math.floor(12/Math.ceil(subjects.length/15)),
@@ -102,6 +103,13 @@ app.post('/calendar/:name/customize', function(req, res) {
 		id: req.body.id + '-' + filter,
 		name: req.params.name
 	});
+});
+
+app.get('/', function(req, res) {
+	calendar.listOnlineCalendars()
+		.then((list) => {
+			res.render('index', { calendars: list });
+		});
 });
 
 var port = typeof process.env.PORT !== 'undefined' ? process.env.PORT : 3000;

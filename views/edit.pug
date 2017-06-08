@@ -1,0 +1,21 @@
+extends base.pug
+
+block content
+	.card
+		h4.card-header
+			| Emploi du temps #{name}
+		.card-block
+			form(method='post')
+				.row
+					each batch, bi in subjects
+						ul.list-unstyled(class='col-md-'+col_size)
+							each subject, i in batch
+								- var index = i+batch_size*(bi+1)
+								li
+									label.custom-control.custom-checkbox(for='subject_'+index)
+										input.custom-control-input(type='checkbox', name='subject_'+index, id='subject_'+index, checked)
+										span.custom-control-indicator
+										span.custom-constrol.description= subject
+				input(type='hidden', name='count', value=count)
+				input(type='hidden', name='id', value=id)
+				input.btn.btn-success.float-md-right(type='submit', value='Générer')
