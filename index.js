@@ -104,4 +104,5 @@ app.post('/calendar/:name/customize', function(req, res) {
 	});
 });
 
-app.listen(3000, () => console.log(3000));
+var port = typeof process.env.PORT !== 'undefined' ? process.env.PORT : 3000;
+app.listen(port, () => console.log(port));
