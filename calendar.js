@@ -139,7 +139,7 @@ exports.calendarToIcs = function(events) {
 			start: course.start.tz('UTC').toDate(),
 			end: course.end.tz('UTC').toDate(),
 			summary: course.full_subject,
-			description: '',
+			description: course.description,
 			location: course.location
 		});
     });
