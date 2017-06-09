@@ -87,7 +87,7 @@ app.get('/calendar/:name/customize', function(req, res) {
 			col_size: Math.floor(12/Math.ceil(subjects.length/15)),
 			id: _id,
 			count: subjects.length,
-			name: req.params.name
+			name: req.params.name.toUpperCase()
 		}));
 });
 
@@ -101,7 +101,7 @@ app.post('/calendar/:name/customize', function(req, res) {
 	var filter = calendar.createFilter(indices, req.body.count);
 	res.render('result', {
 		id: req.body.id + '-' + filter,
-		name: req.params.name
+		name: req.params.name.toUpperCase()
 	});
 });
 

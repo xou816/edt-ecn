@@ -3,18 +3,21 @@
 const ical = require('ical-generator');
 const request = require('request-promise');
 const libxmljs = require('libxmljs');
+const moment = require('moment-timezone');
 const Promise = require('bluebird');
 
 const MAX_BITS = 28;
 
 const dateFromCourseTime = function(date, hour) {
 	let parsed = hour.split(':').map((i) => parseInt(i, 10));
-	let new_date = new Date(date.getTime());
-	new_date.setHours(parsed[0], parsed[1]);
+	let new_date = moment(date);
+	new_date.hours(parsed[0]);
+	new_date.minutes(parsed[1]);
 	return new_date;
 };
 
-const safeGet = function(node, xpaths) {
+const safeGet = function(node, xpaths, fallback) {
+	fallback = typeof fallback === 'undefined' ? '' : fallback;
 	let res = '';
 	xpaths.some(function(xpath) {
 		try {
@@ -58,29 +61,34 @@ exports.getOnlineCalendar = function(id) {
 		let dates = [];
 		doc.find('/timetable/span').map((node) => {
 			let index = parseInt(node.get('title').text(), 10);
-			dates[index] = node.find('day/date').map((date) => {
-				let digits = date.text().split('/').reverse().map((i) => parseInt(i, 10));
-				return new Date(digits[0], digits[1] - 1, digits[2]);
-			});
+			dates[index] = node.find('day/date').map((date) => moment.tz(date, 'DD/MM/YYYY', 'Europe/Paris'));
 		});
 		return doc.find('//event')
 			.map((node) => {
 				let day = parseInt(node.get('day').text(), 10);
 				let week = parseInt(node.get('prettyweeks').text(), 10);
 				let date = dates[week][day];
+				let description = safeGet(node, ['notes']);
 				let subject = safeGet(node, ['resources/module/item', 'notes']).toUpperCase().split('-').shift();
 				if (reg.test(subject)) {
 					subject = subject.split(' ').shift();
 				}
+				if (subject == 'LVC') {
+					subject = description.toUpperCase().split('-').shift();
+					if (subject.trim() == '') subject = 'LVC';
+				}
+				subject = subject.trim();
+				let full_subject = safeGet(node, ['category']) + ' ' + subject;
 				return {
 					start: dateFromCourseTime(date, node.get('starttime').text()),
 					end: dateFromCourseTime(date, node.get('endtime').text()),
-					subject: subject.trim(),
+					subject: subject,
+					full_subject: full_subject.trim(),
 					location: safeGet(node, ['resources/room/item']),
-					description: safeGet(node, ['notes'])
+					description: description
 				}
 			})
-			.sort((a, b) => a.start.getTime() - b.start.getTime());
+			.sort((a, b) => a - b);
 	});
 };
 
@@ -128,9 +136,9 @@ exports.calendarToIcs = function(events) {
     });
 	events.forEach((course) => {
 		cal.createEvent({
-			start: course.start,
-			end: course.end,
-			summary: course.subject,
+			start: course.start.tz('UTC').toDate(),
+			end: course.end.tz('UTC').toDate(),
+			summary: course.full_subject,
 			description: '',
 			location: course.location
 		});
