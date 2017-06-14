@@ -81,11 +81,11 @@ app.get('/calendar/:name/customize', function(req, res) {
 			_id = id;
 			return calendar.getOnlineCalendar(id)
 		})
-		.then((cal) => Object.keys(calendar.getSubjects(cal)))
+		.then((cal) => calendar.getSubjects(cal))
 		.then((subjects) => res.render('edit', {
 			subjects: subjects,
 			id: _id,
-			count: subjects.length,
+			count: Object.keys(subjects).length,
 			name: req.params.name.toUpperCase()
 		}));
 });
@@ -120,11 +120,11 @@ var fancy = function(formattings, name) {
 
 var mappings = [
 	{
-		reg: /EI1_(\w)/i, 
+		reg: /EI1_(\w)/i,
 		formatter: a => 'Première année, groupe '+a
 	},
-	{ 
-		reg: /OD_(\w+)/i, 
+	{
+		reg: /OD_(\w+)/i,
 		formatter: a => 'Option disciplinaire '+a
 	},
 	{

@@ -6,14 +6,14 @@ block content
 		input(type='hidden', name='id', value=id)
 		.sticky-top.pt-2.clearfix(style='background:rgba(255, 255, 255, 0.9)')
 			.row
-				h1.col-lg-10= "2. Cochez les matières à ignorer"
-				.col-lg-2.mt-2
+				h1.col-sm-10= "2. Cochez les matières à ignorer"
+				.col-sm-2.mt-2
 					input.btn.btn-outline-primary.float-md-right(type='submit', value='Terminer')
 			hr.col-12
 		ul.list-unstyled.lead.pl-2.pr-2
-			each subject, i in subjects
+			each id, subject in subjects
 				li
-					label.custom-control.custom-checkbox(for='subject_'+i)
-						input.custom-control-input(type='checkbox', name='subject_'+i, id='subject_'+i)
+					label.custom-control.custom-checkbox(for='subject_'+id)
+						input.custom-control-input(type='checkbox', name='subject_'+id, id='subject_'+id)
 						span.custom-control-indicator
 						span.custom-constrol.description= subject
