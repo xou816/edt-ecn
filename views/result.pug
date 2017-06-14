@@ -1,10 +1,10 @@
 extends base.pug
 
 block content
-	.card
-		h4.card-header
-			| Emploi du temps #{name}
-		.card-block
-			| Emploi du temps généré! 
-			.form-group.mt-1
-				input.form-control(type='text', value='https://edt-ecn.herokuapp.com/calendar/custom/'+id+'.ics')
+	.sticky-top.pt-2(style='background:rgba(255, 255, 255, 0.9)')
+		h1= "3. C'est fini!"
+		hr
+	.lead.pl-2.pr-2
+		p
+		| Copiez ce lien dans votre application de calendrier préférée.
+		input.m-1.form-control(type='text', value='https://edt-ecn.herokuapp.com/calendar/custom/'+id+'.ics')

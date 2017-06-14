@@ -1,23 +1,19 @@
 extends base.pug
 
 block content
-	.card
-		h4.card-header
-			| Emploi du temps #{name}
-		.card-block
-			p
-				| Cacher les matières suivantes :
-			form(method='post')
-				.row
-					each batch, bi in subjects
-						ul.list-unstyled(class='col-md-'+col_size)
-							each subject, i in batch
-								- var index = i+batch_size*bi
-								li
-									label.custom-control.custom-checkbox(for='subject_'+index)
-										input.custom-control-input(type='checkbox', name='subject_'+index, id='subject_'+index)
-										span.custom-control-indicator
-										span.custom-constrol.description= subject
-				input(type='hidden', name='count', value=count)
-				input(type='hidden', name='id', value=id)
-				input.btn.btn-success.float-md-right(type='submit', value='Générer')
+	form(method='post')
+		input(type='hidden', name='count', value=count)
+		input(type='hidden', name='id', value=id)
+		.sticky-top.pt-2.clearfix(style='background:rgba(255, 255, 255, 0.9)')
+			.row
+				h1.col-lg-10= "2. Cochez les matières à ignorer"
+				.col-lg-2.mt-2
+					input.btn.btn-outline-primary.float-md-right(type='submit', value='Terminer')
+			hr.col-12
+		ul.list-unstyled.lead.pl-2.pr-2
+			each subject, i in subjects
+				li
+					label.custom-control.custom-checkbox(for='subject_'+i)
+						input.custom-control-input(type='checkbox', name='subject_'+i, id='subject_'+i)
+						span.custom-control-indicator
+						span.custom-constrol.description= subject

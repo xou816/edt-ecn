@@ -83,9 +83,7 @@ app.get('/calendar/:name/customize', function(req, res) {
 		})
 		.then((cal) => Object.keys(calendar.getSubjects(cal)))
 		.then((subjects) => res.render('edit', {
-			subjects: batch(subjects, 15),
-			batch_size: 15,
-			col_size: Math.floor(12/Math.ceil(subjects.length/15)),
+			subjects: subjects,
 			id: _id,
 			count: subjects.length,
 			name: req.params.name.toUpperCase()
@@ -106,8 +104,41 @@ app.post('/calendar/:name/customize', function(req, res) {
 	});
 });
 
+var fancy = function(formattings, name) {
+	var fancy_name = '';
+	formattings.some(o => {
+		var res = o.reg.exec(name);
+		if (res) {
+			fancy_name = o.formatter.call(null, res[1]);
+			return true;
+		} else {
+			return false;
+		}
+	});
+	return fancy_name;
+};
+
+var mappings = [
+	{
+		reg: /EI1_(\w)/i, 
+		formatter: a => 'Première année, groupe '+a
+	},
+	{ 
+		reg: /OD_(\w+)/i, 
+		formatter: a => 'Option disciplinaire '+a
+	},
+	{
+		reg: /EIA_(\w)/i,
+		formatter: a => 'Apprentis EI'+a
+	}
+];
+
 app.get('/', function(req, res) {
 	calendar.listOnlineCalendars()
+		.then((list) => list.map((cal) => {
+			cal.fancy_name = fancy(mappings, cal.name);
+			return cal;
+		}))
 		.then((list) => {
 			res.render('index', { calendars: list });
 		});

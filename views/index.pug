@@ -1,11 +1,16 @@
 extends base.pug
 
 block content
-	.card
-		h4.card-header
-			| Emploi du temps
-		.card-block
-			ul.list-unstyled
-				each calendar in calendars
-					li
-						a(href='/calendar/'+calendar.name+'/customize')= calendar.name
+	.sticky-top.pt-2(style='background:rgba(255, 255, 255, 0.9)')
+		h1= "1. Sélectionnez votre groupe"
+		hr
+	ul.list-unstyled.lead.pl-2.pr-2
+		each calendar in calendars
+			li 
+				.row.pb-2
+					.col-sm-8
+						span.font-weight-bold= calendar.name
+						if calendar.fancy_name
+							span.font-italic.text-muted= ' ('+calendar.fancy_name+')'
+					.col-sm-4
+						a.btn.float-lg-right.btn-outline-primary(href='/calendar/'+calendar.name+'/customize')= "Personnaliser"
