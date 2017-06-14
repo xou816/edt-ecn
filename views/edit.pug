@@ -5,6 +5,8 @@ block content
 		h4.card-header
 			| Emploi du temps #{name}
 		.card-block
+			p
+				| Cacher les matières suivantes :
 			form(method='post')
 				.row
 					each batch, bi in subjects
@@ -13,7 +15,7 @@ block content
 								- var index = i+batch_size*bi
 								li
 									label.custom-control.custom-checkbox(for='subject_'+index)
-										input.custom-control-input(type='checkbox', name='subject_'+index, id='subject_'+index, checked)
+										input.custom-control-input(type='checkbox', name='subject_'+index, id='subject_'+index)
 										span.custom-control-indicator
 										span.custom-constrol.description= subject
 				input(type='hidden', name='count', value=count)

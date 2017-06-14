@@ -6,6 +6,7 @@ app.set('view engine', 'pug');
 var bodyParser = require('body-parser')
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use('/public', express.static('views/public'));
 
 const batch = function(arr, len) {
 	return arr.reduce((acc, val) => {
@@ -80,7 +81,7 @@ app.get('/calendar/:name/customize', function(req, res) {
 			_id = id;
 			return calendar.getOnlineCalendar(id)
 		})
-		.then((cal) => calendar.getSubjects(cal))
+		.then((cal) => Object.keys(calendar.getSubjects(cal)))
 		.then((subjects) => res.render('edit', {
 			subjects: batch(subjects, 15),
 			batch_size: 15,

@@ -4,7 +4,6 @@ const ical = require('ical-generator');
 const request = require('request-promise');
 const libxmljs = require('libxmljs');
 const moment = require('moment-timezone');
-const Promise = require('bluebird');
 
 const MAX_BITS = 28;
 
@@ -94,9 +93,17 @@ exports.getOnlineCalendar = function(id) {
 
 exports.getSubjects = function(events) {
 	return events
-		.map((e) => e = e.subject)
-		.sort()
-		.filter((item, pos, arr) => (item.length && (!pos || item != arr[pos - 1])));
+		.map((e) => e = { subject: e.subject, date: e.start })
+		.sort((a, b) => {
+			let bool = a.subject < b.subject || a.subject == b.subject && a.date < b.date
+			return bool ? -1 : 1;
+		})
+		.filter((e, pos, arr) => (e.subject.length && (!pos || e.subject != arr[pos - 1].subject)))
+		.sort((a, b) => (a.date < b.date ? -1 : 1))
+		.reduce((final, e, index) => {
+			final[e.subject] = index;
+			return final;
+		}, {});
 };
 
 exports.getCustomCalendar = function(id) {
@@ -107,11 +114,11 @@ exports.getCustomCalendar = function(id) {
 		.then((events) => {
 			let subjects = exports.getSubjects(events);
 			return events.filter((event) => {
-				let pos = subjects.indexOf(event.subject);
+				let pos = subjects[event.subject];
 				let filter = filters[Math.floor(pos/MAX_BITS)];
 				filter = (typeof filter === 'undefined') ? 0 : filter;
 				let bin = (1 << (pos%MAX_BITS)) & filter;
-				return bin > 0 ;
+				return bin == 0;
 			});
 		});
 };
