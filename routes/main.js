@@ -1,35 +1,34 @@
 const calendar = require('../calendar');
 
-let fancy = function(formattings, name) {
-	let fancy_name = '';
-	formattings.some(o => {
-		let res = o.reg.exec(name);
-		if (res) {
-			fancy_name = o.formatter.call(null, res[1]);
-			return true;
-		} else {
-			return false;
-		}
-	});
-	return fancy_name;
+const indexByLetter = function(list, key) {
+	if (list.length) {
+		let first_letter = list[0][key][0];
+		let init = { current: first_letter };
+		init[first_letter] = [];
+		let final = list.reduce((acc, curr) => {
+			let first = curr[key][0];
+			if (first !== acc.current) {
+				acc.current = first;
+				acc[first] = [];
+			}
+			acc[acc.current].push(curr);
+			return acc;
+		}, init);
+		delete final.current;
+		return final;
+	} else {
+		return {};
+	}
 };
 
-let mappings = [
-	{
-		reg: /EI1_(\w)/i,
-		formatter: a => 'Première année, groupe '+a
-	},
-	{
-		reg: /OD_(\w+)/i,
-		formatter: a => 'Option disciplinaire '+a
-	},
-	{
-		reg: /EIA_(\w)/i,
-		formatter: a => 'Apprentis EI'+a
-	}
-];
-
 module.exports = function(router) {
+
+	router.get('/', function(req, res) {
+		calendar.listOnlineCalendars()
+			.then((list) => {
+				res.render('index', { calendars: indexByLetter(list, 'name') });
+			});
+	});
 
 	router.get('/calendar/:name/customize', function(req, res) {
 		let _id;
@@ -59,13 +58,6 @@ module.exports = function(router) {
 			id: filter,
 			name: req.params.name.toUpperCase()
 		});
-	});
-
-	router.get('/', function(req, res) {
-		calendar.listOnlineCalendars()
-			.then((list) => {
-				res.render('index', { calendars: list });
-			});
 	});
 
 	return router;

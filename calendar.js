@@ -68,9 +68,13 @@ exports.getOnlineCalendar = function(id) {
 				let week = parseInt(node.get('prettyweeks').text(), 10);
 				let date = dates[week][day];
 				let description = safeGet(node, ['notes']);
-				let subject = safeGet(node, ['resources/module/item', 'notes']).toUpperCase().split('-').shift();
+				let subject = safeGet(node, ['resources/module/item', 'notes']).split('-').shift();
 				if (reg.test(subject)) {
 					subject = subject.split(' ').shift();
+				}
+				let location = safeGet(node, ['resources/room/item']);
+				if (reg.test(location)) {
+					location = location.split(' ').shift();
 				}
 				if (subject == 'LVC') {
 					subject = description.toUpperCase().split('-').shift();
@@ -83,7 +87,7 @@ exports.getOnlineCalendar = function(id) {
 					end: dateFromCourseTime(date, node.get('endtime').text()),
 					subject: subject,
 					full_subject: full_subject.trim(),
-					location: safeGet(node, ['resources/room/item']),
+					location: location,
 					description: description
 				}
 			})
