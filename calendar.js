@@ -4,6 +4,7 @@ const libxmljs = require('libxmljs');
 const moment = require('moment-timezone');
 
 const MAX_BITS = 28;
+const FILTER = 'Groupe';
 
 const dateFromCourseTime = function(date, hour) {
 	let parsed = hour.split(':').map((i) => parseInt(i, 10));
@@ -15,8 +16,8 @@ const dateFromCourseTime = function(date, hour) {
 
 const safeGet = function(node, xpaths, fallback) {
 	fallback = typeof fallback === 'undefined' ? '' : fallback;
-	let res = '';
-	xpaths.some(function(xpath) {
+	let res = fallback;
+	xpaths.some((xpath) => {
 		try {
 			res = node.get(xpath).text();
 			return true;
@@ -32,13 +33,14 @@ exports.listOnlineCalendars = function() {
 	return request(url).then(function(body) {
 		let doc = libxmljs.parseXml(body);
 		return doc.find('/finder/resource')
-			.filter((node) => node.get('link').attr('href').value()[0] === 'p')
+			.filter((node) => node.get('link').attr('href').value()[0] === FILTER[0].toLowerCase())
 			.map((node) => {
-				let name = node.get('name').text().split(',').shift();
+				let names = node.get('name').text().split(',');
 				let id = node.get('link').attr('href').value().split('.').shift();
 				return {
 					id: id,
-					name: name
+					name: names[0].trim(),
+					display: names[1].trim()
 				};
 			});
 	});

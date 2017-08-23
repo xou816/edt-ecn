@@ -63,10 +63,6 @@ module.exports = function(router) {
 
 	router.get('/', function(req, res) {
 		calendar.listOnlineCalendars()
-			.then((list) => list.map((cal) => {
-				cal.fancy_name = fancy(mappings, cal.name);
-				return cal;
-			}))
 			.then((list) => {
 				res.render('index', { calendars: list });
 			});
