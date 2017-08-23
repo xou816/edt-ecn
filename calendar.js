@@ -1,5 +1,3 @@
-'use strict'
-
 const ical = require('ical-generator');
 const request = require('request-promise');
 const libxmljs = require('libxmljs');
@@ -87,7 +85,7 @@ exports.getOnlineCalendar = function(id) {
 					description: description
 				}
 			})
-			.sort((a, b) => a - b);
+			.sort((a, b) => a.start - b.start);
 	});
 };
 
@@ -123,7 +121,7 @@ exports.getCustomCalendar = function(id) {
 		});
 };
 
-exports.createFilter = function(indices, count) {
+exports.createFilter = function(id, indices, count) {
 	let filters = new Array(Math.floor(count/MAX_BITS) + 1);
 	filters.fill(0);
 	indices.forEach((index) => {
@@ -131,7 +129,7 @@ exports.createFilter = function(indices, count) {
 		let inc = 1 << (index%30);
 		filters[pos] += inc;
 	});
-	return filters.map((index) => index.toString(16)).join('-');
+	return id + '-' + filters.map((index) => index.toString(16)).join('-');
 };
 
 exports.calendarToIcs = function(events) {

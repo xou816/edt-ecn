@@ -4,9 +4,14 @@ block content
 	.sticky-top.pt-2(style='background:rgba(255, 255, 255, 0.9)')
 		h1= "1. Sélectionnez votre groupe"
 		hr
-	ul.list-unstyled.lead.pl-2.pr-2
-		each calendar in calendars
-			li
-				a.font-weight-bold(href='/calendar/'+calendar.name+'/customize')= calendar.name
-				if calendar.fancy_name
-						span.font-italic.text-muted= ' ('+calendar.fancy_name+')'
+	if calendars.length
+		ul.list-unstyled.lead.pl-2.pr-2
+			each calendar in calendars
+				li
+					a.font-weight-bold(href='/calendar/'+calendar.name+'/customize')= calendar.name
+					if calendar.fancy_name
+							span.font-italic.text-muted= ' ('+calendar.fancy_name+')'
+	else
+		.lead.pl-2.pr-2
+			p
+			| Pas de calendriers trouvés.
