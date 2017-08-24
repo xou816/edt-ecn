@@ -24,39 +24,54 @@ const indexByLetter = function(list, key) {
 module.exports = function(router) {
 
 	router.get('/', function(req, res) {
+		res.redirect('/custom');
+	});
+
+	router.get('/custom', function(req, res) {
 		calendar.listOnlineCalendars()
 			.then((list) => {
-				res.render('index', { calendars: indexByLetter(list, 'name') });
+				res.render('calendars', { calendars: indexByLetter(list, 'name') });
 			});
 	});
 
-	router.get('/calendar/:name/customize', function(req, res) {
-		let _id;
-		calendar.getIdFromName(req.params.name)
-			.then((id) => {
-				_id = id;
-				return calendar.getOnlineCalendar(id)
-			})
-			.then((cal) => calendar.getSubjects(cal))
-			.then((subjects) => res.render('edit', {
+	router.post('/custom', function(req, res) {
+		req.session.calendars = Object.keys(req.body);
+		res.redirect('/custom/subjects');
+	})
+
+	router.get('/custom/subjects', function(req, res) {
+		let ids = req.session.calendars || [];
+		let p = Promise.all(ids.map(calendar.getOnlineCalendar))
+			.then(all => Promise.all(all.map(calendar.getSubjects)));
+		p.then(subjects => {
+			res.render('edit', {
 				subjects: subjects,
-				id: _id,
-				count: Object.keys(subjects).length,
-				name: req.params.name.toUpperCase()
-			}));
+				names: ids,
+				ids: ids,
+			});
+		});
 	});
 
-	router.post('/calendar/:name/customize', function(req, res) {
-		let indices = [];
-		for (let i = 0; i < req.body.count; i++) {
-			if (req.body['subject_' + i.toString()]) {
-				indices.push(i);
-			}
-		}
-		let filter = calendar.createFilter(req.body.id, indices, req.body.count);
+	router.post('/custom/subjects', function(req, res) {
+		let ids = req.session.calendars || [];
+		let raw = Object.keys(req.body);
+		let mapping = Object.keys(req.body)
+			.map(id => id.split('_'))
+			.reduce((acc, pair) => {
+				let [cal, index] = pair;
+				index = parseInt(index, 10);
+				if (typeof acc[cal] === 'undefined') {
+					acc[cal] = [index];
+				} else {
+					acc[cal].push(index);
+				}
+				return acc;
+			}, {});
+		let filter = Object.keys(mapping)
+			.map(cal => calendar.createFilter(ids[cal], mapping[cal]))
+			.join('+');
 		res.render('result', {
-			id: filter,
-			name: req.params.name.toUpperCase()
+			path: 'custom/' + filter
 		});
 	});
 

@@ -40,7 +40,7 @@ exports.listOnlineCalendars = function() {
 				return {
 					id: id,
 					name: names[0].trim(),
-					display: names[1].trim()
+					display: typeof names[1] !== 'undefined' ? names[1].trim() : ''
 				};
 			});
 	});
@@ -52,8 +52,37 @@ exports.getIdFromName = function(name) {
 		.then((cal) => cal.id);
 };
 
-exports.getOnlineCalendar = function(id) {
+const mapNodeToCalendar = function(node, dates) {
 	const reg = /(\w+) \(\1\)/i;
+	let day = parseInt(node.get('day').text(), 10);
+	let week = parseInt(node.get('prettyweeks').text(), 10);
+	let date = dates[week][day];
+	let description = safeGet(node, ['notes']);
+	let subject = safeGet(node, ['resources/module/item', 'notes']).split('-').shift();
+	if (reg.test(subject)) {
+		subject = subject.split(' ').shift();
+	}
+	let location = safeGet(node, ['resources/room/item']);
+	if (reg.test(location)) {
+		location = location.split(' ').shift();
+	}
+	if (subject == 'LVC') {
+		subject = description.toUpperCase().split('-').shift();
+		if (subject.trim() == '') subject = 'LVC';
+	}
+	subject = subject.trim();
+	let full_subject = safeGet(node, ['category']) + ' ' + subject;
+	return {
+		start: dateFromCourseTime(date, node.get('starttime').text()),
+		end: dateFromCourseTime(date, node.get('endtime').text()),
+		subject: subject,
+		full_subject: full_subject.trim(),
+		location: location,
+		// description: description
+	}
+}
+
+exports.getOnlineCalendar = function(id) {
 	const url = 'http://website.ec-nantes.fr/sites/edtemps/' + id + '.xml';
 	return request(url).then(function(body) {
 		let doc = libxmljs.parseXml(body);
@@ -63,34 +92,7 @@ exports.getOnlineCalendar = function(id) {
 			dates[index] = node.find('day/date').map((date) => moment.tz(date, 'DD/MM/YYYY', 'Europe/Paris'));
 		});
 		return doc.find('//event')
-			.map((node) => {
-				let day = parseInt(node.get('day').text(), 10);
-				let week = parseInt(node.get('prettyweeks').text(), 10);
-				let date = dates[week][day];
-				let description = safeGet(node, ['notes']);
-				let subject = safeGet(node, ['resources/module/item', 'notes']).split('-').shift();
-				if (reg.test(subject)) {
-					subject = subject.split(' ').shift();
-				}
-				let location = safeGet(node, ['resources/room/item']);
-				if (reg.test(location)) {
-					location = location.split(' ').shift();
-				}
-				if (subject == 'LVC') {
-					subject = description.toUpperCase().split('-').shift();
-					if (subject.trim() == '') subject = 'LVC';
-				}
-				subject = subject.trim();
-				let full_subject = safeGet(node, ['category']) + ' ' + subject;
-				return {
-					start: dateFromCourseTime(date, node.get('starttime').text()),
-					end: dateFromCourseTime(date, node.get('endtime').text()),
-					subject: subject,
-					full_subject: full_subject.trim(),
-					location: location,
-					description: description
-				}
-			})
+			.map(node => mapNodeToCalendar(node, dates))
 			.sort((a, b) => a.start - b.start);
 	});
 };
@@ -110,7 +112,7 @@ exports.getSubjects = function(events) {
 		}, {});
 };
 
-exports.getCustomCalendar = function(id) {
+exports.getSimpleCustomCalendar = function(id) {
 	let filters = id.split('-');
 	let calid = filters.shift();
 	filters = filters.map((hex) => parseInt(hex, 16));
@@ -127,8 +129,16 @@ exports.getCustomCalendar = function(id) {
 		});
 };
 
-exports.createFilter = function(id, indices, count) {
-	let filters = new Array(Math.floor(count/MAX_BITS) + 1);
+exports.getCustomCalendar = function(id) {
+	return Promise.all(id
+			.split('+')
+			.map(exports.getSimpleCustomCalendar))
+		.then(all => all.reduce((acc, events) => acc.concat(events), []));
+};
+
+exports.createFilter = function(id, indices) {
+	let max = Math.max.apply(null, indices)+1;
+	let filters = new Array(Math.floor(max/MAX_BITS) + 1);
 	filters.fill(0);
 	indices.forEach((index) => {
 		let pos = Math.floor(index/MAX_BITS);
