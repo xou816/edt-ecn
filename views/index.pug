@@ -1,0 +1,19 @@
+extends base.pug
+
+block content
+	.sticky-top.pt-2(style='background:rgba(255, 255, 255, 0.9)')
+		h1= "Éditeur d'emploi du temps"
+		hr
+	.lead.pl-2.pr-2
+		p
+			| Cet éditeur vous permet de combiner des emplois du temps et de choisir les matières à garder.
+		.text-center.my-2
+			a.btn.btn-lg.btn-outline-primary(href='/custom')= 'Commencer'
+	.fixed-bottom.col-xl-8.offset-xl-2
+		hr
+		p.text-muted.text-center
+			a.text-muted(href='/api')= 'API'
+			|
+			| &nbsp;&mdash;&nbsp;
+			|
+			a.text-muted(href='https://github.com/xou816/edt-ecn')= 'Source'

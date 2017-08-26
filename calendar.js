@@ -9,7 +9,7 @@ const STR_LEN = Math.ceil(MAX_BITS/Math.log2(TARGET_BASE));
 const zeroPad = rep => {
 	let len = rep.length;
 	let cat = '0'.repeat(STR_LEN) + rep;
-	return cat.substr(len, len + STR_LEN - 1);
+	return cat.substr(len, len + STR_LEN);
 };
 
 const FILTER = 'Groupe';
@@ -120,9 +120,12 @@ exports.getSubjects = function(events) {
 		}, {});
 };
 
-exports.getSimpleCustomCalendar = function(id) {
+const getSimpleCustomCalendar = function(id) {
 	const reg = new RegExp('.{' + STR_LEN + '}', 'g');
 	let [calid, filter] = id.split('-');
+	if (typeof filter === 'undefined') {
+		return exports.getOnlineCalendar(calid);
+	}
 	filters = filter.match(reg).map((hex) => parseInt(hex, TARGET_BASE));
 	return exports.getOnlineCalendar(calid)
 		.then((events) => {
@@ -140,7 +143,7 @@ exports.getSimpleCustomCalendar = function(id) {
 exports.getCustomCalendar = function(id) {
 	return Promise.all(id
 			.split('+')
-			.map(exports.getSimpleCustomCalendar))
+			.map(getSimpleCustomCalendar))
 		.then(all => all.reduce((acc, events) => acc.concat(events), []));
 };
 

@@ -24,7 +24,7 @@ const indexByLetter = function(list, key) {
 module.exports = function(router) {
 
 	router.get('/', function(req, res) {
-		res.redirect('/custom');
+		res.render('index');
 	});
 
 	router.get('/custom', function(req, res) {
