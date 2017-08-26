@@ -29,8 +29,12 @@ module.exports = function(router) {
 
 	router.get('/custom', function(req, res) {
 		calendar.listOnlineCalendars()
-			.then((list) => {
+			.then(list => {
 				res.render('calendars', { calendars: indexByLetter(list, 'name') });
+			})
+			.catch(err => {
+				console.error(err);
+				res.status(500);
 			});
 	});
 
@@ -41,20 +45,30 @@ module.exports = function(router) {
 
 	router.get('/custom/subjects', function(req, res) {
 		let ids = req.session.calendars || [];
-		let p = Promise.all(ids.map(calendar.getOnlineCalendar))
-			.then(all => Promise.all(all.map(calendar.getSubjects)));
-		p.then(subjects => {
-			res.render('edit', {
-				subjects: subjects,
-				names: ids,
-				ids: ids,
+		let namesPromise = calendar.listOnlineCalendars()
+			.then(arr => arr
+				.filter(cal => ids.indexOf(cal.id) > -1)
+				.map(cal => cal.name));
+		let subjectsPromises = ids
+			.map(id => calendar.getOnlineCalendar(id).then(calendar.getSubjects));
+		Promise.all(subjectsPromises.concat(namesPromise))
+			.then(payload => {
+				let names = payload.pop();
+				let subjects = payload;
+				res.render('edit', {
+					subjects: subjects,
+					names: names,
+					ids: ids,
+				});
+			})
+			.catch(err => {
+				console.error(err);
+				res.status(500);
 			});
-		});
 	});
 
 	router.post('/custom/subjects', function(req, res) {
 		let ids = req.session.calendars || [];
-		let raw = Object.keys(req.body);
 		let mapping = Object.keys(req.body)
 			.map(id => id.split('_'))
 			.reduce((acc, pair) => {
@@ -67,11 +81,15 @@ module.exports = function(router) {
 				}
 				return acc;
 			}, {});
-		let filter = Object.keys(mapping)
-			.map(cal => calendar.createFilter(ids[cal], mapping[cal]))
-			.join('+');
+		let filter;
+		if (Object.keys(mapping).length > 0) {
+			filter = Object.keys(mapping)
+				.map(cal => calendar.createFilter(ids[cal], mapping[cal]));
+		} else {
+			filter = ids;
+		}
 		res.render('result', {
-			path: 'custom/' + filter
+			path: 'custom/' + filter.join('+')
 		});
 	});
 

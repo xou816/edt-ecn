@@ -17,7 +17,6 @@
     "moment-timezone": "^0.5.13",
     "pug": "^2.0.0-rc.2",
     "request": "^2.81.0",
-    "request-promise": "^4.2.1",
-    "rxjs": "^5.4.3"
+    "request-promise": "^4.2.1"
   }
 }

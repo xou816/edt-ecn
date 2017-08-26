@@ -6,28 +6,34 @@ module.exports = function(router) {
 		res.setHeader('Content-Type', 'application/json');
 		res.status(200);
 		res.send(JSON.stringify([
-			'/calendar/list',
-			'/calendar/:name.ics',
-			'/calendar/:name',
-			'/calendar/custom/:id.ics',
-			'/calendar/custom/:id',
-			'/calendar/:name/subjects'
+			'/api/calendar/list',
+			'/api/calendar/:name',
+			'/api/calendar/:name.ics',
+			'/api/calendar/:name/subjects',
+			'/api/calendar/custom/:id',
+			'/api/calendar/custom/:id.ics',
+			'/api/calendar/custom/:id/subjects'
 		]));
 	});
 
 	router.get('/calendar/list', function(req, res) {
 		res.setHeader('Content-Type', 'application/json');
 		calendar.listOnlineCalendars()
-			.then((list) => res.send(JSON.stringify(list)));
+			.then(JSON.stringify)
+			.then((json) => res.send(json))
+			.catch((error) => {
+				res.status(500);
+				res.send({error});
+			});
 	});
 
 	router.get('/calendar/:name.ics', function(req, res) {
 		res.setHeader('Content-Type', 'text/calendar');
 		calendar.getIdFromName(req.params.name)
-			.then((id) => calendar.getOnlineCalendar(id))
-			.then((cal) => calendar.calendarToIcs(cal))
-			.then((cal) => res.send(cal))
-			.catch((err) => {
+			.then(calendar.getOnlineCalendar)
+			.then(calendar.calendarToIcs)
+			.then((ics) => res.send(ics))
+			.catch((error) => {
 				res.status(404);
 				res.send('404 Not found');
 			});
@@ -36,9 +42,10 @@ module.exports = function(router) {
 	router.get('/calendar/:name', function(req, res) {
 		res.setHeader('Content-Type', 'application/json');
 		calendar.getIdFromName(req.params.name)
-			.then((id) => calendar.getOnlineCalendar(id))
-			.then((courses) => res.send(JSON.stringify(courses)))
-			.catch((err) => {
+			.then(calendar.getOnlineCalendar)
+			.then(JSON.stringify)
+			.then((json) => res.send(json))
+			.catch((error) => {
 				res.status(404);
 				res.send({ error: '404 Not found' });
 			});
@@ -47,25 +54,47 @@ module.exports = function(router) {
 	router.get('/calendar/custom/:id.ics', function(req, res) {
 		res.setHeader('Content-Type', 'text/calendar');
 		calendar.getCustomCalendar(req.params.id)
-			.then((cal) => calendar.calendarToIcs(cal))
-			.then((cal) => res.send(cal));
+			.then(calendar.calendarToIcs)
+			.then((ics) => res.send(ics))
+			.catch((error) => {
+				res.status(500);
+				res.send({error});
+			});
 	});
 
 	router.get('/calendar/custom/:id', function(req, res) {
 		res.setHeader('Content-Type', 'application/json');
 		calendar.getCustomCalendar(req.params.id)
-			.then((cal) => res.send(JSON.stringify(cal)));
+			.then(JSON.stringify)
+			.then((json) => res.send(json))
+			.catch((error) => {
+				res.status(500);
+				res.send({error});
+			});
 	});
 
 	router.get('/calendar/:name/subjects', function(req, res) {
 		res.setHeader('Content-Type', 'application/json');
 		calendar.getIdFromName(req.params.name)
-			.then((id) => calendar.getOnlineCalendar(id))
-			.then((cal) => calendar.getSubjects(cal))
-			.then((subjects) => res.send(JSON.stringify(subjects)))
-			.catch((err) => {
+			.then(calendar.getOnlineCalendar)
+			.then(calendar.getSubjects)
+			.then(JSON.stringify)
+			.then((json) => res.send(json))
+			.catch((error) => {
 				res.status(404);
 				res.send({ error: '404 Not found' });
+			});
+	});
+
+	router.get('/calendar/custom/:id/subjects', function(req, res) {
+		res.setHeader('Content-Type', 'application/json');
+		calendar.getCustomCalendar(req.params.id)
+			.then(calendar.getSubjects)
+			.then(JSON.stringify)
+			.then((json) => res.send(json))
+			.catch((error) => {
+				res.status(500);
+				res.send({error});
 			});
 	});
 

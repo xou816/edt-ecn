@@ -3,7 +3,15 @@ const request = require('request-promise');
 const libxmljs = require('libxmljs');
 const moment = require('moment-timezone');
 
+const TARGET_BASE = 32;
 const MAX_BITS = 28;
+const STR_LEN = Math.ceil(MAX_BITS/Math.log2(TARGET_BASE));
+const zeroPad = rep => {
+	let len = rep.length;
+	let cat = '0'.repeat(STR_LEN) + rep;
+	return cat.substr(len, len + STR_LEN - 1);
+};
+
 const FILTER = 'Groupe';
 
 const dateFromCourseTime = function(date, hour) {
@@ -113,9 +121,9 @@ exports.getSubjects = function(events) {
 };
 
 exports.getSimpleCustomCalendar = function(id) {
-	let filters = id.split('-');
-	let calid = filters.shift();
-	filters = filters.map((hex) => parseInt(hex, 16));
+	const reg = new RegExp('.{' + STR_LEN + '}', 'g');
+	let [calid, filter] = id.split('-');
+	filters = filter.match(reg).map((hex) => parseInt(hex, TARGET_BASE));
 	return exports.getOnlineCalendar(calid)
 		.then((events) => {
 			let subjects = exports.getSubjects(events);
@@ -137,15 +145,17 @@ exports.getCustomCalendar = function(id) {
 };
 
 exports.createFilter = function(id, indices) {
-	let max = Math.max.apply(null, indices)+1;
-	let filters = new Array(Math.floor(max/MAX_BITS) + 1);
+	let max = Math.max.apply(null, indices) + 1;
+	let filters = new Array(Math.ceil(max/MAX_BITS));
 	filters.fill(0);
-	indices.forEach((index) => {
+	indices.forEach(index => {
 		let pos = Math.floor(index/MAX_BITS);
-		let inc = 1 << (index%30);
+		let inc = 1 << (index%MAX_BITS);
 		filters[pos] += inc;
 	});
-	return id + '-' + filters.map((index) => index.toString(16)).join('-');
+	return id + '-' + filters
+		.map(num => zeroPad(num.toString(TARGET_BASE)))
+		.join('');
 };
 
 exports.calendarToIcs = function(events) {
