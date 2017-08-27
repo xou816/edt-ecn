@@ -1,4 +1,5 @@
-const calendar = require('../calendar');
+const calendar = require('../src/calendar');
+const alias = require('../src/alias');
 
 const indexByLetter = function(list, key) {
 	if (list.length) {
@@ -88,9 +89,37 @@ module.exports = function(router) {
 		} else {
 			filter = ids;
 		}
+		req.session.filter = filter.join('+')
+		res.redirect('/custom/result');
+	});
+
+	router.get('/custom/result', function(req, res) {
 		res.render('result', {
-			path: 'custom/' + filter.join('+')
+			base: req.protocol + '://' + req.get('host'),
+			path: 'custom/' + req.session.filter,
+			show_alias: true
 		});
+	})
+
+	router.post('/custom/result', function(req, res) {
+		alias.setAlias(alias.getDatabase(), req.body.alias, req.body.pin, req.session.filter)
+			.then(_ => {
+				res.render('result', {
+					base: req.protocol + '://' + req.get('host'),
+					path: 'alias/' + req.body.alias,
+					show_alias: false
+				});
+			})
+			.catch(err => {
+				console.log(err);
+				res.render('result', {
+					base: req.protocol + '://' + req.get('host'),
+					path: 'custom/' + req.session.filter,
+					alias: req.body.alias,
+					show_alias: true,
+					error: true
+				});
+			});
 	});
 
 	return router;

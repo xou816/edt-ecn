@@ -4,7 +4,16 @@ block content
 	.sticky-top.pt-2(style='background:rgba(255, 255, 255, 0.9)')
 		h1= "3. C'est fini!"
 		hr
-	.lead.pl-2.pr-2
+	.lead.px-2
 		p
 			| Copiez ce lien dans votre application de calendrier préférée.
-		input.m-1.form-control(type='text', value='https://edt-ecn.herokuapp.com/api/calendar/'+path+'.ics')
+		input.m-1.form-control(type='text', value=base+'/api/calendar/'+path+'.ics')
+	.my-5
+	if show_alias
+		.lead.px-2
+			p
+				| Vous pouvez aussi associer cet emploi du temps à un alias (existant ou non) pour éviter de changer sans cesse l'adresse de votre calendrier!
+			form.form-inline.px-2.form-group(method='post', class=(error ? 'has-danger' : undefined))
+				input.mx-2.form-control(type='text', placeholder='Alias', name='alias', value=(alias ? alias : undefined))
+				input.mx-2.form-control(type='password', placeholder='PIN', name='pin')
+				input.mx-2.btn.btn-outline-primary(type='submit', value='OK')
