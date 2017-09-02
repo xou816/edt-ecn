@@ -105,7 +105,7 @@ module.exports = function(router) {
 
 	router.get('/calendar/alias/:alias.ics', function(req, res) {
 		res.setHeader('Content-Type', 'text/calendar');
-		alias.getCalId(alias.getDatabase(), req.params.alias)
+		alias.getCalId(req.params.alias)
 			.then(calendar.getCustomCalendar)
 			.then(calendar.calendarToIcs)
 			.then((ics) => res.send(ics))
@@ -117,7 +117,7 @@ module.exports = function(router) {
 
 	router.get('/calendar/alias/:alias', function(req, res) {
 		res.setHeader('Content-Type', 'application/json');
-		alias.getCalId(alias.getDatabase(), req.params.alias)
+		alias.getCalId(req.params.alias)
 			.then(calendar.getCustomCalendar)
 			.then(JSON.stringify)
 			.then((json) => res.send(json))
@@ -129,7 +129,7 @@ module.exports = function(router) {
 
 	router.get('/calendar/alias/:alias/subjects', function(req, res) {
 		res.setHeader('Content-Type', 'application/json');
-		alias.getCalId(alias.getDatabase(), req.params.alias)
+		alias.getCalId(req.params.alias)
 			.then(calendar.getCustomCalendar)
 			.then(calendar.getSubjects)
 			.then(JSON.stringify)

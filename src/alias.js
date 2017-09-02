@@ -1,39 +1,52 @@
-const Datastore = require('nedb');
+if (process.env.REDISTOGO_URL) {
+    const rtg = require('url').parse(process.env.REDISTOGO_URL);
+	var redis = require('redis').createClient(rtg.port, rtg.hostname);
+	redis.auth(rtg.auth.split(':')[1]);
+} else {
+    var redis = require('redis').createClient();
+}
 const crypto = require('crypto');
-
-exports.getDatabase = () => new Datastore({ filename: '../aliases', autoload: true });
 
 const hashPin = (alias, pin) => crypto.createHash('sha1').update(alias + pin).digest('hex');
 
-const getAlias = (db, alias) => {
+const getAlias = (alias) => {
 	return new Promise((resolve, reject) => {
-		db.findOne({ name: alias }, (err, doc) => {
+		redis.hgetall(alias, (err, res) => {
 			if (err) reject(err);
-			return resolve(doc);
+			resolve(res);
 		});
 	});
 };
 
-exports.aliasExists = (db, alias) => {
-	return getAlias(db, alias).then(doc => doc === null);
+exports.aliasExists = (alias) => {
+	return new Promise((resolve, reject) => {
+		redis.exists(alias, (err, res) => {
+			if (err) reject(err);
+			resolve(res > 0 ? true : false);
+		});
+	});
 };
 
-exports.getCalId = (db, alias) => {
-	return getAlias(db, alias).then(doc => doc.value);
+exports.getCalId = (alias) => {
+	return new Promise((resolve, reject) => {
+		redis.hget(alias, 'value', (err, res) => {
+			if (err || res === null) reject(err);
+			resolve(res);
+		});
+	});
 };
 
-exports.setAlias = (db, alias, pin, value) => {
+exports.setAlias = (alias, pin, value) => {
 	let hash = hashPin(alias, pin);
-	return getAlias(db, alias)
+	return getAlias(alias)
 		.then(doc => doc !== null && hash === doc.hash || doc === null ?
 			Promise.resolve(null) : Promise.reject('Hash mismatch'))
 		.then(_ => new Promise((resolve, reject) => {
-			db.update({ name: alias },
-				{ name: alias, hash: hash, value: value },
-				{ upsert: true },
-				(err, count) => {
+			redis.hmset(alias,
+				{ hash: hash, value: value },
+				(err, res) => {
 					if (err) reject(err);
-					return resolve(count);
+					return resolve(res);
 				});
 		}));
 };

@@ -15,8 +15,8 @@
     "ical-generator": "^0.2.9",
     "libxmljs": "^0.18.4",
     "moment-timezone": "^0.5.13",
-    "nedb": "^1.8.0",
     "pug": "^2.0.0-rc.2",
+    "redis": "^2.8.0",
     "request": "^2.81.0",
     "request-promise": "^4.2.1"
   }
