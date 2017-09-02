@@ -97,11 +97,14 @@ module.exports = function(router) {
 		res.render('result', {
 			base: req.protocol + '://' + req.get('host'),
 			path: 'custom/' + req.session.filter,
-			show_alias: true
+			show_alias: false
 		});
 	})
 
 	router.post('/custom/result', function(req, res) {
+		res.status(500);
+		res.send('Fonctionnalité désactivée.');
+		return;
 		alias.setAlias(alias.getDatabase(), req.body.alias, req.body.pin, req.session.filter)
 			.then(_ => {
 				res.render('result', {
