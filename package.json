@@ -13,6 +13,7 @@
     "express": "^4.15.3",
     "express-session": "^1.15.5",
     "ical-generator": "^0.2.9",
+    "ldapjs": "^1.0.1",
     "libxmljs": "^0.18.4",
     "moment-timezone": "^0.5.13",
     "pug": "^2.0.0-rc.2",

@@ -1,5 +1,6 @@
 const calendar = require('../src/calendar');
 const alias = require('../src/alias');
+const checkCredentials = require('../src/ldap');
 
 const indexByLetter = function(list, key) {
 	if (list.length) {
@@ -94,13 +95,28 @@ module.exports = function(router) {
 	});
 
 	router.get('/custom/result', function(req, res) {
-		res.render('result', {
-			base: req.protocol + '://' + req.get('host'),
-			path: 'custom/' + req.session.filter,
-			show_alias: true
-		});
-	})
+		if (req.query.save && req.session.username) {
+			alias.setAliasNoPass(req.session.username, req.session.filter)
+				.then(_ => {
+					res.render('result', {
+						base: req.protocol + '://' + req.get('host'),
+						path: 'alias/' + req.session.username,
+						show_alias: false,
+						connected: true
+					});
+				});
+		} else {
+			res.render('result', {
+				base: req.protocol + '://' + req.get('host'),
+				path: 'custom/' + req.session.filter,
+				show_alias: true,
+				connected: req.session.username != null
+			});
+		}
+	});
 
+	// Old system...
+	// Ignore it!
 	router.post('/custom/result', function(req, res) {
 		alias.setAlias(req.body.alias, req.body.pin, req.session.filter)
 			.then(_ => {
@@ -120,6 +136,21 @@ module.exports = function(router) {
 					error: true
 				});
 			});
+	});
+
+	router.get('/login', function(req, res) {
+		res.render('login', {
+			error: false
+		});
+	});
+
+	router.post('/login', function(req, res) {
+		checkCredentials(req.body.username, req.body.password)
+			.then(_ => {
+				req.session.username = req.body.username;
+				res.redirect(req.query.next || '/');
+			})
+			.catch(_ => res.render('login', { error: true }));
 	});
 
 	return router;

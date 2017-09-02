@@ -50,3 +50,14 @@ exports.setAlias = (alias, pin, value) => {
 				});
 		}));
 };
+
+exports.setAliasNoPass = (alias, value) => {
+	return new Promise((resolve, reject) => {
+		redis.hmset(alias,
+			{ value: value },
+			(err, res) => {
+				if (err) reject(err);
+				return resolve(res);
+			});
+	});
+};
