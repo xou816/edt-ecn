@@ -2,6 +2,7 @@ const ical = require('ical-generator');
 const request = require('request-promise');
 const libxmljs = require('libxmljs');
 const moment = require('moment-timezone');
+const crypto = require('crypto');
 
 const TARGET_BASE = 32;
 const MAX_BITS = 28;
@@ -13,6 +14,7 @@ const zeroPad = rep => {
 };
 
 const FILTER = 'Groupe';
+const WARN_MESSAGE = "(!) Ce calendrier n'est peut être pas à jour. Merci de le regénérer!"
 
 const dateFromCourseTime = function(date, hour) {
 	let parsed = hour.split(':').map((i) => parseInt(i, 10));
@@ -66,6 +68,7 @@ const mapNodeToCalendar = function(node, dates) {
 	let week = parseInt(node.get('prettyweeks').text(), 10);
 	let date = dates[week][day];
 	let description = safeGet(node, ['notes']);
+	let organizer = safeGet(node, ['resources/staff/item']).split(' ').shift();
 	let subject = safeGet(node, ['resources/module/item', 'notes']).split('-').shift();
 	if (reg.test(subject)) {
 		subject = subject.split(' ').shift();
@@ -73,10 +76,6 @@ const mapNodeToCalendar = function(node, dates) {
 	let location = safeGet(node, ['resources/room/item']);
 	if (reg.test(location)) {
 		location = location.split(' ').shift();
-	}
-	if (subject == 'LVC') {
-		subject = description.toUpperCase().split('-').shift();
-		if (subject.trim() == '') subject = 'LVC';
 	}
 	subject = subject.trim();
 	let full_subject = safeGet(node, ['category']) + ' ' + subject;
@@ -86,7 +85,8 @@ const mapNodeToCalendar = function(node, dates) {
 		subject: subject,
 		full_subject: full_subject.trim(),
 		location: location,
-		// description: description
+		description: description,
+		organizer: organizer
 	}
 }
 
@@ -121,22 +121,33 @@ exports.getSubjects = function(events) {
 };
 
 const getSimpleCustomCalendar = function(id) {
-	const reg = new RegExp('.{' + STR_LEN + '}', 'g');
-	let [calid, filter] = id.split('-');
-	if (typeof filter === 'undefined') {
-		return exports.getOnlineCalendar(calid);
+	const reg = new RegExp('.{' + STR_LEN + '}');
+	let [calid, _filter] = id.split('-');
+	if (typeof _filter === 'undefined') {
+		return exports.getOnlineCalendar(calid)
+			.then(events => events.map(e => Object.assign(e, {warn: false})));
 	}
+	let [filter, checksum] = _filter.split('_');
 	filters = filter.match(reg).map((hex) => parseInt(hex, TARGET_BASE));
 	return exports.getOnlineCalendar(calid)
 		.then((events) => {
+			let warn = true;
 			let subjects = exports.getSubjects(events);
-			return events.filter((event) => {
-				let pos = subjects[event.subject];
-				let filter = filters[Math.floor(pos/MAX_BITS)];
-				filter = (typeof filter === 'undefined') ? 0 : filter;
-				let bin = (1 << (pos%MAX_BITS)) & filter;
-				return bin == 0;
-			});
+			if (typeof checksum !== 'undefined') {
+				let sum = exports.createFilterChecksum(subjects);
+				warn = sum !== checksum;
+			}
+			return events
+				.map(e => Object.assign(e, {
+					description: e.description + (warn ? WARN_MESSAGE : '')
+				}))
+				.filter((event) => {
+					let pos = subjects[event.subject];
+					let filter = filters[Math.floor(pos/MAX_BITS)];
+					filter = (typeof filter === 'undefined') ? 0 : filter;
+					let bin = (1 << (pos%MAX_BITS)) & filter;
+					return bin == 0;
+				});
 		});
 };
 
@@ -161,6 +172,11 @@ exports.createFilter = function(id, indices) {
 		.join('');
 };
 
+exports.createFilterChecksum = function(subjects) {
+	let str = Object.keys(subjects).join(',');
+	return crypto.createHash('sha1').update(str).digest('hex').substr(0, 6);
+};
+
 exports.calendarToIcs = function(events) {
 	let cal = ical({
         domain: 'ec-nantes.fr',
@@ -168,13 +184,14 @@ exports.calendarToIcs = function(events) {
         timezone: 'Europe/Paris',
         prodId: { company: 'ec-nantes.fr', product: 'edt' },
     });
-	events.forEach((course) => {
+	events.forEach((event) => {
 		cal.createEvent({
-			start: course.start.tz('UTC').toDate(),
-			end: course.end.tz('UTC').toDate(),
-			summary: course.full_subject,
-			description: course.description,
-			location: course.location
+			start: event.start.tz('UTC').toDate(),
+			end: event.end.tz('UTC').toDate(),
+			summary: event.full_subject,
+			description: event.description,
+			location: event.location,
+			organizer: event.organizer
 		});
     });
     return cal.toString();

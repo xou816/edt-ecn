@@ -57,6 +57,7 @@ module.exports = function(router) {
 			.then(payload => {
 				let names = payload.pop();
 				let subjects = payload;
+				req.session.checksums = subjects.map((s) => calendar.createFilterChecksum(s));
 				res.render('edit', {
 					subjects: subjects,
 					names: names,
@@ -86,7 +87,7 @@ module.exports = function(router) {
 		let filter;
 		if (Object.keys(mapping).length > 0) {
 			filter = Object.keys(mapping)
-				.map(cal => calendar.createFilter(ids[cal], mapping[cal]));
+				.map((cal, i) => calendar.createFilter(ids[cal], mapping[cal]) + '_' + req.session.checksums[i]);
 		} else {
 			filter = ids;
 		}
@@ -115,33 +116,14 @@ module.exports = function(router) {
 		}
 	});
 
-	// Old system...
-	// Ignore it!
-	router.post('/custom/result', function(req, res) {
-		alias.setAlias(req.body.alias, req.body.pin, req.session.filter)
-			.then(_ => {
-				res.render('result', {
-					base: req.protocol + '://' + req.get('host'),
-					path: 'alias/' + req.body.alias,
-					show_alias: false
-				});
-			})
-			.catch(err => {
-				console.log('error during alias setting:', err);
-				res.render('result', {
-					base: req.protocol + '://' + req.get('host'),
-					path: 'custom/' + req.session.filter,
-					alias: req.body.alias,
-					show_alias: true,
-					error: true
-				});
-			});
-	});
-
 	router.get('/login', function(req, res) {
-		res.render('login', {
-			error: false
-		});
+		if (req.session.username) {
+			res.redirect(req.query.next || '/');
+		} else {
+			res.render('login', {
+				error: false
+			});
+		}
 	});
 
 	router.post('/login', function(req, res) {

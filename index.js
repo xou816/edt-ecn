@@ -12,7 +12,7 @@ let session = require('express-session');
 app.use(session({
 	resave: false,
 	saveUninitialized: false,
-	secret: 'tacocat',
+	secret: typeof process.env.SECRET !== 'undefined' ? process.env.SECRET : 'tacocat',
 }));
 
 const mainRouter = require('./routes/main');

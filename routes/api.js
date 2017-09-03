@@ -1,5 +1,6 @@
 const calendar = require('../src/calendar');
 const alias = require('../src/alias');
+const path = require('path');
 
 module.exports = function(router) {
 
@@ -15,7 +16,7 @@ module.exports = function(router) {
 			'/calendar/alias/:alias',
 			'/calendar/alias/:alias.ics',
 			'/calendar/alias/:alias/subjects',
-		].map(path => req.protocol + '://' + req.get('host') + req.originalUrl + path);
+		].map(route => path.join(req.protocol + '://' + req.get('host') + req.originalUrl,  route));
 		res.setHeader('Content-Type', 'application/json');
 		res.status(200);
 		res.send(JSON.stringify(paths));
