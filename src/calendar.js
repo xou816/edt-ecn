@@ -191,7 +191,10 @@ exports.calendarToIcs = function(events) {
 			summary: event.full_subject,
 			description: event.description,
 			location: event.location,
-			organizer: event.organizer
+			// organizer: {
+			// 	name: event.organizer,
+			// 	email: ''
+			// }
 		});
     });
     return cal.toString();
