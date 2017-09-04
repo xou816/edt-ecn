@@ -8,12 +8,18 @@ const client = ldap.createClient({
 
 module.exports = function(username, password) {
 	return new Promise((resolve, reject) => {
-		client.bind('uid=' + username + ',ou=people,dc=ec-nantes,dc=fr', password, (err) => {
-			if (err === null) {
-				resolve();
-			} else {
-				reject();
-			}
-		});
+		if (/\w+/.test(username)) {
+			client.bind('uid=' + username + ',ou=people,dc=ec-nantes,dc=fr', password, (err) => {
+				if (err === null) {
+					client.unbind((err) => {
+						resolve();
+					});
+				} else {
+					reject();
+				}
+			});
+		} else {
+			reject();
+		}
 	});
 };

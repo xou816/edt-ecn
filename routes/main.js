@@ -99,6 +99,7 @@ module.exports = function(router) {
 		if (req.query.save && req.session.username) {
 			alias.setAliasNoPass(req.session.username, req.session.filter)
 				.then(_ => {
+					console.log('[RESULT] alias updated: ', req.session.username);
 					res.render('result', {
 						base: req.protocol + '://' + req.get('host'),
 						path: 'alias/' + req.session.username,
@@ -107,6 +108,7 @@ module.exports = function(router) {
 					});
 				});
 		} else {
+			console.log('[RESULT] filter created: ', req.session.filter);
 			res.render('result', {
 				base: req.protocol + '://' + req.get('host'),
 				path: 'custom/' + req.session.filter,

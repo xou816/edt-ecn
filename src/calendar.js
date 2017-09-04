@@ -121,21 +121,19 @@ exports.getSubjects = function(events) {
 };
 
 const getSimpleCustomCalendar = function(id) {
-	const reg = new RegExp('.{' + STR_LEN + '}');
-	let [calid, _filter] = id.split('-');
-	if (typeof _filter === 'undefined') {
-		return exports.getOnlineCalendar(calid)
-			.then(events => events.map(e => Object.assign(e, {warn: false})));
+	const reg = new RegExp('.{1,' + STR_LEN + '}', 'g');
+	let [calid, filter_withsum] = id.split('-');
+	if (typeof filter_withsum === 'undefined') {
+		return exports.getOnlineCalendar(calid);
 	}
-	let [filter, checksum] = _filter.split('_');
+	let [filter, checksum] = filter_withsum.split('_');
 	filters = filter.match(reg).map((hex) => parseInt(hex, TARGET_BASE));
 	return exports.getOnlineCalendar(calid)
 		.then((events) => {
 			let warn = true;
 			let subjects = exports.getSubjects(events);
 			if (typeof checksum !== 'undefined') {
-				let sum = exports.createFilterChecksum(subjects);
-				warn = sum !== checksum;
+				warn = checkSubjects(subjects, checksum);
 			}
 			return events
 				.map(e => Object.assign(e, {
@@ -168,13 +166,26 @@ exports.createFilter = function(id, indices) {
 		filters[pos] += inc;
 	});
 	return id + '-' + filters
-		.map(num => zeroPad(num.toString(TARGET_BASE)))
+		.map(num => num.toString(TARGET_BASE))
 		.join('');
 };
 
-exports.createFilterChecksum = function(subjects) {
-	let str = Object.keys(subjects).join(',');
-	return crypto.createHash('sha1').update(str).digest('hex').substr(0, 6);
+exports.createFilterChecksum = function(subjects, length) {
+	let real_sub;
+	if (typeof length === 'undefined') {
+		real_sub = Object.keys(subjects);
+		length = real_sub.length;
+	} else {
+		real_sub = Object.keys(subjects).slice(0, length);
+	}
+	let str = real_sub.join(',');
+	return length + 'l' + crypto.createHash('sha1').update(str).digest('hex').substr(0, 6);
+};
+
+checkSubjects = function(subjects, checksum) {
+	let [length,] = checksum.split('l');
+	length = parseInt(length, 10);
+	return checksum !== exports.createFilterChecksum(subjects, length);
 };
 
 exports.calendarToIcs = function(events) {
