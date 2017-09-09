@@ -14,7 +14,7 @@ const zeroPad = rep => {
 };
 
 const FILTER = 'Groupe';
-const WARN_MESSAGE = "(!) Ce calendrier n'est peut être pas à jour. Merci de le regénérer!"
+const WARN_MESSAGE = "(!) Ce calendrier n'est peut être pas à jour. Les filtres sont désactivés par sécurité."
 
 const dateFromCourseTime = function(date, hour) {
 	let parsed = hour.split(':').map((i) => parseInt(i, 10));
@@ -130,15 +130,14 @@ const getSimpleCustomCalendar = function(id) {
 	filters = filter.match(reg).map((hex) => parseInt(hex, TARGET_BASE));
 	return exports.getOnlineCalendar(calid)
 		.then((events) => {
-			let warn = true;
 			let subjects = exports.getSubjects(events);
-			if (typeof checksum !== 'undefined') {
-				warn = checkSubjects(subjects, checksum);
+			let warn = typeof checksum !== 'undefined' && checkSubjects(subjects, checksum);
+			if (warn) {
+				return events.map(e => Object.assign(e, {
+						description: e.description + WARN_MESSAGE
+					}));
 			}
 			return events
-				.map(e => Object.assign(e, {
-					description: e.description + (warn ? WARN_MESSAGE : '')
-				}))
 				.filter((event) => {
 					let pos = subjects[event.subject];
 					let filter = filters[Math.floor(pos/MAX_BITS)];

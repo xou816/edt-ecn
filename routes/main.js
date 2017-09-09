@@ -113,7 +113,8 @@ module.exports = function(router) {
 				base: req.protocol + '://' + req.get('host'),
 				path: 'custom/' + req.session.filter,
 				show_alias: true,
-				connected: req.session.username != null
+				connected: req.session.username != null,
+				unexpected: ''+req.session.filter === 'undefined'
 			});
 		}
 	});

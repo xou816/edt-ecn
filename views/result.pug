@@ -4,43 +4,43 @@ block content
 	.sticky-top.pt-2(style='background:rgba(255, 255, 255, 0.9)')
 		h1= "3. C'est fini!"
 		hr
-	.lead.px-2
-		p
-			| Copiez ce lien dans votre application de calendrier préférée.
-		.input-group.m-1
-			input#calendar.form-control(type='text', value=base+'/api/calendar/'+path+'.ics')
-			span.input-group-btn
-				a#clipboard.btn.btn-secondary(href='#', data-content='Copié!', data-placement='top', data-toggle='popover')= 'Copier'
 
-	if show_alias
-		if connected
-			.alert.alert-success.my-5.clearfix
-				p.d-inline-block.my-1
-					strong
-						| Changer mon calendrier.
-					|
-					| Faire de ce calendrier votre calendrier personnel?
-					|
-				a.btn.btn-outline-success.float-right(href='?save=true')= 'Valider'
-		else
-			.alert.alert-warning.my-5.clearfix
-				p.d-inline-block.my-1
-					strong
-						| Vous n'êtes pas connecté.
-					|
-					| Connectez vous pour définir votre calendrier personnel!
-					|
-				a.btn.btn-outline-warning.float-right(href='/login?next=/custom/result')= 'Connexion'
-
-	//- Old alias system
-	if 0 && show_alias
+	if unexpected
+		.alert.alert-danger
+			p.d-inline-block.my-1
+				strong
+					| Erreur.
+				|
+				| Il semble qu'une erreur soit survenue. Merci de <a href="mailto:trendel.alexandre@gmail.com">me le signaler</a> et de décrire ce qu'il s'est passé!
+				|
+	else
 		.lead.px-2
 			p
-				| Vous pouvez aussi associer cet emploi du temps à un alias (existant ou non) pour éviter de changer sans cesse l'adresse de votre calendrier!
-			form.form-inline.px-2.form-group(method='post', class=(error ? 'has-danger' : undefined))
-				input.mx-2.form-control(type='text', placeholder='Alias', name='alias', value=(alias ? alias : undefined))
-				input.mx-2.form-control(type='password', placeholder='PIN', name='pin')
-				input.mx-2.btn.btn-outline-primary(type='submit', value='OK')
+				| Copiez ce lien dans votre application de calendrier préférée.
+			.input-group.m-1
+				input#calendar.form-control(type='text', value=base+'/api/calendar/'+path+'.ics')
+				span.input-group-btn
+					a#clipboard.btn.btn-secondary(href='#', data-content='Copié!', data-placement='top', data-toggle='popover')= 'Copier'
+
+		if show_alias
+			if connected
+				.alert.alert-success.my-5.clearfix
+					p.d-inline-block.my-1
+						strong
+							| Changer mon calendrier.
+						|
+						| Faire de ce calendrier votre calendrier personnel?
+						|
+					a.btn.btn-outline-success.float-right(href='?save=true')= 'Valider'
+			else
+				.alert.alert-warning.my-5.clearfix
+					p.d-inline-block.my-1
+						strong
+							| Vous n'êtes pas connecté.
+						|
+						| Connectez vous pour définir votre calendrier personnel!
+						|
+					a.btn.btn-outline-warning.float-right(href='/login?next=/custom/result')= 'Connexion'
 
 	script(type='text/javascript').
 		$('#clipboard').on('click', function(e) {
