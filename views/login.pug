@@ -4,6 +4,10 @@ block content
 	.sticky-top.pt-2(style='background:rgba(255, 255, 255, 0.9)')
 		h1= "Connexion"
 		hr
+	.alert.alert-warning.alert-dismissible.my-4
+		| La connexion ne fonctionne pas depuis le réseau de l'école. Désolé!
+		button.close(type='button', data-dismiss='alert', aria-label='Close')
+			span(aria-hidden='true') &times;
 	p.my-4
 		| Connectez vous avec vos identifiants Centraliens.
 	if error
