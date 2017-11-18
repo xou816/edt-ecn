@@ -1,6 +1,7 @@
 const ldap = require('ldapjs');
+const url = process.env.LDAP_DOMAIN || 'ldaps.nomade.ec-nantes.fr';
 const client = ldap.createClient({
-	url: 'ldaps://130.66.41.27:636',
+	url: 'ldaps://' + url + ':636',
 	tlsOptions: {
 		rejectUnauthorized: false
 	},
