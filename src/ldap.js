@@ -1,5 +1,6 @@
 const ldap = require('ldapjs');
 const url = process.env.LDAP_DOMAIN || 'ldaps.nomade.ec-nantes.fr';
+let clientError = false;
 const client = ldap.createClient({
 	url: 'ldaps://' + url + ':636',
 	tlsOptions: {
@@ -9,17 +10,21 @@ const client = ldap.createClient({
 	connectTimeout: 3000
 });
 
+client.on('error', err => {
+	console.error('[ERROR] cannot create client');
+	console.error(err);
+	clientError = true;
+});
+
 module.exports = function(username, password) {
 	return new Promise((resolve, reject) => {
-		client.on('error', err => reject());
-		if (/\w+/.test(username)) {
+		if (clientError) reject();
+		if (/\w+/.test(username) && username.length > 0 && password.length > 0) {
 			client.bind('uid=' + username + ',ou=people,dc=ec-nantes,dc=fr', password, (err) => {
 				if (err === null) {
-					client.unbind((err) => {
-						resolve();
-					});
+					resolve();
 				} else {
-					reject();
+					reject(err);
 				}
 			});
 		} else {
