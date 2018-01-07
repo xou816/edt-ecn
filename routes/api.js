@@ -1,6 +1,7 @@
 const calendar = require('../src/calendar');
 const alias = require('../src/alias');
 const path = require('path');
+const moment = require('moment-timezone');
 
 module.exports = function(router) {
 
@@ -136,6 +137,29 @@ module.exports = function(router) {
 			.then(JSON.stringify)
 			.then((json) => res.send(json))
 			.catch((error) => {
+				res.status(500);
+				res.send({error});
+			});
+	});
+
+	router.get('/freeroom/:from/:to', function(req, res) {
+		res.setHeader('Content-Type', 'application/json');
+		let count = parseInt(req.query.count, 10) || 1;
+		let from = moment.tz(parseInt(req.params.from, 10), 'Europe/Paris');
+		let to = moment.tz(parseInt(req.params.to, 10), 'Europe/Paris');
+		let keepRoom = id => calendar.getOnlineCalendar(id)
+			.then(events => events
+				.filter(e => e.start >= from && e.end <= to))
+			.then(events => events.length === 0);
+		let matches = calendar.listOnlineCalendars('r')
+			.then(cals => cals.reduce((promise, cal) => {
+				return promise
+					.then(res => res.length >= count ? res : keepRoom(cal.id)
+						.then(keep => keep ? res.concat([cal.name]) : res))
+			}, Promise.resolve([])));
+		matches.then(JSON.stringify)
+			.then(json => res.send(json))
+			.catch(error => {
 				res.status(500);
 				res.send({error});
 			});
