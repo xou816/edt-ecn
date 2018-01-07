@@ -57,7 +57,7 @@ module.exports = function(router) {
 			.then(payload => {
 				let names = payload.pop();
 				let subjects = payload;
-				req.session.checksums = subjects.map((s) => calendar.createFilterChecksum(s));
+				req.session.subjects = subjects;
 				res.render('edit', {
 					subjects: subjects,
 					names: names,
@@ -87,7 +87,7 @@ module.exports = function(router) {
 		let filter;
 		if (Object.keys(mapping).length > 0) {
 			filter = Object.keys(mapping)
-				.map((cal, i) => calendar.createFilter(ids[cal], mapping[cal]) + '_' + req.session.checksums[i]);
+				.map((cal, i) => calendar.createFilter(ids[cal], mapping[cal], req.session.subjects[i]));
 		} else {
 			filter = ids;
 		}

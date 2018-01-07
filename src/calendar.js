@@ -3,15 +3,7 @@ const request = require('request-promise');
 const libxmljs = require('libxmljs');
 const moment = require('moment-timezone');
 const crypto = require('crypto');
-
-const TARGET_BASE = 32;
-const MAX_BITS = 28;
-const STR_LEN = Math.ceil(MAX_BITS/Math.log2(TARGET_BASE));
-const zeroPad = rep => {
-	let len = rep.length;
-	let cat = '0'.repeat(STR_LEN) + rep;
-	return cat.substr(len, len + STR_LEN);
-};
+const Filter = require('./filter');
 
 const FILTER = 'Groupe';
 const WARN_MESSAGE = "(!) Ce calendrier n'est peut être pas à jour. Les filtres sont désactivés par sécurité."
@@ -38,12 +30,15 @@ const safeGet = function(node, xpaths, fallback) {
 	return res;
 };
 
-exports.listOnlineCalendars = function() {
+exports.listOnlineCalendars = function(type) {
+	if (typeof type === 'undefined') {
+		type = 'g';
+	}
 	let url = 'http://website.ec-nantes.fr/sites/edtemps/finder.xml';
 	return request(url).then(function(body) {
 		let doc = libxmljs.parseXml(body);
 		return doc.find('/finder/resource')
-			.filter((node) => node.get('link').attr('href').value()[0] === FILTER[0].toLowerCase())
+			.filter((node) => node.get('link').attr('href').value()[0] === type)
 			.map((node) => {
 				let names = node.get('name').text().split(',');
 				let id = node.get('link').attr('href').value().split('.').shift();
@@ -121,17 +116,16 @@ exports.getSubjects = function(events) {
 };
 
 const getSimpleCustomCalendar = function(id) {
-	const reg = new RegExp('.{1,' + STR_LEN + '}', 'g');
 	let [calid, filter_withsum] = id.split('-');
 	if (typeof filter_withsum === 'undefined') {
 		return exports.getOnlineCalendar(calid);
 	}
-	let [filter, checksum] = filter_withsum.split('_');
-	filters = filter.match(reg).map((hex) => parseInt(hex, TARGET_BASE));
+	let [filter_enc, checksum] = filter_withsum.split('_');
+	let filter = Filter.parse(filter_enc);
 	return exports.getOnlineCalendar(calid)
 		.then((events) => {
 			let subjects = exports.getSubjects(events);
-			let warn = typeof checksum !== 'undefined' && checkSubjects(subjects, checksum);
+			let warn = typeof checksum !== 'undefined' && checkSubjects(filter, subjects, checksum);
 			if (warn) {
 				return events.map(e => Object.assign(e, {
 						description: e.description + WARN_MESSAGE
@@ -140,10 +134,7 @@ const getSimpleCustomCalendar = function(id) {
 			return events
 				.filter((event) => {
 					let pos = subjects[event.subject];
-					let filter = filters[Math.floor(pos/MAX_BITS)];
-					filter = (typeof filter === 'undefined') ? 0 : filter;
-					let bin = (1 << (pos%MAX_BITS)) & filter;
-					return bin == 0;
+					return filter.test(pos);
 				});
 		});
 };
@@ -155,36 +146,26 @@ exports.getCustomCalendar = function(id) {
 		.then(all => all.reduce((acc, events) => acc.concat(events), []));
 };
 
-exports.createFilter = function(id, indices) {
-	let max = Math.max.apply(null, indices) + 1;
-	let filters = new Array(Math.ceil(max/MAX_BITS));
-	filters.fill(0);
-	indices.forEach(index => {
-		let pos = Math.floor(index/MAX_BITS);
-		let inc = 1 << (index%MAX_BITS);
-		filters[pos] += inc;
-	});
-	return id + '-' + filters
-		.map(num => num.toString(TARGET_BASE))
-		.join('');
+const makeChecksum = function(indexed_subjects, length) {
+	let str = Object.keys(indexed_subjects).slice(0, length).join(',');
+	return crypto.createHash('sha1').update(str).digest('hex').substr(0, 6);
 };
 
-exports.createFilterChecksum = function(subjects, length) {
-	let real_sub;
-	if (typeof length === 'undefined') {
-		real_sub = Object.keys(subjects);
-		length = real_sub.length;
+const checkSubjects = function(filter, subjects, checksum) {
+	let length;
+	if (checksum.indexOf('l') > -1) { // old checksum format!
+		let [l, c] = checksum.split('l');
+		length = parseInt(l, 10);
+		checksum = c;
 	} else {
-		real_sub = Object.keys(subjects).slice(0, length);
+		length = filter.length();
 	}
-	let str = real_sub.join(',');
-	return length + 'l' + crypto.createHash('sha1').update(str).digest('hex').substr(0, 6);
+	return checksum !== makeChecksum(subjects, length);
 };
 
-checkSubjects = function(subjects, checksum) {
-	let [length,] = checksum.split('l');
-	length = parseInt(length, 10);
-	return checksum !== exports.createFilterChecksum(subjects, length);
+exports.createFilter = function(id, indices, subjects) {
+	let filter = Filter.from(indices);
+	return id + '-' + filter.toString() + '_' + makeChecksum(subjects, filter.length());
 };
 
 exports.calendarToIcs = function(events) {
