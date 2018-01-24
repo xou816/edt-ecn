@@ -73,6 +73,7 @@ export default function mainRouter(router: Router): Router {
 
 	router.post('/custom/subjects', (req, res) => {
 		let ids: string[] = req.session!.calendars || [];
+		let initialMapping: number[][] = ids.map(id => []);
 		let mapping: number[][] = Object.keys(req.body)
 			.map((id: string) => id.split('_'))
 			.reduce((acc: number[][], pair) => {
@@ -83,14 +84,11 @@ export default function mainRouter(router: Router): Router {
 					acc[cal].push(index);
 				}
 				return acc;
-			}, []);
-		let filters;
-		if (Object.keys(mapping).length > 0) {
-			filters = mapping
-				.map((indices, cal) => calendar.createFilter(ids[cal], indices, req.session!.subjects[cal]));
-		} else {
-			filters = ids;
-		}
+			}, initialMapping);
+		let filters = mapping
+			.map((indices, cal) => indices.length > 0 ?
+				calendar.createFilter(ids[cal], indices, req.session!.subjects[cal]) :
+				ids[cal]);
 		req.session!.filter = filters.join('+')
 		res.redirect('/custom/result');
 	});
