@@ -3,7 +3,7 @@ import * as ical from 'ical-generator';
 import * as request from 'request-promise';
 import fetch from 'node-fetch';
 import {createHash} from 'crypto';
-import {parseXml, Element} from 'libxmljs';
+import {parseXmlString, Element} from 'libxmljs';
 import {Filter} from './filter';
 
 const FILTER = 'Groupe';
@@ -35,20 +35,23 @@ const calendarUrl = (id: string) => `http://website.ec-nantes.fr/sites/edtemps/$
 export function listOnlineCalendars(letter: string = 'g'): Promise<CalendarId[]> {
 	return fetch(calendarList)
 		.then(res => res.text())
-		.then(body => parseXml(body))
+		.then(body => parseXmlString(body))
 		.then(doc => doc.find('/finder/resource')
 			.map(node => ({
 				link: node.get('link'),
-				names: node.get('names')
+				name: node.get('name')
 			}))
-			.filter(node => node.link != null && node.names != null)
+			.filter(node => node.link != null && node.name != null)
+			.map(node => ({
+				name: node.name!.text().split(','),
+				id: node.link!.attr('href').value().split('.').shift() || ''
+			}))
+			.filter(node => node.id[0] === letter)
 			.map(node => {
-				let names = node.names!.text().split(',');
-				let id = node.link!.attr('href').value().split('.').shift();
 				return {
-					id: id!,
-					name: names[0].trim(),
-					display: (names[1] || '').trim()
+					id: node.id!,
+					name: node.name[0].trim(),
+					display: (node.name[1] || '').trim()
 				};
 			}));
 }
@@ -101,14 +104,14 @@ function mapNodeToEvent(node: Element, weekNumToFirstDay: string[][]): CalendarE
 	}
 }
 
-function dateFromCourseTime(date: string, hour: string) {
-	return moment.tz(`${date} ${hour}`, 'DD/MM/YYYY hh:mm', 'Europe/Paris');
+function dateFromCourseTime(date: string, hour: string): Moment {
+	return tz(`${date} ${hour}`, 'DD/MM/YYYY hh:mm', 'Europe/Paris');
 }
 
 export function getOnlineCalendar(id: string): Promise<Calendar> {
 	return fetch(calendarUrl(id))
 		.then(res => res.text())
-		.then(body => parseXml(body))
+		.then(body => parseXmlString(body))
 		.then(doc => {
 			let dates: string[][] = doc.find('/timetable/span').reduce((acc: string[][], node: Element) => {
 				let index = parseInt((node.get('title') || {text: () => ''}).text(), 10);

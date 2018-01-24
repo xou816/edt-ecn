@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node dist/index.js",
+    "watch": "tsc --moduleResolution Node -p . -w --lib es2015 --outDir dist"
   },
   "author": "",
   "license": "ISC",

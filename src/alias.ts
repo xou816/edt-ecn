@@ -1,57 +1,67 @@
-if (process.env.REDISTOGO_URL) {
-    const rtg = require('url').parse(process.env.REDISTOGO_URL);
-	var redis = require('redis').createClient(rtg.port, rtg.hostname);
-	redis.auth(rtg.auth.split(':')[1]);
-} else {
-    var redis = require('redis').createClient();
+import {createClient, RedisClient} from 'redis';
+import {parse} from 'url';
+import {createHash} from 'crypto';
+
+function createRedisClient(): RedisClient {
+	if (process.env.REDISTOGO_URL != null) {
+	    const rtg = parse(process.env.REDISTOGO_URL!);
+	    if (rtg.port != null && rtg.hostname != null && rtg.auth != null) {
+			let redis: RedisClient = createClient(parseInt(rtg.port, 10), rtg.hostname, {});
+			redis.auth(rtg.auth.split(':')[1]);
+			return redis;
+		}
+	}
+	return createClient();
 }
-const crypto = require('crypto');
 
-const hashPin = (alias, pin) => crypto.createHash('sha1').update(alias + pin).digest('hex');
+const redis = createRedisClient();
 
-const getAlias = (alias) => {
+const hashPin = (alias: string, pin: string): string => createHash('sha1').update(alias + pin).digest('hex');
+
+function getAlias(alias: string): Promise<{hash: string}> {
 	return new Promise((resolve, reject) => {
 		redis.hgetall(alias, (err, res) => {
 			if (err) reject(err);
-			resolve(res);
+			resolve(res as {hash: string});
 		});
 	});
-};
+}
 
-exports.aliasExists = (alias) => {
+export function aliasExists(alias: string): Promise<boolean> {
 	return new Promise((resolve, reject) => {
 		redis.exists(alias, (err, res) => {
 			if (err) reject(err);
-			resolve(res > 0 ? true : false);
+			resolve(res > 0);
 		});
 	});
-};
+}
 
-exports.getCalId = (alias) => {
+export function getCalId(alias: string): Promise<string> {
 	return new Promise((resolve, reject) => {
 		redis.hget(alias, 'value', (err, res) => {
 			if (err || res === null) reject(err);
 			resolve(res);
 		});
 	});
-};
+}
 
-exports.setAlias = (alias, pin, value) => {
+export function setAlias(alias: string, pin: string, value: string): Promise<boolean> {
 	let hash = hashPin(alias, pin);
+	let setAliasPromise: Promise<boolean> = new Promise((resolve, reject) => {
+		redis.hmset(alias,
+			{ hash: hash, value: value },
+			(err, res) => {
+				if (err) reject(err);
+				resolve(res);
+			});
+	});
 	return getAlias(alias)
 		.then(doc => doc !== null && hash === doc.hash || doc === null ?
-			Promise.resolve(null) : Promise.reject('Hash mismatch'))
-		.then(_ => new Promise((resolve, reject) => {
-			redis.hmset(alias,
-				{ hash: hash, value: value },
-				(err, res) => {
-					if (err) reject(err);
-					return resolve(res);
-				});
-		}));
-};
+			Promise.resolve() : Promise.reject('Hash mismatch'))
+		.then(_ => setAliasPromise);
+}
 
-exports.setAliasNoPass = (alias, value) => {
+export function setAliasNoPass(alias: string, value: string): Promise<boolean> {
 	return new Promise((resolve, reject) => {
 		redis.hmset(alias,
 			{ value: value },

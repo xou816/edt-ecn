@@ -1,4 +1,5 @@
-const ldap = require('ldapjs');
+import * as ldap from 'ldapjs';
+
 const url = process.env.LDAP_DOMAIN || 'ldaps.nomade.ec-nantes.fr';
 let clientError = false;
 const client = ldap.createClient({
@@ -16,7 +17,7 @@ client.on('error', err => {
 	clientError = true;
 });
 
-module.exports = function(username, password) {
+export default function checkCredentials(username: string, password: string): Promise<void> {
 	return new Promise((resolve, reject) => {
 		if (clientError) reject();
 		if (/\w+/.test(username) && username.length > 0 && password.length > 0) {
