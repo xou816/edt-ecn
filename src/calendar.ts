@@ -49,7 +49,7 @@ export function listOnlineCalendars(letter: string = 'g'): Promise<CalendarId[]>
 			.filter(node => node.id[0] === letter)
 			.map(node => {
 				return {
-					id: node.id!,
+					id: node.id,
 					name: node.name[0].trim(),
 					display: (node.name[1] || '').trim()
 				};
@@ -126,17 +126,14 @@ export function getOnlineCalendar(id: string): Promise<Calendar> {
 
 export function getSubjects(events: Calendar): Subjects {
 	return events
-		.map(e => ({ subject: e.subject, date: e.start })) // todo improve double sort
-		.sort((a, b) => {
-			let bool = a.subject < b.subject || a.subject == b.subject && a.date < b.date
-			return bool ? -1 : 1;
-		})
-		.filter((e, pos, arr) => (e.subject.length && (!pos || e.subject != arr[pos - 1].subject)))
-		.sort((a, b) => (a.date < b.date ? -1 : 1))
-		.reduce((final, e, index) => ({
-			...final,
-			[e.subject]: index
-		}), {});
+		.filter(e => e.subject.length > 0)
+		.map(e => ({ subject: e.subject.trim(), date: e.start }))
+		.sort((a, b) => a.date < b.date ? -1 : 1)
+		.reduce((final: Subjects, e) => {
+			let len = Object.keys(final).length;
+			let exists = Object.keys(final).find(k => k === e.subject) != null;
+			return exists ? final : {...final, [e.subject]: len };
+		}, {});
 }
 
 function getSingleCustomCalendar(id: string): Promise<Calendar> {
