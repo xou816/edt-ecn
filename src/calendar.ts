@@ -66,7 +66,7 @@ export function getIdFromName(name: string): Promise<string|null> {
 function safeText(node: Element, xpaths: string[], fallback: string = ''): string {
 	let res = fallback;
 	let found: string|null = xpaths.reduce((res: string|null, xpath: string) => {
-		return res == null ? (node.get(xpath) || {text: () => null}).text() : res;
+		return (res == null || res.length === 0) ? (node.get(xpath) || {text: () => null}).text() : res;
 	}, null);
 	return found || fallback; 
 }
@@ -88,10 +88,10 @@ function mapNodeToEvent(node: Element, weekNumToFirstDay: string[][]): CalendarE
 	let cat = safeText(node, ['category']);
 	let full_subject = cat + ' ' + subject;
 
-	let location = safeText(node, ['resources/room/item']);
-	if (reg.test(location)) {
-		location = location.split(' ').shift()!;
-	}
+	let location: string = node.find('resources/room/item')
+		.map(n => n.text())
+		.map(text => reg.test(text) ? text.split(' ').shift() : text)
+		.join(', ');
 
 	return {
 		start: dateFromCourseTime(date, safeText(node, ['starttime'])),
