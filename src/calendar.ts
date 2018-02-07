@@ -79,18 +79,22 @@ function mapNodeToEvent(node: Element, weekNumToFirstDay: string[][]): CalendarE
 	let description = safeText(node, ['notes']);
 	let organizer = safeText(node, ['resources/staff/item']).split(' ').shift() || '';
 	
-	const reg = /(\w+) \(\1\)/i;
+	const reg = /([\w ]+) \(\1\)/i;
 
 	let subject = safeText(node, ['resources/module/item', 'notes']).split('-').shift() || '';
-	if (reg.test(subject)) {
-		subject = subject.split(' ').shift()!;
+	let res = reg.exec(subject);
+	if (res != null) {
+		subject = res[1];
 	}
 	let cat = safeText(node, ['category']);
 	let full_subject = cat + ' ' + subject;
 
 	let location: string = node.find('resources/room/item')
 		.map(n => n.text())
-		.map(text => reg.test(text) ? text.split(' ').shift() : text)
+		.map(text => {
+			let res = reg.exec(text);
+			return res != null ? res[1] : text;
+		})
 		.join(', ');
 
 	return {
