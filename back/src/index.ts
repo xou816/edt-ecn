@@ -4,11 +4,12 @@ import * as session from 'express-session';
 import * as bodyParser from 'body-parser';
 import apiRouter from './routes/api';
 import mainRouter from './routes/main';
+import reactRouter from './routes/react';
 
 let app = express();
 app.set('view engine', 'pug');
 app.set('views', join(__dirname, '/../views'));
-app.use('/public', express.static('views/public'));
+app.use('/public', express.static(join(__dirname, '/public')));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -21,6 +22,7 @@ app.use(session({
 
 app.use('/', mainRouter(express.Router()));
 app.use('/api', apiRouter(express.Router()));
+app.use('/beta', reactRouter(express.Router()));
 
 let port = process.env.PORT != null ? process.env.PORT : 3000;
 app.listen(port, () => console.log(port));

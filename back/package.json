@@ -1,15 +1,12 @@
 {
-  "name": "edt-ecn",
+  "name": "edt-backend",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
+  "main": "index.js",
   "scripts": {
     "start": "node dist/index.js",
     "watch": "tsc -w",
-    "build": "npm run build-back && npm run build-front",
-    "build-back": "tsc || true",
-    "build-front": "cd front && npm run build && cd ..",
-    "heroku-postbuild": "npm run build"
+    "build": "tsc || true"
   },
   "author": "",
   "license": "ISC",
@@ -49,4 +46,3 @@
     "typescript": "^2.6.2"
   }
 }
-

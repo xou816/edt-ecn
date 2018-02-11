@@ -1,0 +1,59 @@
+@import "~bootstrap/scss/bootstrap";
+@import "~bootstrap/scss/_variables";
+
+$colors: (
+	color1: rgba(240, 100, 73, 1),
+	color2: rgba(237, 230, 227, 1),
+	color3: rgba(218, 218, 217, 1),
+	color4: rgba(54, 56, 46, 1),
+	color5: rgba(91, 195, 235, 1),
+	color6: rgba(240, 135, 0, 1),
+	color7: rgba(244, 159, 10, 1),
+	color8: rgba(239, 202, 8, 1),
+	color9: rgba(0, 166, 166, 1),
+	color0: rgba(187, 222, 240, 1)
+);
+
+@for $i from 0 through 10 {
+	.color-#{$i} {
+		background-color: map-get($colors, color#{$i}) !important;
+	}
+}
+
+.timetable {
+	display: grid;
+	grid-auto-flow: column;
+	grid-template-columns: repeat(5, 1fr);
+	grid-template-rows: repeat(40, 1fr);
+	grid-gap: .4em .4em;
+	margin: 1em;
+}
+
+@media screen and (max-width: 767px) {
+	.timetable{
+		grid-template-columns: 1fr;
+	}
+}
+
+.card-title {
+	font-weight: 300;
+	margin: .4em 0;
+}
+
+.card-text {
+	margin: 0;
+}
+
+.trans-nav {
+	background: rgba(255, 255, 255, 0.9);
+	border-bottom: 1px solid $gray-300;
+}
+
+.fade-card {
+	display: flex;
+	height: 100%;
+	flex: 1;
+	.card {
+		flex-grow: 1;
+	}
+}
