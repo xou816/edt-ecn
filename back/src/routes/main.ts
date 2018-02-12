@@ -110,6 +110,7 @@ export default function mainRouter(router: Router): Router {
 			res.render('result', {
 				base: req.protocol + '://' + req.get('host'),
 				path: 'custom/' + req.session!.filter,
+				filter: req.session!.filter,
 				show_alias: true,
 				connected: req.session!.username != null,
 				unexpected: ''+req.session!.filter === 'undefined'

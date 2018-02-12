@@ -5,14 +5,29 @@ block content
 		h1= "3. C'est fini!"
 		hr
 
+	.alert.alert-success
+		p.d-inline-block.my-1
+			strong
+				| Nouveau!
+				|
+				span.badge.badge-success= 'BETA'
+			|
+			| Vous pouvez visualiser l'emploi du temps
+			|
+			a(href=base+'/beta/#/'+filter)= 'ici'
+			| .
+
 	if unexpected
 		.alert.alert-danger
 			p.d-inline-block.my-1
 				strong
 					| Erreur.
 				|
-				| Il semble qu'une erreur soit survenue. Merci de <a href="mailto:trendel.alexandre@gmail.com">me le signaler</a> et de décrire ce qu'il s'est passé!
+				| Il semble qu'une erreur soit survenue. Merci de
 				|
+				a(href='mailto:trendel.alexandre@gmail.com')= 'me le signaler'
+				|
+				| et de décrire ce qu'il s'est passé!
 	else
 		.lead.px-2
 			p
