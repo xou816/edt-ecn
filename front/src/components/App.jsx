@@ -16,7 +16,7 @@ export class App extends React.Component {
 
     render() {
         return (
-            <Container fluid>
+            <Container fluid className="mx-0 px-0">
                 <Swipeable onSwipedLeft={() => this.props.next()} onSwipedRight={() => this.props.prev()}>
                     <Nav/>
                     <Timetable/>

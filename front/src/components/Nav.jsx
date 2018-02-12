@@ -20,9 +20,9 @@ export class Nav extends React.Component {
     render() {
         return (
             <div className="py-3 px-2 sticky-top trans-nav text-center">
-                <Button size="lg" outline color="primary" className="float-left" onClick={() => this.props.prev()}>&laquo;</Button>
-                <Button size="lg" outline color="primary" onClick={() => this.props.today()}>Aujourd'hui</Button>
-                <Button size="lg" outline color="primary" className="float-right" onClick={() => this.props.next()}>&raquo;</Button>
+                <Button size={this.props.isPhone ? "sm" : "lg"} outline color="primary" className="float-left" onClick={() => this.props.prev()}>&laquo;</Button>
+                <Button size={this.props.isPhone ? "sm" : "lg"} outline color="primary" onClick={() => this.props.today()}>Aujourd'hui</Button>
+                <Button size={this.props.isPhone ? "sm" : "lg"} outline color="primary" className="float-right" onClick={() => this.props.next()}>&raquo;</Button>
             </div>
         );
     }
