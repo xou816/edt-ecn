@@ -9,6 +9,7 @@
     "build": "npm run build-back && npm run build-front",
     "build-back": "tsc || true",
     "build-front": "cd front && npm run build && cd ..",
+    "heroku-prebuild": "cd front && npm install && cd ..",
     "heroku-postbuild": "npm run build"
   },
   "author": "",
