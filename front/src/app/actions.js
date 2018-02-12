@@ -12,30 +12,22 @@ export function getCalendar(id) {
 	};
 }
 
-function fakeLoad(dispatch, action) {
-    dispatch({type: 'LOAD_START'});
-    setTimeout(() => {
-        dispatch(action);
-        dispatch({type: 'LOAD_END'});
-    }, 10);
-}
-
 export function next() {
     return (dispatch, getState) => {
     	let isPhone = getState().responsive.isPhone;
-    	fakeLoad(dispatch, isPhone ? {type: 'NEXT_DAY'} : {type: 'NEXT_WEEK'});
+    	dispatch(isPhone ? {type: 'NEXT_DAY'} : {type: 'NEXT_WEEK'});
 	}
 }
 
 export function prev() {
     return (dispatch, getState) => {
         let isPhone = getState().responsive.isPhone;
-		fakeLoad(dispatch, isPhone ? {type: 'PREV_DAY'} : {type: 'PREV_WEEK'});
+		dispatch(isPhone ? {type: 'PREV_DAY'} : {type: 'PREV_WEEK'});
     }
 }
 
 export function today() {
 	return (dispatch) => {
-		fakeLoad(dispatch, {type: 'TODAY'});
+		dispatch({type: 'TODAY'});
 	}
 }
