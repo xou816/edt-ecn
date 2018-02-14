@@ -24,20 +24,33 @@ $colors: (
 	display: grid;
 	grid-auto-flow: column;
 	grid-template-columns: repeat(5, 1fr);
-	grid-template-rows: repeat(40, 1fr);
+	grid-template-rows: repeat(40, 1em);
 	grid-gap: .4em .4em;
 	margin: 1em;
+
+	.separator {
+		margin-top: 1px;
+		border-top: 1px solid $gray-200;
+		grid-column: 1 / span 5;
+	}
 }
 
 @media screen and (max-width: 767px) {
 	.timetable{
 		grid-template-columns: 1fr;
+		.separator {
+			grid-column: 1 / span 1;
+		}
 	}
 }
 
 .card-title {
 	font-weight: 300;
-	margin: .4em 0;
+	margin: .5em 0;
+}
+
+.card-body {
+	padding: .1em .5em;
 }
 
 .card-text {
