@@ -1,12 +1,13 @@
 import {AppState} from './reducers';
 import {parse} from 'date-fns';
+import {eventId} from './event';
 
 export function getCalendar(id) {
 	return (dispatch) => {
 		dispatch({type: 'LOAD_START'});
 		return fetch(`/api/calendar/custom/${id}`)
 			.then(res => res.json())
-			.then(events => events.map(e => ({...e, start: parse(e.start), end: parse(e.end) })))
+			.then(events => events.map(e => ({...e, start: parse(e.start), end: parse(e.end), id: eventId(e) })))
 			.then(events => dispatch({type: 'SET_CALENDAR', events}))
 			.then(_ => dispatch({type: 'LOAD_END'}));
 	};
@@ -27,7 +28,9 @@ export function prev() {
 }
 
 export function today() {
-	return (dispatch) => {
-		dispatch({type: 'TODAY'});
-	}
+	return {type: 'TODAY'};
+}
+
+export function toggleMenu() {
+	return {type: 'TOGGLE_MENU'};
 }

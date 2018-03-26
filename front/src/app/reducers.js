@@ -4,7 +4,8 @@ export const initialState = {
 	calendar: null,
 	events: [],
 	date: new Date(),
-    loading: true
+    loading: true,
+	menu: false
 };
 
 export function appReducer(state, action) {
@@ -25,6 +26,8 @@ export function appReducer(state, action) {
             return {...state, loading: false};
         case 'TODAY':
             return {...state, date: new Date()};
+		case 'TOGGLE_MENU':
+			return {...state, menu: !state.menu};
 		default:
 			return {...initialState, ...state};
 	}

@@ -2,9 +2,8 @@ import * as React from 'react';
 import {connect} from 'react-redux';
 import {addDays, addHours, startOfDay, startOfWeek, format, isToday, compareAsc} from "date-fns";
 import frLocale from "date-fns/locale/fr";
-import {Course} from "./Course";
-import {eventId} from "../app/event";
 import {Badge, Fade} from "reactstrap";
+import {CourseWrapper} from "./CourseWrapper";
 
 const DAY_MS = 1000*60*60*24;
 
@@ -18,40 +17,53 @@ function setInclusion(a, b) {
 	return a.every(ae => b.indexOf(ae) > -1);
 }
 
-function collectConflicts(events) {
+function setIntersection(a, b) {
+	return a.some(ae => b.indexOf(ae) > -1) || b.some(be => a.indexOf(be) > -1);
+}
+
+function largerSet(a, b) {
+	return a.length > b.length;
+}
+
+function largestSet(a, b) {
+    return a.length > b.length ? a : b;
+}
+
+function collectGroups(events) {
 	return events.reduce((conflicts, event, i, all) => {
-		let ids = all.reduce((ids, e) => {
-			let bool = eventId(e) !== eventId(event) && (compareAsc(event.start, e.end) * compareAsc(event.end, e.start)) < 0;
-			return bool ? ids.concat([eventId(e)]) : ids;
+		let inConflict = all.reduce((ids, e) => {
+			let conflict = e.id !== event.id && (compareAsc(event.start, e.end) * compareAsc(event.end, e.start)) < 0;
+			return conflict ? ids.concat([e.id]) : ids;
 		}, []);
-		if (ids.length > 0) {
-			ids.push(eventId(event));
-			conflicts = conflicts.length == 0 ? [ids] : conflicts
-				.filter(conflict => !setInclusion(ids, conflict));
-			return conflicts.concat(conflicts.some(conflict => setInclusion(conflict, ids)) ? [] : [ids]);
+		if (inConflict.length > 0) {
+			inConflict.push(event.id);
+            conflicts = conflicts.length === 0 ? [inConflict] : conflicts
+                .reduce((newConflicts, olderConflict) => {
+                	return setIntersection(olderConflict, inConflict) && largerSet(inConflict, olderConflict) ?
+						newConflicts : newConflicts.concat([olderConflict]);
+				}, []);
+            // smaller intersecting sets have been removed
+            return conflicts.some(olderConflict => setIntersection(olderConflict, inConflict)) ?
+				conflicts : conflicts.concat([inConflict]);
+            /*
+            conflicts = conflicts.length === 0 ? [inConflict] : conflicts
+                .filter(olderConflict => !setInclusion(inConflict, olderConflict)); // remove every bigger conflict
+            return conflicts.concat(conflicts.some(conflict => setInclusion(conflict, inConflict)) ? [] : [inConflict]); // dont add new conflict if there's a smaller one
+            */
 		} else {
-			return conflicts;
+			return conflicts.concat([[event.id]]);
 		}
 	}, []);
 }
 
-function mapEvents(events, target) {
-	let conflicts = collectConflicts(events);
-	return events.map(event => {
-		let id = eventId(event);
-		let elementProps = {
-			key: id,
-			event: event,
-			stack: 0
-		};
-		let index = conflicts.reduce((index, conflict) => {
-			let offset = conflict.indexOf(target) + 1;
-			return Math.max((conflict.indexOf(id) - offset)%conflict.length, index);
-		}, -1);
-		if (index > 0) {
-			elementProps.stack = index;
-		}
-		return elementProps;
+function mapEvents(events, offset) {
+	let groups = collectGroups(events);
+	let indexed = events.reduce((dict, event) => {
+		return {...dict, [event.id]: event};
+	}, {});
+	return groups.map(group => {
+		let eventGroup = group.map(id => indexed[id]);
+		return <CourseWrapper key={`${offset}_${group.reduce((s, id) => s + id)}`} events={eventGroup} offset={offset} />
 	});
 }
 
@@ -72,8 +84,10 @@ export class Timetable extends React.Component {
 	}
 
 	events() {
-		return this.props.events.filter(e => e.start.valueOf() >= this.offset()
-			&& e.start.valueOf() < this.offset() + this.days()*DAY_MS);
+		let offset = this.offset();
+		return this.props.events
+			.filter(e => e.start.valueOf() >= offset
+				&& e.start.valueOf() < offset + this.days()*DAY_MS);
 	}
 
 	renderSeparators() {
@@ -96,8 +110,7 @@ export class Timetable extends React.Component {
 	}
 
 	renderEvents() {
-		return mapEvents(this.events())
-			.map(props => <Course {...props} offset={this.offset()} />)
+		return mapEvents(this.events(), this.offset());
 	}
 
 	render() {

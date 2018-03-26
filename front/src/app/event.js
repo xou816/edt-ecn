@@ -1,5 +1,8 @@
 import {parse} from 'date-fns';
 
+const INCREMENT = 1000 * 60 * 15;
+const DAY_MS = 1000 * 60 * 60 * 24;
+
 function charcode(string) {
     return Array.from(string)
         .map(c => c.charCodeAt(0))
@@ -12,5 +15,5 @@ export function subjectId(event) {
 }
 
 export function eventId(event) {
-    return charcode(event.subject) + charcode(event.location) + parse(event.start).valueOf();
+    return charcode(JSON.stringify(event));
 }
