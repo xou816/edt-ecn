@@ -1,10 +1,11 @@
 import * as React from 'react';
 import {Timetable} from "./Timetable";
-import {Container} from "reactstrap";
 import Swipeable from 'react-swipeable';
 import {Nav} from "./Nav";
 import {next, prev} from "../app/actions";
 import {connect} from "react-redux";
+import {CssBaseline} from "material-ui";
+import {Sidebar} from "./Sidebar";
 
 const mapDispatch = dispatch => ({
    next: () => dispatch(next()),
@@ -16,12 +17,14 @@ export class App extends React.Component {
 
     render() {
         return (
-            <Container fluid className="mx-0 px-0">
+            <React.Fragment>
+                <CssBaseline />
                 <Swipeable onSwipedLeft={() => this.props.next()} onSwipedRight={() => this.props.prev()}>
                     <Nav/>
                     <Timetable/>
                 </Swipeable>
-            </Container>
+                <Sidebar/>
+            </React.Fragment>
         );
     }
 }

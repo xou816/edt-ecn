@@ -1,16 +1,18 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
-import {addDays, addHours, startOfDay, startOfWeek, format, isToday, compareAsc} from "date-fns";
+import {addDays, addHours, compareAsc, format, isToday, startOfDay, startOfWeek} from "date-fns";
 import frLocale from "date-fns/locale/fr";
-import {Badge, Fade} from "reactstrap";
 import {CourseWrapper} from "./CourseWrapper";
+import {Divider, Typography} from "material-ui";
 
 const DAY_MS = 1000*60*60*24;
 
 const mapState = state => ({
 	events: state.app.events,
+	calendar: state.app.calendar,
 	date: state.app.date,
-    isPhone: state.responsive.isPhone
+    isPhone: state.responsive.isPhone,
+	menu: state.app.menu
 });
 
 function setInclusion(a, b) {
@@ -56,14 +58,14 @@ function collectGroups(events) {
 	}, []);
 }
 
-function mapEvents(events, offset) {
+function mapEvents(events, offset, prefix) {
 	let groups = collectGroups(events);
 	let indexed = events.reduce((dict, event) => {
 		return {...dict, [event.id]: event};
 	}, {});
 	return groups.map(group => {
 		let eventGroup = group.map(id => indexed[id]);
-		return <CourseWrapper key={`${offset}_${group.reduce((s, id) => s + id)}`} events={eventGroup} offset={offset} />
+		return <CourseWrapper key={`${prefix}_${group.reduce((s, id) => s + id, offset)}`} events={eventGroup} offset={offset} />
 	});
 }
 
@@ -92,7 +94,7 @@ export class Timetable extends React.Component {
 
 	renderSeparators() {
 		return Array.from({length: 10}, (x, i) => i).map(i => (
-			<div key={`separator_${i}`} style={{gridRow: `${4*i+2} / span 4`}} className='separator' />
+			<Divider key={`sep_${i}`} style={{gridRow: `${4*i+2} / span 4`, gridColumn: '1 / span 5'}} />
 		));
 	}
 
@@ -102,24 +104,26 @@ export class Timetable extends React.Component {
             let today = isToday(date);
             let formatted = format(date, 'dddd DD/MM', {locale: frLocale});
             return (
-                <Badge color={today ? 'primary' : 'light'} key={formatted} style={{gridColumn: i+1, gridRow: '1 / span 1'}}>
+
+                <Typography align="center" color={today ? 'primary' : 'textSecondary'} key={formatted} style={{gridColumn: i+1, gridRow: '1 / span 1'}}>
                     {formatted.toUpperCase()}
-                </Badge>
+                </Typography>
             )
         })
 	}
 
 	renderEvents() {
-		return mapEvents(this.events(), this.offset());
+		return mapEvents(this.events(), this.offset(), this.props.calendar);
 	}
 
 	render() {
 		return (
-			<div className="timetable">
-				{this.renderEvents()}
-				{this.renderSeparators()}
-                {this.renderDays()}
-			</div>
+				<div className="timetable">
+					{this.renderEvents()}
+					{this.renderSeparators()}
+                	{this.renderDays()}
+				</div>
+
 		);
 	}
 

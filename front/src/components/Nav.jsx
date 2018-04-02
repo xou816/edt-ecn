@@ -1,7 +1,8 @@
 import * as React from "react";
 import {next, prev, toggleMenu, today} from "../app/actions";
 import {connect} from "react-redux";
-import {Button, Fade} from "reactstrap";
+import {AppBar, Button, IconButton, Toolbar, Typography} from "material-ui";
+import MenuIcon from 'material-ui-icons/Menu';
 
 const mapState = state => ({
     date: state.app.date,
@@ -20,35 +21,24 @@ const mapDispatch = dispatch => ({
 export class Nav extends React.Component {
 
     buttonSize() {
-        return this.props.isPhone ? "sm" : "lg";
+        return this.props.isPhone ? "small" : "medium";
     }
 
     render() {
         return (
-            <div className="sticky-top">
-                <div className="py-3 px-2 trans-nav">
-                    <div className="float-right">
-                        <Button size={this.buttonSize()} className="mx-1" outline color="primary"
-                                onClick={() => this.props.prev()}>&laquo;</Button>
-                        <Button size={this.buttonSize()} className="mx-1" outline color="primary"
-                                onClick={() => this.props.next()}>&raquo;</Button>
-                    </div>
-                    {true ? null : <Button size={this.buttonSize()} className="mx-1" outline={!this.props.menu}
-                            onClick={() => this.props.toggleMenu()} color="primary">...</Button>}
-                    <Button size={this.buttonSize()} outline color="primary" className="mx-1"
-                            onClick={() => this.props.today()}>Aujourd'hui</Button>
-                </div>
-                {
-                    !this.props.menu ? null : (
-                        <Fade in>
-                            <div className="py-1 trans-nav text-center">
-                                <Button size={this.buttonSize()} className="mx-2" color="link">Calendriers</Button>
-                                <Button size={this.buttonSize()} className="mx-2" color="link">Filtrer</Button>
-                            </div>
-                        </Fade>
-                    )
-                }
-            </div>
+            <AppBar position="static">
+                <Toolbar style={{display: 'flex'}}>
+                    <IconButton color="inherit" onClick={() => this.props.toggleMenu()} aria-label="menu">
+                        <MenuIcon />
+                    </IconButton>
+                    <Button onClick={() => this.props.today()} color="inherit">Aujourd'hui</Button>
+                    <div style={{flexGrow: 1}} />
+                    <Button size={this.buttonSize()} variant="raised" color="secondary"
+                            onClick={() => this.props.prev()}>Préc.</Button>
+                    <Button size={this.buttonSize()} variant="raised" color="secondary"
+                            onClick={() => this.props.next()}>Suiv.</Button>
+                </Toolbar>
+            </AppBar>
         );
     }
 

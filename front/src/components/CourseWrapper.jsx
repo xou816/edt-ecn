@@ -1,7 +1,7 @@
 import * as React from "react";
 import {Course} from "./Course";
 import {TimetableEntry} from "./TimetableEntry";
-import {Button} from "reactstrap";
+import {Button} from "material-ui";
 
 export class CourseWrapper extends React.Component {
 
@@ -21,14 +21,17 @@ export class CourseWrapper extends React.Component {
     }
 
     largest() {
-        return this.props.events.reduce(([largest, itsSpan], event) => {
-            let span = event.end.valueOf() - event.start.valueOf();
-            return span > itsSpan ? [event, span] : [largest, itsSpan];
-        }, [null, 0]).shift();
+        let min = this.props.events
+            .map(e => e.start)
+            .reduce((min, cur) => cur < min ? cur : min);
+        let max = this.props.events
+            .map(e => e.end)
+            .reduce((max, cur) => cur > max ? cur : max);
+        return {start: min, end: max};
     }
 
-    multipage(expr) {
-        return this.length() <= 1 ? null : expr;
+    multipage(expr, fallback) {
+        return this.length() <= 1 ? fallback : expr;
     }
 
     prevPage() {
@@ -42,15 +45,18 @@ export class CourseWrapper extends React.Component {
     render() {
         return (
             <React.Fragment>
-                <Course {...this.current()} offset={this.props.offset}/>
+                <Course {...this.current()} offset={this.props.offset} />
                 {this.multipage(
-                    <TimetableEntry event={this.largest()} offset={this.props.offset}>
-                        <div className="event-outline">
-                            <Button size="sm" className="left" onClick={() => this.prevPage()}>&laquo;</Button>
-                            <Button size="sm" className="right" onClick={() => this.nextPage()}>&raquo;</Button>
-                        </div>
+                    <TimetableEntry event={this.current()} offset={this.props.offset}>
+                            <Button mini classes={{root: 'btn-left'}} onClick={() => this.prevPage()} variant="fab" color="primary" aria-label="prev">
+                                &laquo;
+                            </Button>
+                            <Button mini classes={{root: 'btn-right'}} onClick={() => this.nextPage()} variant="fab" color="primary" aria-label="next">
+                                &raquo;
+                            </Button>
                     </TimetableEntry>
                 )}
+
             </React.Fragment>
         );
     }

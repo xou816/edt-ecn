@@ -7,9 +7,9 @@ import {appReducer} from './app/reducers';
 import createHistory from "history/createHashHistory";
 import {reducer as responsive, mediaQueryTracker} from 'redux-mediaquery';
 
-import './index.scss';
+import './app.scss';
 import {App} from "./components/App";
-import {getCalendar} from "./app/actions";
+import {getCalendar, getCalendarList} from "./app/actions";
 
 const store = createStore(combineReducers({responsive, app: appReducer}), applyMiddleware(thunk));
 
@@ -19,13 +19,9 @@ mediaQueryTracker({
     innerHeight: true,
 }, store.dispatch);
 
+store.dispatch(getCalendarList());
+
 const history = createHistory();
 store.dispatch(getCalendar(history.location.pathname.substring(1)));
-
-history.listen((location, action) => {
-    if (location.pathname.length > 1) {
-        store.dispatch(getCalendar(location.pathname.substring(1)));
-    }
-});
 
 ReactDOM.render(<Provider store={store}><App /></Provider>, document.getElementById('react_root'));

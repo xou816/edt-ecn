@@ -2,16 +2,28 @@ import {addDays, addWeeks, isFriday, isMonday, subDays, subWeeks} from "date-fns
 
 export const initialState = {
 	calendar: null,
+	list: [],
 	events: [],
 	date: new Date(),
     loading: true,
-	menu: false
+	menu: false,
+	selection: []
 };
 
 export function appReducer(state, action) {
 	switch (action.type) {
-		case 'SET_CALENDAR':
+		case 'SET_EVENTS':
 			return {...state, events: action.events};
+		case 'SET_LIST':
+			return {...state, list: action.list};
+		case 'TOGGLE_CALENDAR':
+			return {...state, selection: state.selection.indexOf(action.calendar) > -1 ?
+					state.selection.filter(id => id !== action.calendar) :
+					state.selection.concat([action.calendar])};
+		case 'FINISH_SELECTION':
+			return {...state, calendar: state.selection.join('+')};
+		case 'SET_CALENDAR':
+			return {...state, calendar: action.calendar, events: []};
         case 'NEXT_WEEK':
             return {...state, date: addWeeks(state.date, 1)};
 		case 'PREV_WEEK':
