@@ -4,8 +4,6 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const ManifestPlugin = require('webpack-manifest-plugin');
 
-process.env.NODE_ENV = 'development';
-
 module.exports = {
 	entry: path.resolve(__dirname, '../src/index.jsx'),
 	output: {
@@ -37,7 +35,9 @@ module.exports = {
 		]
 	},
 	plugins: [
-	new webpack.DefinePlugin({ 'process.env': { NODE_ENV: '"prod"' }}),
+	new webpack.DefinePlugin({
+        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development')
+	}),
 	new HtmlWebpackPlugin({
 		template: path.resolve(__dirname, '../src/index.html')
 	}),
