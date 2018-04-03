@@ -1,7 +1,7 @@
 import * as React from "react";
 import {next, prev, toggleMenu, today} from "../app/actions";
 import {connect} from "react-redux";
-import {AppBar, Button, IconButton, Toolbar, Typography} from "material-ui";
+import {AppBar, Button, IconButton, Toolbar, Typography, withStyles} from "material-ui";
 import MenuIcon from 'material-ui-icons/Menu';
 
 const mapState = state => ({
@@ -18,24 +18,37 @@ const mapDispatch = dispatch => ({
 });
 
 @connect(mapState, mapDispatch)
+@withStyles(theme => ({
+    toolbar: {
+        display: 'flex'
+    },
+    spread: {
+        flexGrow: 1
+    },
+    appbar: {
+        position: 'sticky !important',
+        top: 0
+    }
+}))
 export class Nav extends React.Component {
 
 
     render() {
+        let classes = this.props.classes;
         return (
-            <AppBar position="static">
-                <Toolbar style={{display: 'flex'}}>
+            <AppBar className={classes.appbar} position="static">
+                <Toolbar className={classes.toolbar}>
                     <IconButton color="inherit" onClick={() => this.props.toggleMenu()} aria-label="menu">
-                        <MenuIcon />
+                        <MenuIcon/>
                     </IconButton>
                     <Button onClick={() => this.props.today()} color="inherit">Aujourd'hui</Button>
-                    <div style={{flexGrow: 1}} />
+                    <div className={classes.spread} />
                     {
                         this.props.isPhone ? null : [
-                            <Button variant="raised" color="secondary"
+                            <Button key="left" variant="raised" color="secondary"
                                     onClick={() => this.props.prev()}>Préc.</Button>,
-                            <Button variant="raised" color="secondary"
-                        onClick={() => this.props.next()}>Suiv.</Button>
+                            <Button key="right" variant="raised" color="secondary"
+                                    onClick={() => this.props.next()}>Suiv.</Button>
                         ]
                     }
                 </Toolbar>

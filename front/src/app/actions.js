@@ -32,7 +32,6 @@ export function finishSelection() {
 	return (dispatch, getState) => {
 		let calendar = getState().app.selection.join('+');
 		dispatch(push(`/${calendar}`));
-		dispatch({type: 'SET_CALENDAR', calendar });
 	}
 }
 

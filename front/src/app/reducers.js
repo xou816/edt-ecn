@@ -1,8 +1,6 @@
 import {addDays, addWeeks, isFriday, isMonday, subDays, subWeeks} from "date-fns";
-import {push} from 'react-router-redux';
 
 export const initialState = {
-	calendar: null,
 	list: {},
 	events: [],
 	date: new Date(),
@@ -23,8 +21,6 @@ export function appReducer(state, action) {
 					state.selection.concat([action.calendar])};
 		case 'RESET_SELECTION':
 			return {...state, selection: []};
-		case 'SET_CALENDAR':
-			return {...state, calendar: action.calendar, events: []};
         case 'NEXT_WEEK':
             return {...state, date: addWeeks(state.date, 1)};
 		case 'PREV_WEEK':

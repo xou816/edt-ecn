@@ -1,9 +1,17 @@
 import * as React from 'react';
-import {Zoom} from "material-ui";
+import {withStyles, Zoom} from "material-ui";
 
 const INCREMENT = 1000 * 60 * 15;
 const DAY_MS = 1000 * 60 * 60 * 24;
 
+@withStyles(theme => ({
+    root: {
+        display: 'flex',
+        height: '100%',
+        flex: 1,
+        position: 'relative'
+    }
+}))
 export class TimetableEntry extends React.Component {
 
     start() {
@@ -32,14 +40,11 @@ export class TimetableEntry extends React.Component {
         return {gridColumn: day.toString()};
     }
 
-    margin() {
-        return this.props.multipage ? {padding: '0.5em'} : {};
-    }
-
     render() {
+        let classes = this.props.classes;
         return (
             <Zoom in={true}>
-                <div style={{...this.gridRow(), ...this.gridColumn(), ...this.margin()}} className="timetable-entry">
+                <div style={{...this.gridRow(), ...this.gridColumn()}} className={classes.root}>
                     {this.props.children}
                 </div>
             </Zoom>

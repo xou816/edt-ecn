@@ -18,7 +18,6 @@ const mapState = state => ({
 const mapDispatch = dispatch => ({
     hide: () => {
         dispatch(finishSelection());
-        dispatch(getCalendar());
         dispatch(toggleMenu());
     },
     show: () => dispatch(toggleMenu()),
@@ -51,7 +50,8 @@ function NestedList(props) {
 @withStyles(theme => ({
     root: {
         backgroundColor: theme.palette.background.paper,
-        margin: '1px'
+        margin: '1px',
+        display: 'flex'
     },
     title: {
         padding: `${2 * theme.spacing.unit}px`,
@@ -80,11 +80,10 @@ export class Sidebar extends React.Component {
         let s = this.props.selection.length > 1 ? 's' : '';
         let list = this.props.list;
         return (
-            <SwipeableDrawer open={this.props.shown} onClose={this.props.hide} onOpen={this.props.show}>
+            <Drawer open={this.props.shown} onClose={this.props.hide}>
                 <Divider/>
                 <List component="nav" subheader={(
-                    <ListSubheader className={classes.root} component="div"
-                                   style={{display: 'flex'}}>
+                    <ListSubheader className={classes.root} component="div">
                         <Checkbox onClick={this.props.resetSelection} checked={this.props.selection.length > 0}
                                   disableRipple/>
                         <Typography component="h2" variant="title" className={classes.title}>
@@ -104,7 +103,7 @@ export class Sidebar extends React.Component {
                         togglePrefix: () => this.togglePrefix(prefix)
                     }))
                 }</List>
-            </SwipeableDrawer>
+            </Drawer>
         );
     }
 

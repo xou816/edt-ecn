@@ -1,8 +1,21 @@
 import * as React from "react";
 import {Course} from "./Course";
 import {TimetableEntry} from "./TimetableEntry";
-import {Button} from "material-ui";
+import {Button, withStyles} from "material-ui";
 
+@withStyles(theme => ({
+    btn: {
+        position: 'absolute !important',
+        bottom: '5px',
+        zIndex: 1500
+    },
+    btnLeft: {
+        left: '5px'
+    },
+    btnRight: {
+        right: '5px'
+    }
+}))
 export class CourseWrapper extends React.Component {
 
     constructor(props) {
@@ -43,15 +56,18 @@ export class CourseWrapper extends React.Component {
     }
 
     render() {
+        let classes = this.props.classes;
         return (
             <React.Fragment>
                 <Course {...this.current()} offset={this.props.offset} />
                 {this.multipage(
                     <TimetableEntry event={this.current()} offset={this.props.offset}>
-                            <Button mini classes={{root: 'btn-left'}} onClick={() => this.prevPage()} variant="fab" color="primary" aria-label="prev">
+                            <Button mini className={`${classes.btn} ${classes.btnLeft}`}
+                                    onClick={() => this.prevPage()} variant="fab" color="primary" aria-label="prev">
                                 &laquo;
                             </Button>
-                            <Button mini classes={{root: 'btn-right'}} onClick={() => this.nextPage()} variant="fab" color="primary" aria-label="next">
+                            <Button mini className={`${classes.btn} ${classes.btnRight}`}
+                                    onClick={() => this.nextPage()} variant="fab" color="primary" aria-label="next">
                                 &raquo;
                             </Button>
                     </TimetableEntry>

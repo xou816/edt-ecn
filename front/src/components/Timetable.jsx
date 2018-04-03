@@ -3,7 +3,7 @@ import {connect} from 'react-redux';
 import {addDays, addHours, compareAsc, format, isToday, startOfDay, startOfWeek} from "date-fns";
 import frLocale from "date-fns/locale/fr";
 import {CourseWrapper} from "./CourseWrapper";
-import {Divider, Typography} from "material-ui";
+import {Divider, Typography, withStyles} from "material-ui";
 
 const DAY_MS = 1000*60*60*24;
 
@@ -15,20 +15,12 @@ const mapState = state => ({
 	menu: state.app.menu
 });
 
-function setInclusion(a, b) {
-	return a.every(ae => b.indexOf(ae) > -1);
-}
-
 function setIntersection(a, b) {
 	return a.some(ae => b.indexOf(ae) > -1) || b.some(be => a.indexOf(be) > -1);
 }
 
-function largerSet(a, b) {
+function isLargerSet(a, b) {
 	return a.length > b.length;
-}
-
-function largestSet(a, b) {
-    return a.length > b.length ? a : b;
 }
 
 function collectGroups(events) {
@@ -41,17 +33,11 @@ function collectGroups(events) {
 			inConflict.push(event.id);
             conflicts = conflicts.length === 0 ? [inConflict] : conflicts
                 .reduce((newConflicts, olderConflict) => {
-                	return setIntersection(olderConflict, inConflict) && largerSet(inConflict, olderConflict) ?
+                	return setIntersection(olderConflict, inConflict) && isLargerSet(inConflict, olderConflict) ?
 						newConflicts : newConflicts.concat([olderConflict]);
 				}, []);
-            // smaller intersecting sets have been removed
             return conflicts.some(olderConflict => setIntersection(olderConflict, inConflict)) ?
 				conflicts : conflicts.concat([inConflict]);
-            /*
-            conflicts = conflicts.length === 0 ? [inConflict] : conflicts
-                .filter(olderConflict => !setInclusion(inConflict, olderConflict)); // remove every bigger conflict
-            return conflicts.concat(conflicts.some(conflict => setInclusion(conflict, inConflict)) ? [] : [inConflict]); // dont add new conflict if there's a smaller one
-            */
 		} else {
 			return conflicts.concat([[event.id]]);
 		}
@@ -70,6 +56,20 @@ function mapEvents(events, offset, prefix) {
 }
 
 @connect(mapState)
+@withStyles(theme => ({
+	root: {
+        display: 'grid',
+        gridAutoFlow: 'column',
+        gridTemplateColumns: 'repeat(5, 1fr)',
+        gridTemplateRows: 'repeat(40, .7em)',
+        gridGap: '.4em .4em',
+        margin: '1em',
+        [theme.breakpoints.down(767)]: {
+            gridTemplateColumns: '1fr',
+			gridGap: '.4em 0'
+		}
+	}
+}))
 export class Timetable extends React.Component {
 
 	days() {
@@ -117,8 +117,9 @@ export class Timetable extends React.Component {
 	}
 
 	render() {
+		let classes = this.props.classes;
 		return (
-				<div className="timetable">
+				<div className={classes.root}>
 					{this.renderEvents()}
 					{this.renderSeparators()}
                 	{this.renderDays()}

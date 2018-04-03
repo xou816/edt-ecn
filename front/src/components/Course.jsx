@@ -2,7 +2,8 @@ import format from "date-fns/format";
 import * as React from "react";
 import {subjectId} from "../app/event";
 import {TimetableEntry} from "./TimetableEntry";
-import {Card, CardContent, Chip, Typography} from "material-ui";
+import {Card, CardContent, Chip, Typography, withStyles} from "material-ui";
+import {COLOR_CLASSES} from "./colors";
 
 export function CourseSummary(event) {
     return (
@@ -28,10 +29,17 @@ export function CourseDetails(event) {
     );
 }
 
+@withStyles(theme => ({
+   root: {
+       height: '100%',
+       flexGrow: 1
+   },
+    ...COLOR_CLASSES
+}))
 export class Course extends React.Component {
 
     className() {
-        return `color-${subjectId(this.props) % 10} timetable-grow`;
+        return this.props.classes.root + ' ' + this.props.classes[`color${subjectId(this.props) % 10}`];
     }
 
     ifLarge(expr) {
@@ -39,10 +47,11 @@ export class Course extends React.Component {
     }
 
     render() {
+        let classes = this.props.classes;
         return (
-            <TimetableEntry event={this.props} offset={this.props.offset} multipage={this.props.multipage}>
-                <Card classes={{root: this.className()}}>
-                    <CardContent classes={{root: this.className()}}>
+            <TimetableEntry event={this.props} offset={this.props.offset}>
+                <Card className={this.className()}>
+                    <CardContent className={this.className()}>
                         <CourseSummary {...this.props} />
                         {this.ifLarge(<CourseDetails {...this.props} />)}
                     </CardContent>
