@@ -1,11 +1,16 @@
 import {parse} from 'date-fns';
-import {eventId} from './event';
+import {eventId, PREFIXES} from './event';
+import {push} from 'react-router-redux';
 
 export function getCalendarList() {
 	return (dispatch) => {
 		dispatch({type: 'LOAD_START'});
 		return fetch(`/api/calendar/list`)
 			.then(res => res.json())
+			.then(list => list.reduce((acc, calendar) => {
+				let prefix = Object.keys(PREFIXES).find(prefix => calendar.name.startsWith(prefix));
+				return {...acc, [prefix]: (acc[prefix] || []).concat([calendar])};
+			}, {}))
 			.then(list => dispatch({type: 'SET_LIST', list}))
 			.then(_ => dispatch({type: 'LOAD_END'}));
 	}
@@ -24,7 +29,15 @@ export function getCalendar(id) {
 }
 
 export function finishSelection() {
-	return {type: 'FINISH_SELECTION'};
+	return (dispatch, getState) => {
+		let calendar = getState().app.selection.join('+');
+		dispatch(push(`/${calendar}`));
+		dispatch({type: 'SET_CALENDAR', calendar });
+	}
+}
+
+export function resetSelection() {
+	return {type: 'RESET_SELECTION'};
 }
 
 export function toggleCalendar(id) {

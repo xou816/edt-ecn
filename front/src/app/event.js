@@ -15,3 +15,16 @@ export function subjectId(event) {
 export function eventId(event) {
     return charcode(JSON.stringify(event));
 }
+
+export const PREFIXES = {
+    'OD': 'Option disciplinaire',
+    'EI': 'Cycle ingénieur',
+    'AP': 'Cycle ingénieur apprenti',
+    'BTP': 'BTP',
+    'M1': 'Master 1',
+    'M2': 'Master 2',
+    'MECA': 'Filière mécanique',
+    'OP': 'Option profesionnelle',
+    'PROMO': 'Promo EI1',
+    '': 'Autres'
+};

@@ -20,9 +20,6 @@ const mapDispatch = dispatch => ({
 @connect(mapState, mapDispatch)
 export class Nav extends React.Component {
 
-    buttonSize() {
-        return this.props.isPhone ? "small" : "medium";
-    }
 
     render() {
         return (
@@ -33,10 +30,14 @@ export class Nav extends React.Component {
                     </IconButton>
                     <Button onClick={() => this.props.today()} color="inherit">Aujourd'hui</Button>
                     <div style={{flexGrow: 1}} />
-                    <Button size={this.buttonSize()} variant="raised" color="secondary"
-                            onClick={() => this.props.prev()}>Préc.</Button>
-                    <Button size={this.buttonSize()} variant="raised" color="secondary"
-                            onClick={() => this.props.next()}>Suiv.</Button>
+                    {
+                        this.props.isPhone ? null : [
+                            <Button variant="raised" color="secondary"
+                                    onClick={() => this.props.prev()}>Préc.</Button>,
+                            <Button variant="raised" color="secondary"
+                        onClick={() => this.props.next()}>Suiv.</Button>
+                        ]
+                    }
                 </Toolbar>
             </AppBar>
         );

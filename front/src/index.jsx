@@ -1,17 +1,23 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import {createStore, applyMiddleware, combineReducers} from 'redux';
+import {applyMiddleware, combineReducers, createStore} from 'redux';
 import thunk from 'redux-thunk';
 import {Provider} from 'react-redux';
 import {appReducer} from './app/reducers';
 import createHistory from "history/createHashHistory";
-import {reducer as responsive, mediaQueryTracker} from 'redux-mediaquery';
+import {mediaQueryTracker, reducer as responsive} from 'redux-mediaquery';
 
 import './app.scss';
 import {App} from "./components/App";
 import {getCalendar, getCalendarList} from "./app/actions";
+import {routerMiddleware, routerReducer} from "react-router-redux";
 
-const store = createStore(combineReducers({responsive, app: appReducer}), applyMiddleware(thunk));
+const history = createHistory();
+const store = createStore(combineReducers({
+    responsive,
+    app: appReducer,
+    routing: routerReducer
+}), applyMiddleware(thunk, routerMiddleware(history)));
 
 mediaQueryTracker({
     isPhone: "screen and (max-width: 767px)",
@@ -20,8 +26,6 @@ mediaQueryTracker({
 }, store.dispatch);
 
 store.dispatch(getCalendarList());
-
-const history = createHistory();
 store.dispatch(getCalendar(history.location.pathname.substring(1)));
 
 ReactDOM.render(<Provider store={store}><App /></Provider>, document.getElementById('react_root'));
