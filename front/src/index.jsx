@@ -25,10 +25,13 @@ mediaQueryTracker({
 }, store.dispatch);
 
 store.dispatch(getCalendarList());
-store.dispatch(getCalendar(history.location.pathname.substring(1)));
+
+let cal = history.location.pathname.substring(1);
+if (cal.length > 0) store.dispatch(getCalendar(history.location.pathname.substring(1)));
 
 history.listen(location => {
-    store.dispatch(getCalendar(location.pathname.substring(1)));
+    let cal = location.pathname.substring(1);
+    if (cal.length > 0) store.dispatch(getCalendar(cal));
 });
 
 ReactDOM.render(<Provider store={store}><App /></Provider>, document.getElementById('react_root'));

@@ -3,7 +3,7 @@ import * as React from "react";
 import {subjectId} from "../app/event";
 import {TimetableEntry} from "./TimetableEntry";
 import {Card, CardContent, Chip, Typography, withStyles} from "material-ui";
-import {COLOR_CLASSES} from "./colors";
+import {COLOR_CLASSES} from "../app/colors";
 
 export function CourseSummary(event) {
     return (
