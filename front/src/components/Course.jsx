@@ -32,7 +32,8 @@ export function CourseDetails(event) {
 @withStyles(theme => ({
    root: {
        height: '100%',
-       flexGrow: 1
+       flexGrow: 1,
+       overflow: 'hidden'
    },
     ...COLOR_CLASSES
 }))

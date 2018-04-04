@@ -18,7 +18,10 @@ export function getCalendar(id) {
         return fetch(`/api/calendar/custom/${id || getState().app.calendar}`)
             .then(res => res.json())
             .then(cal => {
-                dispatch({type: 'SET_SELECTION', selection: cal.meta.map(meta => meta.id)});
+                let filters = cal.meta.reduce((final, meta) => ({...final, [meta.id]: meta.filter || []}), {});
+                let selection = cal.meta.map(meta => meta.id);
+                dispatch({type: 'SET_SELECTION', selection});
+                dispatch({type: 'SET_FILTER', filters});
                 return cal.events;
             })
             .then(events => events.map(e => ({...e, start: parse(e.start), end: parse(e.end), id: eventId(e)})))
@@ -42,15 +45,29 @@ export function getSubjects() {
     }
 }
 
-export function finishSelection() {
+export function applySelection() {
     return (dispatch, getState) => {
-        let calendar = getState().app.selection.join('+');
-        dispatch(push(`/${calendar}`));
+        let ids = getState().app.selection;
+        let filters = getState().app.filters;
+        let meta = ids.reduce((meta, id) => meta.concat([{id, filter: filters[id]}]), []);
+        dispatch({type: 'LOAD_START'});
+        return fetch(`/api/calendar/custom`, {
+                method: 'POST',
+                body: JSON.stringify(meta),
+                headers: {'Content-Type': 'application/json'}
+            })
+            .then(res => res.json())
+            .then(res => dispatch(push(`/${res.result}`)))
+            .then(_ => dispatch({type: 'LOAD_END'}));
     }
 }
 
 export function resetSelection() {
-    return {type: 'RESET_SELECTION'};
+    return {type: 'SET_SELECTION', selection: []};
+}
+
+export function resetSubjects() {
+    return {type: 'SET_FILTER', filters: {}};
 }
 
 export function toggleCalendar(id) {

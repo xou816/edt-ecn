@@ -1,5 +1,8 @@
 import React from "react";
-import {Button, Dialog, DialogTitle, IconButton, InputAdornment, TextField, Typography, withStyles} from "material-ui";
+import {
+    Button, Dialog, DialogTitle, Divider, IconButton, InputAdornment, TextField, Typography,
+    withStyles
+} from "material-ui";
 import Reply from "material-ui-icons/Reply";
 import Copy from "material-ui-icons/ContentCopy";
 import {history} from "../index";
@@ -11,7 +14,11 @@ import {history} from "../index";
         right: theme.spacing.unit
     },
     margin: {
-        margin: 2*theme.spacing.unit
+        margin: `${theme.spacing.unit}px ${3*theme.spacing.unit}px`
+    },
+    copyright: {
+        margin: 2*theme.spacing.unit,
+        textAlign: 'center'
     }
 }))
 export class ExportButton extends React.Component {
@@ -58,6 +65,12 @@ export class ExportButton extends React.Component {
                             <IconButton><Copy/></IconButton>
                         </InputAdornment>,
                     }}/>
+                    <div className={this.props.classes.copyright}>
+                        <Typography color="textSecondary">
+                            Créé par Alexandre Trendel
+                        </Typography>
+                        <Button color="secondary" href="https://github.com/xou816/edt-ecn">Github</Button>
+                    </div>
                 </Dialog>
             </React.Fragment>
         );

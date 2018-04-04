@@ -1,9 +1,10 @@
 import React from "react";
 import {connect} from "react-redux";
-import {Checkbox, Collapse, List, ListItem, ListItemText, ListSubheader, withStyles} from "material-ui";
+import {Checkbox, Collapse, List, ListItem, ListItemText, ListSubheader, Typography, withStyles} from "material-ui";
 import ExpandLess from 'material-ui-icons/ExpandLess';
 import ExpandMore from 'material-ui-icons/ExpandMore';
 import {toggleSubject} from "../app/actions";
+import {resetSubjects} from "../app/actions";
 
 const mapState = state => ({
     subjects: state.app.subjects,
@@ -12,7 +13,8 @@ const mapState = state => ({
 });
 
 const mapDispatch = dispatch => ({
-    toggleSubject: (calendar, subject) => dispatch(toggleSubject(calendar, subject))
+    toggleSubject: (calendar, subject) => dispatch(toggleSubject(calendar, subject)),
+    reset: () => dispatch(resetSubjects())
 });
 
 function NestedList(props) {
@@ -65,9 +67,17 @@ export class FilterSubject extends React.Component {
 
     render() {
         let classes = this.props.classes;
+        let len = Object.keys(this.props.filters).reduce((s, f) => s + this.props.filters[f].length, 0);
+        let s = len > 1 ? 's' : '';
         return (
             <List component="nav" subheader={(
                 <ListSubheader className={classes.root} component="div">
+                    <Checkbox onClick={this.props.reset}
+                              checked={len > 0}
+                              disableRipple/>
+                    <Typography component="h2" variant="subheading" className={classes.title}>
+                        {len} matière{s} filtrée{s}
+                    </Typography>
                 </ListSubheader>
             )}>
                 {

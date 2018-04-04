@@ -25,11 +25,11 @@ export function appReducer(state, action) {
 			return {...state, selection: toggle(state.selection, action.calendar)};
 		case 'SET_SELECTION':
 			return {...state, selection: action.selection};
-		case 'RESET_SELECTION':
-			return {...state, selection: []};
 		case 'TOGGLE_SUBJECT':
 			return {...state, filters: {...state.filters, [action.calendar]: toggle(state.filters[action.calendar] || [], action.subject)}}
-        case 'NEXT_WEEK':
+		case 'SET_FILTER':
+			return {...state, filters: action.filters};
+		case 'NEXT_WEEK':
             return {...state, date: addWeeks(state.date, 1)};
 		case 'PREV_WEEK':
 			return {...state, date: subWeeks(state.date, 1)};

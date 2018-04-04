@@ -1,7 +1,7 @@
 import React from "react";
 import {Button, Divider, Drawer, LinearProgress, Step, StepContent, StepLabel, Stepper} from "material-ui";
 import {connect} from "react-redux";
-import {finishSelection, getSubjects, toggleMenu} from "../app/actions";
+import {applySelection, getSubjects, toggleMenu} from "../app/actions";
 import {CalendarSelect} from "./CalendarSelect";
 import {FilterSubject} from "./FilterSubject";
 
@@ -11,11 +11,10 @@ const mapState = state => ({
 });
 
 const mapDispatch = dispatch => ({
-    hide: () => {
-        dispatch(finishSelection());
-        dispatch(toggleMenu());
+    complete: () => {
+        dispatch(applySelection())
+            .then(_ => dispatch(toggleMenu()));
     },
-    show: () => dispatch(toggleMenu()),
     getSubjects: () => dispatch(getSubjects())
 });
 
@@ -36,10 +35,14 @@ export class Sidebar extends React.Component {
         }
     }
 
+    prev() {
+        return () => this.setState({step: this.state.step - 1});
+    }
+
     render() {
         return (
-            <Drawer open={this.props.shown} onClose={this.props.hide}>
-                <Button onClick={this.props.hide} color="primary">
+            <Drawer open={this.props.shown} onClose={this.props.complete}>
+                <Button onClick={this.props.complete} color="primary">
                     Fermer
                 </Button>
                 <Divider/>
@@ -56,7 +59,9 @@ export class Sidebar extends React.Component {
                         <StepLabel>Filtrer les matières</StepLabel>
                         <StepContent>
                             <FilterSubject />
-                            <Button onClick={this.next()} variant="raised" color="primary">Terminer</Button>
+                            <Button onClick={this.prev()} variant="raised">Précédent</Button>
+                            {' '}
+                            <Button onClick={this.props.complete} variant="raised" color="primary">Terminer</Button>
                         </StepContent>
                     </Step>
                 </Stepper>
