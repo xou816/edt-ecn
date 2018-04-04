@@ -3,6 +3,7 @@ const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const ManifestPlugin = require('webpack-manifest-plugin');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = {
 	entry: path.resolve(__dirname, '../src/index.jsx'),
@@ -36,24 +37,26 @@ module.exports = {
 	},
 	plugins: [
 	new webpack.DefinePlugin({
-        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development')
+        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'production')
 	}),
 	new HtmlWebpackPlugin({
 		template: path.resolve(__dirname, '../src/index.html')
 	}),
-	new webpack.optimize.UglifyJsPlugin({
-      compress: {
-        warnings: false,
-        comparisons: false,
-      },
-      mangle: {
-        safari10: true,
-      },        
-      output: {
-        comments: false,
-        ascii_only: true,
-      },
-      sourceMap: true,
+	new UglifyJsPlugin({
+		uglifyOptions: {
+            compress: {
+                warnings: false,
+                comparisons: false,
+            },
+            mangle: {
+                safari10: true,
+            },
+            output: {
+                comments: false,
+                ascii_only: true,
+            },
+            sourceMap: true,
+		}
     }),
     new ExtractTextPlugin({
       filename: 'style.[contenthash:8].css',
