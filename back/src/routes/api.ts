@@ -44,8 +44,9 @@ export default function apiRouter(router: Router): Router {
 	router.get('/calendar/:name.ics', (req, res) => {
 		res.setHeader('Content-Type', 'text/calendar');
 		calendar.getIdFromName(req.params.name)
-			.then(id => id == null ? Promise.reject('Calendar not found') : Promise.resolve(id))
+			.then(id => id == null ? Promise.reject('Events not found') : Promise.resolve(id))
 			.then(calendar.getOnlineCalendar)
+			.then(cal => cal.events)
 			.then(calendar.calendarToIcs)
 			.then(ics => res.send(ics))
 			.catch(error => {
@@ -57,7 +58,7 @@ export default function apiRouter(router: Router): Router {
 	router.get('/calendar/:name', (req, res) => {
 		res.setHeader('Content-Type', 'application/json');
 		calendar.getIdFromName(req.params.name)
-			.then(id => id == null ? Promise.reject('Calendar not found') : Promise.resolve(id))
+			.then(id => id == null ? Promise.reject('Events not found') : Promise.resolve(id))
 			.then(calendar.getOnlineCalendar)
 			.then(JSON.stringify)
 			.then(json => res.send(json))
@@ -70,6 +71,7 @@ export default function apiRouter(router: Router): Router {
 	router.get('/calendar/custom/:id.ics', (req, res) => {
 		res.setHeader('Content-Type', 'text/calendar');
 		calendar.getCustomCalendar(req.params.id)
+			.then(cal => cal.events)
 			.then(calendar.calendarToIcs)
 			.then(ics => res.send(ics))
 			.catch(error => {
@@ -92,8 +94,9 @@ export default function apiRouter(router: Router): Router {
 	router.get('/calendar/:name/subjects', (req, res) => {
 		res.setHeader('Content-Type', 'application/json');
 		calendar.getIdFromName(req.params.name)
-			.then(id => id == null ? Promise.reject('Calendar not found') : Promise.resolve(id))
+			.then(id => id == null ? Promise.reject('Events not found') : Promise.resolve(id))
 			.then(calendar.getOnlineCalendar)
+			.then(cal => cal.events)
 			.then(calendar.getSubjects)
 			.then(JSON.stringify)
 			.then(json => res.send(json))
@@ -106,6 +109,7 @@ export default function apiRouter(router: Router): Router {
 	router.get('/calendar/custom/:id/subjects', (req, res) => {
 		res.setHeader('Content-Type', 'application/json');
 		calendar.getCustomCalendar(req.params.id)
+            .then(cal => cal.events)
 			.then(calendar.getSubjects)
 			.then(JSON.stringify)
 			.then(json => res.send(json))
@@ -119,6 +123,7 @@ export default function apiRouter(router: Router): Router {
 		res.setHeader('Content-Type', 'text/calendar');
 		alias.getCalId(req.params.alias)
 			.then(calendar.getCustomCalendar)
+            .then(cal => cal.events)
 			.then(calendar.calendarToIcs)
 			.then(ics => res.send(ics))
 			.catch(error => {
@@ -143,6 +148,7 @@ export default function apiRouter(router: Router): Router {
 		res.setHeader('Content-Type', 'application/json');
 		alias.getCalId(req.params.alias)
 			.then(calendar.getCustomCalendar)
+            .then(cal => cal.events)
 			.then(calendar.getSubjects)
 			.then(JSON.stringify)
 			.then(json => res.send(json))
@@ -158,6 +164,7 @@ export default function apiRouter(router: Router): Router {
 		let from = tz(parseInt(req.params.from, 10), 'Europe/Paris');
 		let to = tz(parseInt(req.params.to, 10), 'Europe/Paris');
 		let keepRoom = (id: string) => calendar.getOnlineCalendar(id)
+			.then(cal => cal.events)
 			.then(events => events
 				.filter(e => e.start >= from && e.end <= to))
 			.then(events => events.length === 0);

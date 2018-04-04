@@ -1,6 +1,5 @@
 import {Moment, tz} from 'moment-timezone';
 import * as ical from 'ical-generator';
-import * as request from 'request-promise';
 import fetch from 'node-fetch';
 import {createHash} from 'crypto';
 import {parseXmlString, Element} from 'libxmljs';
@@ -25,9 +24,13 @@ export type CalendarEvent = {
 	organizer: string
 };
 
-export type Calendar = CalendarEvent[];
+export type Events = CalendarEvent[];
+export type Calendar = {
+	events: Events,
+	meta: {id: string, filter?: number[]}[]
+}
 
-export type Subjects = {[key: string]: number};
+export type Subjects = {id: number, name: string}[];
 
 const calendarList = 'http://website.ec-nantes.fr/sites/edtemps/finder.xml';
 const calendarUrl = (id: string) => `http://website.ec-nantes.fr/sites/edtemps/${id}.xml`;
@@ -125,19 +128,25 @@ export function getOnlineCalendar(id: string): Promise<Calendar> {
 			return doc.find('//event')
 				.map(node => mapNodeToEvent(node, dates))
 				.sort((a, b) => a.start.valueOf() - b.start.valueOf());
-		});
+		})
+		.then(events => ({
+			events,
+			meta: [{id}]
+		}))
 }
 
-export function getSubjects(events: Calendar): Subjects {
+export function getSubjects(events: Events): Subjects {
 	return events
 		.filter(e => e.subject.length > 0)
 		.map(e => ({ subject: e.subject.trim(), date: e.start }))
 		.sort((a, b) => a.date < b.date ? -1 : 1)
-		.reduce((final: Subjects, e) => {
-			let len = Object.keys(final).length;
-			let exists = Object.keys(final).find(k => k === e.subject) != null;
-			return exists ? final : {...final, [e.subject]: len };
-		}, {});
+		.reduce((final: Subjects, event, i) => {
+			let exists = final.find(e => e.name === event.subject) != null;
+			return final.concat(exists ? [] : [{
+				name: event.subject,
+				id: final.length
+			}])
+		}, []);
 }
 
 function getSingleCustomCalendar(id: string): Promise<Calendar> {
@@ -148,22 +157,35 @@ function getSingleCustomCalendar(id: string): Promise<Calendar> {
 	let [filter_enc, checksum] = filter_withsum.split('_');
 	let filter = Filter.parse(filter_enc);
 	return getOnlineCalendar(calid)
-		.then(events => {
+		.then(cal => {
+			let events = cal.events;
 			let subjects = getSubjects(events);
 			let warn = checksum != null && checkSubjects(filter, subjects, checksum);
-			return warn ? 
+			events = warn ?
 				events.map(event => ({...event, description: event.description + WARN_MESSAGE})) : 
-				events.filter(event => filter.test(subjects[event.subject]));
+				events.filter(event => filter.test((subjects
+					.find(s => s.name === event.subject) || {id: -1}).id));
+			return {
+				events,
+                meta: [{
+					id: calid,
+					filter: subjects.map(s => s.id)
+				}]
+			}
 		});
-};
+}
 
 export function getCustomCalendar(id: string): Promise<Calendar> {
 	return Promise.all(id.split('+').map(getSingleCustomCalendar))
-		.then(all => all.reduce((acc, events) => acc.concat(events), []));
+		.then(all => all
+			.reduce((acc, calendar) => ({
+				meta: acc.meta.concat(calendar.meta),
+				events: acc.events.concat(calendar.events)
+			}), {meta: [], events: []}));
 }
 
 function makeChecksum(subjects: Subjects, length: number): string {
-	let str = Object.keys(subjects).slice(0, length).join(',');
+	let str = subjects.map(s => s.name).slice(0, length).join(',');
 	return createHash('sha1').update(str).digest('hex').substr(0, 6);
 }
 
@@ -184,7 +206,7 @@ export function createFilter(id: string, indices: number[], subjects: Subjects):
 	return id + '-' + filter.toString() + '_' + makeChecksum(subjects, filter.length());
 }
 
-export function calendarToIcs(events: Calendar): string {
+export function calendarToIcs(events: Events): string {
 	let cal = ical({
         domain: 'ec-nantes.fr',
         name: 'EDT',
@@ -205,4 +227,4 @@ export function calendarToIcs(events: Calendar): string {
 		});
     });
     return cal.toString();
-};
+}

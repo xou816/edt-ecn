@@ -45,10 +45,14 @@ export class Filter {
 	}
 
 	test(index: number): boolean {
-		let filter = this.filters[Math.floor(index/Filter.MAX_BITS)];
-		filter = filter == null ? 0 : filter;
-		let bin = (1 << (index%Filter.MAX_BITS)) & filter;
-		return bin === 0;
+		if (index > -1) {
+            let filter = this.filters[Math.floor(index/Filter.MAX_BITS)];
+            filter = filter == null ? 0 : filter;
+            let bin = (1 << (index%Filter.MAX_BITS)) & filter;
+            return bin === 0;
+		} else {
+			return false;
+		}
 	}
 
 }

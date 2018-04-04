@@ -54,7 +54,9 @@ export default function mainRouter(router: Router): Router {
 				.filter(cal => ids.indexOf(cal.id) > -1)
 				.map(cal => cal.name));
 		let subjectsPromises: Promise<calendar.Subjects>[] = ids
-			.map(id => calendar.getOnlineCalendar(id).then(calendar.getSubjects));
+			.map(id => calendar.getOnlineCalendar(id)
+                .then(cal => cal.events)
+				.then(calendar.getSubjects));
 		Promise.all(subjectsPromises)
 			.then(subjects => namesPromise.then(names => [names, subjects]))
 			.then(([names, subjects]) => {
