@@ -37,7 +37,7 @@ module.exports = {
 	},
 	plugins: [
 	new webpack.DefinePlugin({
-        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'production')
+        'process.env.NODE_ENV': JSON.stringify('development')
 	}),
 	new HtmlWebpackPlugin({
 		template: path.resolve(__dirname, '../src/index.html')
@@ -48,9 +48,7 @@ module.exports = {
                 warnings: false,
                 comparisons: false,
             },
-            mangle: {
-                safari10: true,
-            },
+            mangle: false,
             output: {
                 comments: false,
                 ascii_only: true,
