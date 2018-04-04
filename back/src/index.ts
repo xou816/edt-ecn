@@ -20,9 +20,12 @@ app.use(session({
 }));
 
 
-app.use('/', mainRouter(express.Router()));
+app.use('/old', mainRouter(express.Router()));
 app.use('/api', apiRouter(express.Router()));
-app.use('/beta', reactRouter(express.Router()));
+app.use('/', reactRouter(express.Router()));
+app.get('/beta', (req, res) => {
+    res.redirect('/');
+});
 
 let port = process.env.PORT != null ? process.env.PORT : 3000;
 app.listen(port, () => console.log(port));

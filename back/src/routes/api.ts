@@ -3,6 +3,7 @@ import * as alias from '../alias';
 import {join} from 'path';
 import {tz} from 'moment-timezone';
 import {Router} from 'express';
+import {Meta} from "../calendar";
 
 export default function apiRouter(router: Router): Router {
 
@@ -66,6 +67,25 @@ export default function apiRouter(router: Router): Router {
 				res.status(404);
 				res.send({ error: '404 Not found' });
 			});
+	});
+
+	router.post('/calendar/custom', (req, res) => {
+        res.setHeader('Content-Type', 'application/json');
+        req.body.reduce((p: Promise<string[]>, meta: Meta) => p.then(filters =>
+                calendar.getOnlineCalendar(meta.id)
+                    .then(cal => meta.filter != null ?
+                        calendar.createFilter(meta.id, meta.filter, calendar.getSubjects(cal.events)) :
+                        meta.id)
+                    .then((f: string) => filters.concat([f]))),
+            Promise.resolve([]))
+            .then((filters: string[]) => filters.join('+'))
+            .then((result: string) => {
+                res.send(JSON.stringify({result}))
+            })
+            .catch(error => {
+                res.status(500);
+                res.send({ error: '505 Internal Server Error' });
+            });
 	});
 
 	router.get('/calendar/custom/:id.ics', (req, res) => {

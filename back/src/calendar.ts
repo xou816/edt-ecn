@@ -25,9 +25,10 @@ export type CalendarEvent = {
 };
 
 export type Events = CalendarEvent[];
+export type Meta = {id: string, filter?: number[]};
 export type Calendar = {
 	events: Events,
-	meta: {id: string, filter?: number[]}[]
+	meta: Meta[]
 }
 
 export type Subjects = {id: number, name: string}[];
@@ -169,7 +170,7 @@ function getSingleCustomCalendar(id: string): Promise<Calendar> {
 				events,
                 meta: [{
 					id: calid,
-					filter: subjects.map(s => s.id)
+					filter: subjects.map(s => s.id).filter(s => !filter.test(s))
 				}]
 			}
 		});
