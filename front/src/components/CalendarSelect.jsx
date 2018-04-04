@@ -1,4 +1,3 @@
-import {PREFIXES} from "../app/event";
 import React from "react";
 import {Checkbox, Collapse, List, ListItemText, ListSubheader, Typography, withStyles} from "material-ui";
 import {resetSelection, toggleCalendar} from "../app/actions";
@@ -7,9 +6,22 @@ import ExpandLess from 'material-ui-icons/ExpandLess';
 import ExpandMore from 'material-ui-icons/ExpandMore';
 import {connect} from "react-redux";
 
+const PREFIXES = {
+    'OD': 'Option disciplinaire',
+    'EI': 'Cycle ingénieur',
+    'AP': 'Cycle ingénieur apprenti',
+    'BTP': 'BTP',
+    'M1': 'Master 1',
+    'M2': 'Master 2',
+    'MECA': 'Filière mécanique',
+    'OP': 'Option profesionnelle',
+    'PROMO': 'Promo EI1',
+    '': 'Autres'
+};
+
 function NestedList(props) {
     return (
-        <React.Fragment key={props.title}>
+        <React.Fragment>
             <ListItem onClick={props.togglePrefix} button>
                 <ListItemText primary={props.title}/>
                 {props.unfold ? <ExpandLess/> : <ExpandMore/>}
@@ -28,8 +40,15 @@ function NestedList(props) {
     );
 }
 
+function indexList(list) {
+    return list.reduce((acc, calendar) => {
+        let prefix = Object.keys(PREFIXES).find(prefix => calendar.name.startsWith(prefix));
+        return {...acc, [prefix]: (acc[prefix] || []).concat([calendar])};
+    }, {});
+}
+
 const mapState = state => ({
-    list: state.app.list,
+    list: indexList(state.app.list),
     selection: state.app.selection
 });
 
