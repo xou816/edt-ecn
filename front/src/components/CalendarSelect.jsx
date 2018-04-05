@@ -1,10 +1,8 @@
 import React from "react";
-import {Checkbox, Collapse, List, ListItemText, ListSubheader, Typography, withStyles} from "material-ui";
+import {Checkbox, List, ListSubheader, Typography, withStyles} from "material-ui";
 import {resetSelection, toggleCalendar} from "../app/actions";
-import ListItem from "material-ui/es/List/ListItem";
-import ExpandLess from 'material-ui-icons/ExpandLess';
-import ExpandMore from 'material-ui-icons/ExpandMore';
 import {connect} from "react-redux";
+import {NestedList} from "./NestedList";
 
 const PREFIXES = {
     'OD': 'Option disciplinaire',
@@ -19,27 +17,6 @@ const PREFIXES = {
     '': 'Autres'
 };
 
-function NestedList(props) {
-    return (
-        <React.Fragment>
-            <ListItem onClick={props.togglePrefix} button>
-                <ListItemText primary={props.title}/>
-                {props.unfold ? <ExpandLess/> : <ExpandMore/>}
-            </ListItem>
-            <Collapse in={props.unfold}>
-                <List>
-                    {props.calendars.map(calendar => (
-                        <ListItem key={calendar.id} button onClick={props.toggle(calendar.id)}>
-                            <Checkbox checked={props.selection.indexOf(calendar.id) > -1} tabIndex={-1} disableRipple/>
-                            <ListItemText primary={calendar.display}/>
-                        </ListItem>
-                    ))}
-                </List>
-            </Collapse>
-        </React.Fragment>
-    );
-}
-
 function indexList(list) {
     return list.reduce((acc, calendar) => {
         let prefix = Object.keys(PREFIXES).find(prefix => calendar.name.startsWith(prefix));
@@ -53,7 +30,7 @@ const mapState = state => ({
 });
 
 const mapDispatch = dispatch => ({
-    toggle: id => () => dispatch(toggleCalendar(id)),
+    toggle: id => dispatch(toggleCalendar(id)),
     resetSelection: () => dispatch(resetSelection())
 });
 
@@ -100,13 +77,15 @@ export class CalendarSelect extends React.Component {
             )}>
                 {
                     Object.keys(this.props.list).map(prefix => <NestedList
-                        key={prefix}
+                        key={`prefix_${prefix}`}
                         title={PREFIXES[prefix]}
-                        calendars={this.props.list[prefix]}
-                        unfold={this.state.unfold === prefix}
-                        selection={this.props.selection}
-                        toggle={this.props.toggle}
-                        togglePrefix={() => this.togglePrefix(prefix)}
+                        nested={this.props.list[prefix]}
+                        shown={this.state.unfold === prefix}
+                        checked={(id) => this.props.selection.indexOf(id) > -1}
+                        toggle={(id) => this.props.toggle(id)}
+                        unfold={() => this.togglePrefix(prefix)}
+                        getId={calendar => calendar.id}
+                        getDisplay={calendar => calendar.display}
                     />)
                 }
             </List>
