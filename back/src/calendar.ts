@@ -4,6 +4,7 @@ import fetch from 'node-fetch';
 import {createHash} from 'crypto';
 import {parseXmlString, Element} from 'libxmljs';
 import {Filter} from './filter';
+import {raw} from "body-parser";
 
 const FILTER = 'Groupe';
 const WARN_MESSAGE = "(!) Ce calendrier n'est peut être pas à jour. Les filtres sont désactivés par sécurité."
@@ -19,6 +20,7 @@ export type CalendarEvent = {
 	end: Moment,
 	subject: string,
 	full_subject: string,
+	raw_subject: string,
 	location: string,
 	description: string,
 	organizer: string
@@ -72,8 +74,12 @@ function safeText(node: Element, xpaths: string[], fallback: string = ''): strin
 	let found: string|null = xpaths.reduce((res: string|null, xpath: string) => {
 		return (res == null || res.length === 0) ? (node.get(xpath) || {text: () => null}).text() : res;
 	}, null);
-	return found || fallback; 
+	return (found || fallback).trim();
 }
+
+const ORGANIZER_REGEX = /^([-a-zÀ-ú ]+) \(([-a-zÀ-ú ]+)\)$/i;
+const ROOM_REGEX = /^([\w ]+) \(\1\)$/i;
+const COURSE_REGEX = /^([\w ]+) \((.*)\)$/i;
 
 function mapNodeToEvent(node: Element, weekNumToFirstDay: string[][]): CalendarEvent {
 
@@ -81,22 +87,26 @@ function mapNodeToEvent(node: Element, weekNumToFirstDay: string[][]): CalendarE
 	let week = parseInt(safeText(node, ['prettyweeks']), 10);
 	let date = weekNumToFirstDay[week][day];
 	let description = safeText(node, ['notes']);
-	let organizer = safeText(node, ['resources/staff/item']).split(' ').shift() || '';
-	
-	const reg = /([\w ]+) \(\1\)/i;
-
-	let subject = safeText(node, ['resources/module/item', 'notes']).split('-').shift() || '';
-	let res = reg.exec(subject);
+	let organizer = safeText(node, ['resources/staff/item']);
+	let res = ORGANIZER_REGEX.exec(organizer);
 	if (res != null) {
-		subject = res[1];
-	}
-	let cat = safeText(node, ['category']);
-	let full_subject = cat + ' ' + subject;
+        organizer = res[2]
+    }
+
+    let cat = safeText(node, ['category']);
+    let raw_subject = safeText(node, ['resources/module/item', 'notes']).split('-').shift() || '';
+    let subject = raw_subject;
+    let full_subject = cat + ' ' + raw_subject;
+    res = COURSE_REGEX.exec(subject);
+    if (res != null) {
+        subject = res[2];
+        full_subject = cat + ' ' + res[1];
+    }
 
 	let location: string = node.find('resources/room/item')
 		.map(n => n.text())
 		.map(text => {
-			let res = reg.exec(text);
+			let res = ROOM_REGEX.exec(text);
 			return res != null ? res[1] : text;
 		})
 		.join(', ');
@@ -106,6 +116,7 @@ function mapNodeToEvent(node: Element, weekNumToFirstDay: string[][]): CalendarE
 		end: dateFromCourseTime(date, safeText(node, ['endtime'])),
 		subject: subject.trim(),
 		full_subject: full_subject.trim(),
+		raw_subject: raw_subject.trim(),
 		location: location,
 		description: description,
 		organizer: organizer
@@ -139,7 +150,7 @@ export function getOnlineCalendar(id: string): Promise<Calendar> {
 export function getSubjects(events: Events): Subjects {
 	return events
 		.filter(e => e.subject.length > 0)
-		.map(e => ({ subject: e.subject.trim(), date: e.start }))
+		.map(e => ({ subject: e.raw_subject, date: e.start }))
 		.sort((a, b) => a.date < b.date ? -1 : 1)
 		.reduce((final: Subjects, event, i) => {
 			let exists = final.find(e => e.name === event.subject) != null;
@@ -163,9 +174,9 @@ function getSingleCustomCalendar(id: string): Promise<Calendar> {
 			let subjects = getSubjects(events);
 			let warn = checksum != null && checkSubjects(filter, subjects, checksum);
 			events = warn ?
-				events.map(event => ({...event, description: event.description + WARN_MESSAGE})) : 
+				events.map(event => ({...event, description: event.description + WARN_MESSAGE})) :
 				events.filter(event => filter.test((subjects
-					.find(s => s.name === event.subject) || {id: -1}).id));
+					.find(s => s.name === event.raw_subject) || {id: -1}).id));
 			return {
 				events,
                 meta: [{
@@ -205,6 +216,18 @@ function checkSubjects(filter: Filter, subjects: Subjects, checksum: string): bo
 export function createFilter(id: string, indices: number[], subjects: Subjects): string {
 	let filter = Filter.from(indices);
 	return id + '-' + filter.toString() + '_' + makeChecksum(subjects, filter.length());
+}
+
+export function createFilterFromMeta(metas: Meta[]): Promise<string> {
+	let needFilter = (meta: Meta) => meta.filter != null && meta.filter.length > 0;
+	return metas.reduce((p: Promise<string[]>, meta: Meta) => p.then(filters =>
+		(needFilter(meta) ?
+			getOnlineCalendar(meta.id)
+				.then(cal => createFilter(meta.id, meta.filter!, getSubjects(cal.events))) :
+			Promise.resolve(meta.id))
+			.then((f: string) => filters.concat([f]))),
+        Promise.resolve([]))
+        .then((filters: string[]) => filters.join('+'));
 }
 
 export function calendarToIcs(events: Events): string {

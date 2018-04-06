@@ -71,14 +71,7 @@ export default function apiRouter(router: Router): Router {
 
 	router.post('/calendar/custom', (req, res) => {
         res.setHeader('Content-Type', 'application/json');
-        req.body.reduce((p: Promise<string[]>, meta: Meta) => p.then(filters =>
-                calendar.getOnlineCalendar(meta.id)
-                    .then(cal => meta.filter != null && meta.filter.length > 0 ?
-                        calendar.createFilter(meta.id, meta.filter, calendar.getSubjects(cal.events)) :
-                        meta.id)
-                    .then((f: string) => filters.concat([f]))),
-            Promise.resolve([]))
-            .then((filters: string[]) => filters.join('+'))
+        calendar.createFilterFromMeta(req.body)
             .then((result: string) => {
                 res.send(JSON.stringify({result}))
             })

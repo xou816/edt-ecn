@@ -7,7 +7,7 @@ import {Button, withStyles} from "material-ui";
     btn: {
         position: 'absolute !important',
         bottom: '5px',
-        zIndex: 1500
+        zIndex: 3000
     },
     btnLeft: {
         left: '5px'
@@ -72,7 +72,6 @@ export class CourseWrapper extends React.Component {
                             </Button>
                     </TimetableEntry>
                 )}
-
             </React.Fragment>
         );
     }

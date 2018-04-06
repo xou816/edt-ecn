@@ -8,8 +8,9 @@ const DAY_MS = 1000 * 60 * 60 * 24;
     root: {
         display: 'flex',
         height: '100%',
+        background: 'none',
         flex: 1,
-        position: 'relative'
+        position: 'relative',
     }
 }))
 export class TimetableEntry extends React.Component {

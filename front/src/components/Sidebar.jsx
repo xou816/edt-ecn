@@ -1,5 +1,5 @@
 import React from "react";
-import {Button, Divider, Drawer, LinearProgress, Step, StepContent, StepLabel, Stepper} from "material-ui";
+import {Button, Divider, Drawer, LinearProgress, Step, StepContent, StepLabel, Stepper, withStyles} from "material-ui";
 import {connect} from "react-redux";
 import {applySelection, getSubjects, toggleMenu} from "../app/actions";
 import {CalendarSelect} from "./CalendarSelect";
@@ -19,6 +19,18 @@ const mapDispatch = dispatch => ({
 });
 
 @connect(mapState, mapDispatch)
+@withStyles(theme => ({
+    close: {
+        position: 'sticky',
+        top: 0,
+        backgroundColor: theme.palette.background.paper,
+        zIndex: 9000,
+        textAlign: 'center'
+    },
+    closeBtn: {
+        width: '100%'
+    }
+}))
 export class Sidebar extends React.Component {
 
     constructor(props) {
@@ -42,23 +54,25 @@ export class Sidebar extends React.Component {
     render() {
         return (
             <Drawer open={this.props.shown} onClose={this.props.complete}>
-                <Button onClick={this.props.complete} color="primary">
-                    Fermer
-                </Button>
-                <Divider/>
-                {this.props.loading ? <LinearProgress /> : null }
+                <div className={this.props.classes.close}>
+                    <Button onClick={this.props.complete} color="primary" className={this.props.classes.closeBtn}>
+                        Fermer
+                    </Button>
+                    {this.props.loading ? <LinearProgress/> : <Divider/>}
+                </div>
                 <Stepper activeStep={this.state.step} orientation="vertical">
                     <Step>
                         <StepLabel>Choisir des calendriers</StepLabel>
                         <StepContent>
                             <CalendarSelect/>
-                            <Button onClick={this.next(this.props.getSubjects)} variant="raised" color="primary">Suivant</Button>
+                            <Button onClick={this.next(this.props.getSubjects)} variant="raised"
+                                    color="primary">Suivant</Button>
                         </StepContent>
                     </Step>
                     <Step>
                         <StepLabel>Filtrer les matières</StepLabel>
                         <StepContent>
-                            <FilterSubject />
+                            <FilterSubject/>
                             <Button onClick={this.prev()} variant="raised">Précédent</Button>
                             {' '}
                             <Button onClick={this.props.complete} variant="raised" color="primary">Terminer</Button>

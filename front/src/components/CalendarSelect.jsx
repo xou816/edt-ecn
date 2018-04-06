@@ -66,9 +66,8 @@ export class CalendarSelect extends React.Component {
         let s = this.props.selection.length > 1 ? 's' : '';
         return (
             <List component="nav" subheader={(
-                <ListSubheader className={classes.root} component="div">
-                    <Checkbox onClick={this.props.resetSelection}
-                              checked={this.props.selection.length > 0}
+                <ListSubheader onClick={this.props.resetSelection} className={classes.root} component="div">
+                    <Checkbox checked={this.props.selection.length > 0}
                               disableRipple/>
                     <Typography component="h2" variant="subheading" className={classes.title}>
                         {this.props.selection.length} calendrier{s} sélectionné{s}
