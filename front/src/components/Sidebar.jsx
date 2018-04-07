@@ -65,7 +65,7 @@ export class Sidebar extends React.Component {
                         <StepLabel>Choisir des calendriers</StepLabel>
                         <StepContent>
                             <CalendarSelect/>
-                            <Button onClick={this.next(this.props.getSubjects)} variant="raised"
+                            <Button onClick={this.next()} variant="raised"
                                     color="primary">Suivant</Button>
                         </StepContent>
                     </Step>

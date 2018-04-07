@@ -9,14 +9,12 @@ import {mediaQueryTracker, reducer as responsive} from 'redux-mediaquery';
 
 import {App} from "./components/App";
 import {getCalendar, getCalendarList} from "./app/actions";
-import {routerMiddleware, routerReducer} from "react-router-redux";
 
 export const history = createHistory();
 const store = createStore(combineReducers({
     responsive,
-    app: appReducer,
-    routing: routerReducer
-}), applyMiddleware(thunk, routerMiddleware(history)));
+    app: appReducer
+}), applyMiddleware(thunk));
 
 mediaQueryTracker({
     isPhone: "screen and (max-width: 767px)",

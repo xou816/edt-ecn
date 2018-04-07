@@ -1,9 +1,15 @@
 import React from "react";
 import {
-    Button, Dialog, DialogTitle, Divider, IconButton, InputAdornment, TextField, Typography,
+    Avatar,
+    Button,
+    Dialog,
+    DialogTitle,
+    IconButton,
+    InputAdornment,
+    TextField,
+    Typography,
     withStyles
 } from "material-ui";
-import Reply from "material-ui-icons/Reply";
 import Copy from "material-ui-icons/ContentCopy";
 import {history} from "../index";
 
@@ -12,6 +18,9 @@ import {history} from "../index";
         position: 'fixed',
         bottom: theme.spacing.unit,
         right: theme.spacing.unit
+    },
+    avatar: {
+        backgroundColor: 'inherit'
     },
     margin: {
         margin: `${theme.spacing.unit}px ${3*theme.spacing.unit}px`
@@ -53,7 +62,7 @@ export class ExportButton extends React.Component {
             <React.Fragment>
                 <Button disabled={this.disabled()} onClick={this.toggleDialog()} variant="fab" color="secondary"
                         className={this.props.classes.btn}>
-                    <Reply/>
+                    <Avatar className={this.props.classes.avatar}>ICS</Avatar>
                 </Button>
                 <Dialog open={this.state.showDialog} onClose={this.toggleDialog()}>
                     <DialogTitle>Lien ICS</DialogTitle>
@@ -61,9 +70,9 @@ export class ExportButton extends React.Component {
                         Copiez ce lien dans votre application de calendrier préférée.
                     </Typography>
                     <TextField value={this.link()} className={this.props.classes.margin} InputProps={{
-                        endAdornment: <InputAdornment position="end">
+                        endAdornment: (<InputAdornment position="end">
                             <IconButton><Copy/></IconButton>
-                        </InputAdornment>,
+                        </InputAdornment>),
                     }}/>
                     <div className={this.props.classes.copyright}>
                         <Typography color="textSecondary">

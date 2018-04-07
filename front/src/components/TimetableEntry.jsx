@@ -42,11 +42,11 @@ export class TimetableEntry extends React.Component {
     }
 
     render() {
-        let classes = this.props.classes;
+        let {classes, children} = this.props;
         return (
             <Zoom in={true}>
-                <div style={{...this.gridRow(), ...this.gridColumn()}} className={classes.root}>
-                    {this.props.children}
+                <div {...this.props} style={{...this.gridRow(), ...this.gridColumn()}} className={classes.root}>
+                    {children}
                 </div>
             </Zoom>
         );

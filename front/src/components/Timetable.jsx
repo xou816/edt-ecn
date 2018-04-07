@@ -1,10 +1,11 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
-import {addDays, addHours, compareAsc, format, isToday, startOfDay, startOfWeek, subHours} from "date-fns";
+import {addDays, addHours, compareAsc, format, isToday, startOfDay, startOfWeek} from "date-fns";
 import frLocale from "date-fns/locale/fr";
 import {CourseWrapper} from "./CourseWrapper";
 import {Divider, Typography, withStyles} from "material-ui";
 import {TimetableEntry} from "./TimetableEntry";
+import {FocusedCourse} from "./FocusedCourse";
 
 function setIntersection(a, b) {
     return a.some(ae => b.indexOf(ae) > -1) || b.some(be => a.indexOf(be) > -1);
@@ -133,10 +134,11 @@ export class Timetable extends React.Component {
     render() {
         return (
             <div className={this.props.classes.root}>
-                {this.renderEvents()}
                 {this.renderSeparators()}
                 {this.renderDays()}
+                {this.renderEvents()}
                 {this.renderMarker()}
+                <FocusedCourse/>
             </div>
 
         );

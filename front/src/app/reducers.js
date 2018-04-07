@@ -1,4 +1,5 @@
 import {addDays, addWeeks, isFriday, isMonday, subDays, subWeeks} from "date-fns";
+import {toggleCalendar, toggleSubject, resetSubjects} from "./meta";
 
 export const initialState = {
 	list: [],
@@ -6,9 +7,10 @@ export const initialState = {
 	date: new Date(),
     loading: true,
 	menu: false,
-	selection: [],
 	subjects: {},
-	filters: {}
+	focus: null,
+	calendar: null,
+	meta: []
 };
 
 function toggle(list, value) {
@@ -21,14 +23,18 @@ export function appReducer(state, action) {
 			return {...state, events: action.events};
 		case 'SET_LIST':
 			return {...state, list: action.list};
+		case 'SET_SUBJECTS':
+    		return {...state, subjects: action.subjects};
 		case 'TOGGLE_CALENDAR':
-			return {...state, selection: toggle(state.selection, action.calendar)};
-		case 'SET_SELECTION':
-			return {...state, selection: action.selection};
+			return {...state, meta: toggleCalendar(state.meta, action.calendar)};
 		case 'TOGGLE_SUBJECT':
-			return {...state, filters: {...state.filters, [action.calendar]: toggle(state.filters[action.calendar] || [], action.subject)}}
-		case 'SET_FILTER':
-			return {...state, filters: action.filters};
+			return {...state, meta: toggleSubject(state.meta, action.calendar, action.subject)};
+		case 'RESET_CALENDARS':
+			return {...state, meta: []};
+		case 'RESET_SUBJECTS':
+			return {...state, meta: resetSubjects(state.meta)};
+		case 'SET_META':
+			return {...state, meta: action.meta};
 		case 'NEXT_WEEK':
             return {...state, date: addWeeks(state.date, 1)};
 		case 'PREV_WEEK':
@@ -45,8 +51,10 @@ export function appReducer(state, action) {
             return {...state, date: new Date()};
 		case 'TOGGLE_MENU':
 			return {...state, menu: !state.menu};
-		case 'SET_SUBJECTS':
-			return {...state, subjects: action.subjects};
+		case 'FOCUS_EVENT':
+			return {...state, focus: action.event};
+		case 'BLUR_EVENT':
+			return {...state, focus: null};
 		default:
 			return {...initialState, ...state};
 	}

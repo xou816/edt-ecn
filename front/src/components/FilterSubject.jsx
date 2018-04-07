@@ -1,18 +1,23 @@
 import React from "react";
 import {connect} from "react-redux";
 import {Checkbox, List, ListSubheader, Typography, withStyles} from "material-ui";
-import {resetSubjects, toggleSubject} from "../app/actions";
+import {getSubjects, resetSubjects, toggleSubject} from "../app/actions";
 import {NestedList} from "./NestedList";
+import {countSubjects, getCalendars, includesSubject} from "../app/meta";
+import {is} from "immutable";
 
 const mapState = state => ({
     subjects: state.app.subjects,
     list: state.app.list,
-    filters: state.app.filters
+    calendars: getCalendars(state.app.meta),
+    count: countSubjects(state.app.meta),
+    checked: includesSubject(state.app.meta)
 });
 
 const mapDispatch = dispatch => ({
     toggleSubject: (calendar, subject) => dispatch(toggleSubject(calendar, subject)),
-    reset: () => dispatch(resetSubjects())
+    reset: () => dispatch(resetSubjects()),
+    getSubjects: () => dispatch(getSubjects())
 });
 
 @connect(mapState, mapDispatch)
@@ -36,6 +41,12 @@ export class FilterSubject extends React.Component {
         };
     }
 
+    componentDidMount() {
+        if (Object.keys(this.props.subjects).length === 0) {
+            this.props.getSubjects();
+        }
+    }
+
     toggleCalendar(cal) {
         this.setState({
             unfold: this.state.unfold === cal ? null : cal
@@ -43,29 +54,26 @@ export class FilterSubject extends React.Component {
     }
 
     render() {
-        let classes = this.props.classes;
-        let len = Object.keys(this.props.filters).reduce((s, f) => s + this.props.filters[f].length, 0);
-        let s = len > 1 ? 's' : '';
+        let {classes, count, toggleSubject, checked, reset, subjects, list} = this.props;
+        let s = count > 1 ? 's' : '';
         return (
             <List component="nav" subheader={(
-                <ListSubheader className={classes.root} component="div">
-                    <Checkbox onClick={this.props.reset}
-                              checked={len > 0}
-                              disableRipple/>
+                <ListSubheader onClick={reset} className={classes.root} component="div">
+                    <Checkbox checked={count > 0} disableRipple/>
                     <Typography component="h2" variant="subheading" className={classes.title}>
-                        {len} matière{s} filtrée{s}
+                        {count} matière{s} filtrée{s}
                     </Typography>
                 </ListSubheader>
             )}>
                 {
-                    Object.keys(this.props.subjects).map(calid => <NestedList
-                        key={calid}
-                        title={this.props.list.find(cal => cal.id === calid).display}
-                        nested={this.props.subjects[calid]}
-                        shown={this.state.unfold === calid}
-                        unfold={() => this.toggleCalendar(calid)}
-                        toggle={(subject) => this.props.toggleSubject(calid, subject)}
-                        checked={(subject) => (this.props.filters[calid] || []).indexOf(subject) > -1}
+                    Object.keys(subjects).map(calendar => <NestedList
+                        key={calendar}
+                        title={list.find(cal => cal.id === calendar).display}
+                        nested={subjects[calendar]}
+                        shown={this.state.unfold === calendar}
+                        unfold={() => this.toggleCalendar(calendar)}
+                        toggle={(subject) => toggleSubject(calendar, subject)}
+                        checked={checked}
                         getId={subject => subject.id}
                         getDisplay={subject => subject.name}
                     />)

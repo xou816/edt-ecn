@@ -21,12 +21,13 @@ const mapDispatch = dispatch => ({
 export class App extends React.Component {
 
     render() {
+        let {next, prev, loading} = this.props;
         return (
             <React.Fragment>
                 <CssBaseline/>
-                <Swipeable onSwipedLeft={() => this.props.next()} onSwipedRight={() => this.props.prev()}>
+                <Swipeable onSwipedLeft={() => next()} onSwipedRight={() => prev()}>
                     <Nav/>
-                    {this.props.loading ? <LinearProgress /> : null }
+                    {loading ? <LinearProgress /> : null }
                     <Timetable/>
                 </Swipeable>
                 <Sidebar/>

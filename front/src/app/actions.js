@@ -34,7 +34,7 @@ export function getCalendar(id) {
 export function getSubjects() {
     return (dispatch, getState) => {
         dispatch({type: 'LOAD_START'});
-        let ids = getState().app.selection;
+        let ids = getState().app.meta.map(meta => meta.id);
         return ids.reduce((p, id) => p.then(final =>
                 fetch(`/api/calendar/custom/${id}/subjects`)
                     .then(res => res.json())
@@ -62,12 +62,12 @@ export function applySelection() {
     }
 }
 
-export function resetSelection() {
-    return {type: 'SET_SELECTION', selection: []};
+export function resetCalendars() {
+    return {type: 'RESET_CALENDARS'};
 }
 
 export function resetSubjects() {
-    return {type: 'SET_FILTER', filters: {}};
+    return {type: 'RESET_SUBJECTS'};
 }
 
 export function toggleCalendar(id) {
@@ -76,6 +76,14 @@ export function toggleCalendar(id) {
 
 export function toggleSubject(calendar, subject) {
     return {type: 'TOGGLE_SUBJECT', calendar, subject};
+}
+
+export function focusEvent(id) {
+    return {type: 'FOCUS_EVENT', event: id};
+}
+
+export function blurEvent() {
+    return {type: 'BLUR_EVENT'};
 }
 
 export function next() {

@@ -1,23 +1,22 @@
 import format from "date-fns/format";
 import * as React from "react";
 import {subjectId} from "../app/event";
-import {TimetableEntry} from "./TimetableEntry";
-import {Card, CardContent, Chip, Dialog, Typography, withStyles} from "material-ui";
+import {Card, CardContent, Chip, Typography, withStyles, Divider} from "material-ui";
 import {COLOR_CLASSES} from "../app/colors";
+import Time from "material-ui-icons/AccessTime";
 
-export function CourseSummary({event, long}) {
+function CourseSummary({event, long, classes}) {
     return long ?
         [
             <Typography key="title" variant="title" component="h2" color="inherit">
                 {event.full_subject}
             </Typography>,
-            <Typography key="subheading" variant="subheading" component="h3" color="inherit">
-                {event.subject}
+            <Typography className={classes.par} key="subheading" variant="subheading" component="h3" color="inherit">
+                ({event.subject})
             </Typography>
-
         ] :
         (
-            <Typography variant="subheading" component="h2" color="inherit">
+            <Typography className={classes.par} variant="subheading" component="h2" color="inherit">
                 {event.full_subject}
             </Typography>
         );
@@ -29,18 +28,24 @@ function displaySpan(event) {
     return `${start}h - ${end}h`;
 }
 
-export function CourseDetails({event, long}) {
+function CourseDetails({event, long, classes}) {
     return (
         <React.Fragment>
             {!long ? null : (
                 <React.Fragment>
                     <Typography component="p" color="inherit">{event.description}</Typography>
-                    <Typography component="p" color="inherit">Intervenant
-                        : {event.organizer || 'non spécifié'}</Typography>
+                    <Typography component="p" color="inherit">
+                        Intervenant : {event.organizer || 'non spécifié'}
+                    </Typography>
                 </React.Fragment>
             )}
-            <Typography component="p" color="inherit">{displaySpan(event)}</Typography>
+            <Time className={classes.icon} />
+            <Typography className={classes.icon} component="span" color="inherit">
+                {displaySpan(event)}
+            </Typography>
+            <div>
             {event.location.length === 0 ? null : event.location.split(',').map(l => <Chip key={l} label={l}/>)}
+            </div>
         </React.Fragment>
     );
 }
@@ -51,16 +56,18 @@ export function CourseDetails({event, long}) {
         flexGrow: 1,
         overflow: 'hidden'
     },
+    par: {
+        marginBottom: .5*theme.spacing.unit
+    },
+    icon: {
+        verticalAlign: 'middle',
+        display: 'inline',
+        margin: `${.5*theme.spacing.unit}px 0`,
+        paddingRight: theme.spacing.unit
+    },
     ...COLOR_CLASSES
 }))
 export class Course extends React.Component {
-
-    constructor(props) {
-        super(props);
-        this.state = {
-            details: false
-        };
-    }
 
     className() {
         return this.props.classes.root + ' ' + this.props.classes[`color${subjectId(this.props) % 10}`];
@@ -70,31 +77,15 @@ export class Course extends React.Component {
         return this.props.end.valueOf() - this.props.start.valueOf() > 3 * 1000 * 60 * 15 ? expr : null;
     }
 
-    toggleDetails() {
-        this.setState({
-            details: !this.state.details
-        });
-    }
-
     render() {
-        let classes = this.props.classes;
+        let {long, id} = this.props;
         return (
-            <TimetableEntry event={this.props} offset={this.props.offset}>
-                <Card className={this.className()} onClick={() => this.toggleDetails()}>
-                    <CardContent className={this.className()}>
-                        <CourseSummary event={this.props}/>
-                        {this.ifLarge(<CourseDetails event={this.props}/>)}
-                    </CardContent>
-                </Card>
-                <Dialog open={this.state.details} onClose={() => this.toggleDetails()}>
-                    <Card className={this.className()} onClick={() => this.toggleDetails()}>
-                        <CardContent className={this.className()}>
-                            <CourseSummary long event={this.props}/>
-                            <CourseDetails long event={this.props}/>
-                        </CardContent>
-                    </Card>
-                </Dialog>
-            </TimetableEntry>
+            <Card className={this.className()}>
+                <CardContent className={this.className()}>
+                    <CourseSummary long={long} classes={this.props.classes} event={this.props}/>
+                    {this.ifLarge(<CourseDetails long={long} classes={this.props.classes} event={this.props}/>)}
+                </CardContent>
+            </Card>
         );
     }
 
