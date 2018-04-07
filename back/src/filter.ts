@@ -10,7 +10,6 @@ export class Filter {
 		const reg = new RegExp(`[a-z0-9]{1,${Filter.STR_LEN}}`, 'gi');
 		let matches = input.split('').reverse().join('').match(reg);
 		if (matches !== null) {
-			console.log(matches);
 			let filters = matches
 				.map(encoded => encoded.split('').reverse().join(''))
 				.map(encoded => parseInt(encoded, Filter.TARGET_BASE));
@@ -43,6 +42,7 @@ export class Filter {
 
 	toString(): string {
 		return this.filters
+			.slice()
 			.reverse()
 			.map((num, i) => num.toString(Filter.TARGET_BASE).padStart(i === 0 ? 0 : Filter.STR_LEN, "0"))
 			.join('');

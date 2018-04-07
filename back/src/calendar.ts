@@ -208,7 +208,7 @@ export function getCustomCalendar(id: string): Promise<Calendar> {
 
 function makeChecksum(subjects: Subjects, length: number): string {
 	let str = subjects.map(s => s.name).slice(0, length).join(',');
-	return createHash('sha1').update(str).digest('hex').substr(0, 6);
+    return createHash('sha1').update(str).digest('hex').substr(0, 6);
 }
 
 function checkSubjects(filter: Filter, subjects: Subjects, checksum: string): boolean {
