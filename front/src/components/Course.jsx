@@ -1,7 +1,7 @@
 import format from "date-fns/format";
 import * as React from "react";
 import {subjectId} from "../app/event";
-import {Card, CardContent, Chip, Typography, withStyles, Divider} from "material-ui";
+import {Card, CardContent, Chip, Typography, withStyles, Divider, Button} from "material-ui";
 import {COLOR_CLASSES} from "../app/colors";
 import Time from "material-ui-icons/AccessTime";
 
@@ -43,8 +43,10 @@ function CourseDetails({event, long, classes}) {
             <Typography className={classes.icon} component="span" color="inherit">
                 {displaySpan(event)}
             </Typography>
-            <div>
-            {event.location.length === 0 ? null : event.location.split(',').map(l => <Chip key={l} label={l}/>)}
+            <div className={classes.par}>
+            {event.location.length === 0 ?
+                null :
+                event.location.split(',').map(l => <Chip className={classes.chip} key={l} label={l}/>)}
             </div>
         </React.Fragment>
     );
@@ -65,7 +67,10 @@ function CourseDetails({event, long, classes}) {
         margin: `${.5*theme.spacing.unit}px 0`,
         paddingRight: theme.spacing.unit
     },
-    ...COLOR_CLASSES
+    chip: {
+        margin: 2
+    },
+     ...COLOR_CLASSES
 }))
 export class Course extends React.Component {
 
@@ -74,14 +79,14 @@ export class Course extends React.Component {
     }
 
     ifLarge(expr) {
-        return this.props.end.valueOf() - this.props.start.valueOf() > 3 * 1000 * 60 * 15 ? expr : null;
+        return this.props.long || this.props.end.valueOf() - this.props.start.valueOf() > 5 * 1000 * 60 * 15 ? expr : null;
     }
 
     render() {
-        let {long, id} = this.props;
+        let {long, colour} = this.props;
         return (
             <Card className={this.className()}>
-                <CardContent className={this.className()}>
+                <CardContent className={this.className()} style={{backgroundColor: colour}}>
                     <CourseSummary long={long} classes={this.props.classes} event={this.props}/>
                     {this.ifLarge(<CourseDetails long={long} classes={this.props.classes} event={this.props}/>)}
                 </CardContent>

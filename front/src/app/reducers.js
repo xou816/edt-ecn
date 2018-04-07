@@ -32,7 +32,7 @@ export function appReducer(state, action) {
 		case 'RESET_SUBJECTS':
 			return {...state, calendar: null, meta: resetSubjects(state.meta)};
 		case 'SET_META':
-			return {...state, meta: action.meta};
+			return {...state, meta: action.meta, subjects: []};
 		case 'NEXT_WEEK':
             return {...state, date: addWeeks(state.date, 1)};
 		case 'PREV_WEEK':

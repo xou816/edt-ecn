@@ -4,7 +4,6 @@ import fetch from 'node-fetch';
 import {createHash} from 'crypto';
 import {parseXmlString, Element} from 'libxmljs';
 import {Filter} from './filter';
-import {raw} from "body-parser";
 
 const FILTER = 'Groupe';
 const WARN_MESSAGE = "(!) Ce calendrier n'est peut être pas à jour. Les filtres sont désactivés par sécurité."
@@ -16,6 +15,8 @@ export type CalendarId = {
 };
 
 export type CalendarEvent = {
+	id: string,
+	colour: string,
 	start: Moment,
 	end: Moment,
 	subject: string,
@@ -23,7 +24,8 @@ export type CalendarEvent = {
 	raw_subject: string,
 	location: string,
 	description: string,
-	organizer: string
+	organizer: string,
+	calendar: string
 };
 
 export type Events = CalendarEvent[];
@@ -70,7 +72,6 @@ export function getIdFromName(name: string): Promise<string|null> {
 }
 
 function safeText(node: Element, xpaths: string[], fallback: string = ''): string {
-	let res = fallback;
 	let found: string|null = xpaths.reduce((res: string|null, xpath: string) => {
 		return (res == null || res.length === 0) ? (node.get(xpath) || {text: () => null}).text() : res;
 	}, null);
@@ -81,8 +82,10 @@ const ORGANIZER_REGEX = /^([-a-zÀ-ú ]+) \(([-a-zÀ-ú ]+)\)$/i;
 const ROOM_REGEX = /^([\w ]+) \(\1\)$/i;
 const COURSE_REGEX = /^([\w ]+) \((.*)\)$/i;
 
-function mapNodeToEvent(node: Element, weekNumToFirstDay: string[][]): CalendarEvent {
+function mapNodeToEvent(node: Element, weekNumToFirstDay: string[][], calendar: string): CalendarEvent {
 
+	let id = node.attr('id').value();
+	let colour = '#'+node.attr('colour').value();
 	let day = parseInt(safeText(node, ['day']), 10);
 	let week = parseInt(safeText(node, ['prettyweeks']), 10);
 	let date = weekNumToFirstDay[week][day];
@@ -112,6 +115,8 @@ function mapNodeToEvent(node: Element, weekNumToFirstDay: string[][]): CalendarE
 		.join(', ');
 
 	return {
+        id: id,
+        colour: colour,
 		start: dateFromCourseTime(date, safeText(node, ['starttime'])),
 		end: dateFromCourseTime(date, safeText(node, ['endtime'])),
 		subject: subject.trim(),
@@ -119,7 +124,8 @@ function mapNodeToEvent(node: Element, weekNumToFirstDay: string[][]): CalendarE
 		raw_subject: raw_subject.trim(),
 		location: location,
 		description: description,
-		organizer: organizer
+		organizer: organizer,
+		calendar: calendar
 	}
 }
 
@@ -138,7 +144,7 @@ export function getOnlineCalendar(id: string): Promise<Calendar> {
 				return acc;
 			}, []);
 			return doc.find('//event')
-				.map(node => mapNodeToEvent(node, dates))
+				.map(node => mapNodeToEvent(node, dates, id))
 				.sort((a, b) => a.start.valueOf() - b.start.valueOf());
 		})
 		.then(events => ({
@@ -152,7 +158,7 @@ export function getSubjects(events: Events): Subjects {
 		.filter(e => e.subject.length > 0)
 		.map(e => ({ subject: e.raw_subject, date: e.start }))
 		.sort((a, b) => a.date < b.date ? -1 : 1)
-		.reduce((final: Subjects, event, i) => {
+		.reduce((final: Subjects, event) => {
 			let exists = final.find(e => e.name === event.subject) != null;
 			return final.concat(exists ? [] : [{
 				name: event.subject,
@@ -188,12 +194,16 @@ function getSingleCustomCalendar(id: string): Promise<Calendar> {
 }
 
 export function getCustomCalendar(id: string): Promise<Calendar> {
-	return Promise.all(id.split('+').map(getSingleCustomCalendar))
-		.then(all => all
-			.reduce((acc, calendar) => ({
-				meta: acc.meta.concat(calendar.meta),
-				events: acc.events.concat(calendar.events)
-			}), {meta: [], events: []}));
+    return id.split('+').reduce((p: Promise<Calendar & {blacklist: string[]}>, id: string) => {
+    	return p.then(calendar => getSingleCustomCalendar(id)
+			.then(newCalendar => ({...newCalendar, events: newCalendar.events.filter(e => calendar.blacklist.indexOf(e.id) === -1)}))
+			.then(newCalendar => ({
+				meta: calendar.meta.concat(newCalendar.meta),
+				events: calendar.events.concat(newCalendar.events),
+				blacklist: calendar.blacklist.concat(newCalendar.events.map(e => e.id))
+			})));
+	}, Promise.resolve({meta: [], events: [], blacklist: []}))
+		.then(res => ({meta: res.meta, events: res.events}));
 }
 
 function makeChecksum(subjects: Subjects, length: number): string {

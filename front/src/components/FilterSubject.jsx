@@ -72,7 +72,7 @@ export class FilterSubject extends React.Component {
                         shown={this.state.unfold === calendar}
                         unfold={() => this.toggleCalendar(calendar)}
                         toggle={(subject) => toggleSubject(calendar, subject)}
-                        checked={checked}
+                        checked={(subject) => checked(calendar, subject)}
                         getId={subject => subject.id}
                         getDisplay={subject => subject.name}
                     />)

@@ -37,14 +37,14 @@ function collectGroups(events) {
     }, []);
 }
 
-function mapEvents(events, offset, prefix) {
+function mapEvents(events, offset) {
     let groups = collectGroups(events);
     let indexed = events.reduce((dict, event) => {
         return {...dict, [event.id]: event};
     }, {});
     return groups.map(group => {
         let eventGroup = group.map(id => indexed[id]);
-        return <CourseWrapper key={`${prefix}_${group.reduce((s, id) => s + id, offset)}`} events={eventGroup}
+        return <CourseWrapper key={`${group.reduce((s, id) => s + id, offset)}`} events={eventGroup}
                               offset={offset}/>
     });
 }
@@ -136,7 +136,7 @@ export class Timetable extends React.Component {
     }
 
     renderEvents() {
-        return mapEvents(this.events(), this.offset(), 'foo');
+        return mapEvents(this.events(), this.offset());
     }
 
     renderMarker() {

@@ -11,7 +11,3 @@ export function subjectId(event) {
     let sub = event.subject;
     return charcode(sub);
 }
-
-export function eventId(event) {
-    return charcode(JSON.stringify(event));
-}

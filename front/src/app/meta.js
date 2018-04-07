@@ -32,7 +32,8 @@ export function includesCalendar(metas) {
 }
 
 export function includesSubject(metas) {
-    return subject => metas
+    return (calendar, subject) => metas
+        .filter(meta => meta.id === calendar)
         .map(meta => (meta.filter || []).find(i => i === subject) != null)
         .some(t => t);
 }

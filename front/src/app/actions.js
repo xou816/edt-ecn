@@ -1,5 +1,4 @@
 import {parse} from 'date-fns';
-import {eventId} from './event';
 import {history} from "../index";
 
 export function getCalendarList() {
@@ -21,9 +20,9 @@ export function getCalendar() {
                 dispatch({type: 'SET_META', meta: cal.meta});
                 return cal.events;
             })
-            .then(events => events.map(e => ({...e, start: parse(e.start), end: parse(e.end), id: eventId(e)})))
-            .catch(err => [])
+            .then(events => events.map(e => ({...e, start: parse(e.start), end: parse(e.end)})))
             .then(events => dispatch({type: 'SET_EVENTS', events}))
+            .catch(err => dispatch({type: 'SET_CALENDAR', calendar: null}))
             .then(_ => dispatch({type: 'LOAD_END'}));
     };
 }
