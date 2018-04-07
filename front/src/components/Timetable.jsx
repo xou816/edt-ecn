@@ -6,6 +6,7 @@ import {CourseWrapper} from "./CourseWrapper";
 import {Divider, Typography, withStyles} from "material-ui";
 import {TimetableEntry} from "./TimetableEntry";
 import {FocusedCourse} from "./FocusedCourse";
+import {getCalendar} from "../app/actions";
 
 function setIntersection(a, b) {
     return a.some(ae => b.indexOf(ae) > -1) || b.some(be => a.indexOf(be) > -1);
@@ -52,7 +53,9 @@ function mapEvents(events, offset, prefix) {
     events: state.app.events,
     date: state.app.date,
     isPhone: state.responsive.isPhone,
-    menu: state.app.menu
+    calendar: state.app.calendar,
+}), dispatch => ({
+    getEvents: () => dispatch(getCalendar())
 }))
 @withStyles(theme => ({
     root: {
@@ -74,6 +77,20 @@ function mapEvents(events, offset, prefix) {
     }
 }))
 export class Timetable extends React.Component {
+
+    getEvents() {
+        if (this.props.calendar != null && this.props.events.length === 0) {
+            this.props.getEvents();
+        }
+    }
+
+    componentDidMount() {
+        this.getEvents();
+    }
+
+    componentDidUpdate(a, b, c) {
+        this.getEvents();
+    }
 
     days() {
         return this.props.isPhone ? 1 : 5;

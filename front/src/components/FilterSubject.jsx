@@ -4,7 +4,6 @@ import {Checkbox, List, ListSubheader, Typography, withStyles} from "material-ui
 import {getSubjects, resetSubjects, toggleSubject} from "../app/actions";
 import {NestedList} from "./NestedList";
 import {countSubjects, getCalendars, includesSubject} from "../app/meta";
-import {is} from "immutable";
 
 const mapState = state => ({
     subjects: state.app.subjects,

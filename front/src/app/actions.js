@@ -1,6 +1,6 @@
 import {parse} from 'date-fns';
 import {eventId} from './event';
-import {push} from 'react-router-redux';
+import {history} from "../index";
 
 export function getCalendarList() {
     return (dispatch) => {
@@ -12,16 +12,13 @@ export function getCalendarList() {
     }
 }
 
-export function getCalendar(id) {
+export function getCalendar() {
     return (dispatch, getState) => {
         dispatch({type: 'LOAD_START'});
-        return fetch(`/api/calendar/custom/${id || getState().app.calendar}`)
+        return fetch(`/api/calendar/custom/${getState().app.calendar}`)
             .then(res => res.json())
             .then(cal => {
-                let filters = cal.meta.reduce((final, meta) => ({...final, [meta.id]: meta.filter || []}), {});
-                let selection = cal.meta.map(meta => meta.id);
-                dispatch({type: 'SET_SELECTION', selection});
-                dispatch({type: 'SET_FILTER', filters});
+                dispatch({type: 'SET_META', meta: cal.meta});
                 return cal.events;
             })
             .then(events => events.map(e => ({...e, start: parse(e.start), end: parse(e.end), id: eventId(e)})))
@@ -47,19 +44,29 @@ export function getSubjects() {
 
 export function applySelection() {
     return (dispatch, getState) => {
-        let ids = getState().app.selection;
-        let filters = getState().app.filters;
-        let meta = ids.reduce((meta, id) => meta.concat([{id, filter: filters[id]}]), []);
-        dispatch({type: 'LOAD_START'});
-        return fetch(`/api/calendar/custom`, {
+        let {meta, calendar} = getState().app;
+        if (calendar === null) {
+            dispatch({type: 'LOAD_START'});
+            return fetch(`/api/calendar/custom`, {
                 method: 'POST',
                 body: JSON.stringify(meta),
                 headers: {'Content-Type': 'application/json'}
             })
-            .then(res => res.json())
-            .then(res => dispatch(push(`/${res.result}`)))
-            .then(_ => dispatch({type: 'LOAD_END'}));
+                .then(res => res.json())
+                .then(res => dispatch(setCalendar(res.result)))
+                .then(_ => dispatch({type: 'LOAD_END'}));
+        } else {
+            return Promise.resolve();
+        }
     }
+}
+
+export function setCalendar(calendar) {
+    let pathname = `/${calendar}`;
+    if (history.location.pathname !== pathname) {
+        history.push({pathname: '/'+calendar});
+    }
+    return {type: 'SET_CALENDAR', calendar};
 }
 
 export function resetCalendars() {
@@ -70,8 +77,8 @@ export function resetSubjects() {
     return {type: 'RESET_SUBJECTS'};
 }
 
-export function toggleCalendar(id) {
-    return {type: 'TOGGLE_CALENDAR', calendar: id};
+export function toggleCalendar(calendar) {
+    return {type: 'TOGGLE_CALENDAR', calendar};
 }
 
 export function toggleSubject(calendar, subject) {

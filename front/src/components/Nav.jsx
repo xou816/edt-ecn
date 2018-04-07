@@ -28,6 +28,9 @@ const mapDispatch = dispatch => ({
     appbar: {
         position: 'sticky !important',
         top: 0
+    },
+    btn: {
+        marginLeft: 2
     }
 }))
 export class Nav extends React.Component {
@@ -45,9 +48,9 @@ export class Nav extends React.Component {
                     <div className={classes.spread} />
                     {
                         this.props.isPhone ? null : [
-                            <Button key="left" variant="raised" color="secondary"
+                            <Button className={classes.btn} key="left" variant="raised" color="secondary"
                                     onClick={() => this.props.prev()}>Préc.</Button>,
-                            <Button key="right" variant="raised" color="secondary"
+                            <Button className={classes.btn} key="right" variant="raised" color="secondary"
                                     onClick={() => this.props.next()}>Suiv.</Button>
                         ]
                     }

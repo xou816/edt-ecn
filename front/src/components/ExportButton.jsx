@@ -11,8 +11,11 @@ import {
     withStyles
 } from "material-ui";
 import Copy from "material-ui-icons/ContentCopy";
-import {history} from "../index";
+import {connect} from "react-redux";
 
+@connect(state => ({
+    calendar: state.app.calendar
+}))
 @withStyles(theme => ({
     btn: {
         position: 'fixed',
@@ -39,16 +42,12 @@ export class ExportButton extends React.Component {
         }
     }
 
-    calendar() {
-        return history.location.pathname.substring(1);
-    }
-
     disabled() {
-        return this.calendar().length === 0;
+        return this.props.calendar === null;
     }
 
     link() {
-        return `${window.location.protocol}//${window.location.host}/api/calendar/custom/${this.calendar()}.ics`;
+        return `${window.location.protocol}//${window.location.host}/api/calendar/custom/${this.props.calendar}.ics`;
     }
 
     toggleDialog() {

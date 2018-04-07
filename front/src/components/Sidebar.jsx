@@ -1,5 +1,8 @@
 import React from "react";
-import {Button, Divider, Drawer, LinearProgress, Step, StepContent, StepLabel, Stepper, withStyles} from "material-ui";
+import {
+    Button, Divider, Drawer, LinearProgress, MobileStepper, Step, StepContent, StepLabel, Stepper,
+    withStyles
+} from "material-ui";
 import {connect} from "react-redux";
 import {applySelection, getSubjects, toggleMenu} from "../app/actions";
 import {CalendarSelect} from "./CalendarSelect";
@@ -29,6 +32,11 @@ const mapDispatch = dispatch => ({
     },
     closeBtn: {
         width: '100%'
+    },
+    root: {
+        [theme.breakpoints.down(767)]: {
+            width: '100%'
+        }
     }
 }))
 export class Sidebar extends React.Component {
@@ -53,7 +61,7 @@ export class Sidebar extends React.Component {
 
     render() {
         return (
-            <Drawer open={this.props.shown} onClose={this.props.complete}>
+            <Drawer classes={{paper: this.props.classes.root}} open={this.props.shown} onClose={this.props.complete}>
                 <div className={this.props.classes.close}>
                     <Button onClick={this.props.complete} color="primary" className={this.props.classes.closeBtn}>
                         Fermer

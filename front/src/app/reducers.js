@@ -5,7 +5,7 @@ export const initialState = {
 	list: [],
 	events: [],
 	date: new Date(),
-    loading: true,
+    loading: false,
 	menu: false,
 	subjects: {},
 	focus: null,
@@ -13,26 +13,24 @@ export const initialState = {
 	meta: []
 };
 
-function toggle(list, value) {
-	return list.indexOf(value) > -1 ? list.filter(l => l !== value) : list.concat([value]);
-}
-
 export function appReducer(state, action) {
 	switch (action.type) {
 		case 'SET_EVENTS':
 			return {...state, events: action.events};
 		case 'SET_LIST':
 			return {...state, list: action.list};
+		case 'SET_CALENDAR':
+			return {...state, calendar: action.calendar, events: []};
 		case 'SET_SUBJECTS':
     		return {...state, subjects: action.subjects};
 		case 'TOGGLE_CALENDAR':
-			return {...state, meta: toggleCalendar(state.meta, action.calendar)};
+			return {...state, calendar: null, subjects: [], meta: toggleCalendar(state.meta, action.calendar)};
 		case 'TOGGLE_SUBJECT':
-			return {...state, meta: toggleSubject(state.meta, action.calendar, action.subject)};
+			return {...state, calendar: null, meta: toggleSubject(state.meta, action.calendar, action.subject)};
 		case 'RESET_CALENDARS':
-			return {...state, meta: []};
+			return {...state, calendar: null, subjects: [], meta: []};
 		case 'RESET_SUBJECTS':
-			return {...state, meta: resetSubjects(state.meta)};
+			return {...state, calendar: null, meta: resetSubjects(state.meta)};
 		case 'SET_META':
 			return {...state, meta: action.meta};
 		case 'NEXT_WEEK':

@@ -1,6 +1,6 @@
 import React from "react";
 import {Checkbox, List, ListSubheader, Typography, withStyles} from "material-ui";
-import {resetCalendars, toggleCalendar} from "../app/actions";
+import {getCalendarList, resetCalendars, toggleCalendar} from "../app/actions";
 import {connect} from "react-redux";
 import {NestedList} from "./NestedList";
 import {includesCalendar} from "../app/meta";
@@ -33,7 +33,8 @@ const mapState = state => ({
 
 const mapDispatch = dispatch => ({
     toggle: id => dispatch(toggleCalendar(id)),
-    resetCalendars: () => dispatch(resetCalendars())
+    resetCalendars: () => dispatch(resetCalendars()),
+    getList: () => dispatch(getCalendarList())
 });
 
 @connect(mapState, mapDispatch)
@@ -55,6 +56,12 @@ export class CalendarSelect extends React.Component {
         this.state = {
             unfold: null
         };
+    }
+
+    componentDidMount() {
+        if (Object.keys(this.props.list).length === 0) {
+            this.props.getList();
+        }
     }
 
     togglePrefix(prefix) {

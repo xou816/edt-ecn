@@ -15,7 +15,7 @@ export function toggleCalendar(metas, calendar) {
 
 export function toggleSubject(metas, calendar, subject) {
     return metas.map(meta => meta.id === calendar ?
-        {...meta, filter: toggle(meta.filter, subject)} :
+        {...meta, filter: toggle(meta.filter || [], subject)} :
         meta);
 }
 
@@ -33,10 +33,10 @@ export function includesCalendar(metas) {
 
 export function includesSubject(metas) {
     return subject => metas
-        .map(meta => meta.filter.find(i => i === subject) != null)
+        .map(meta => (meta.filter || []).find(i => i === subject) != null)
         .some(t => t);
 }
 
 export function countSubjects(metas) {
-    return metas.reduce((sum, meta) => sum + meta.filter.length, 0);
+    return metas.reduce((sum, meta) => sum + (meta.filter || []).length, 0);
 }
