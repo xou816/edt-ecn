@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
-import {addDays, addHours, compareAsc, format, isToday, startOfDay, startOfWeek} from "date-fns";
+import {addDays, addHours, addMinutes, compareAsc, format, isToday, startOfDay, startOfWeek} from "date-fns";
 import frLocale from "date-fns/locale/fr";
 import {CourseWrapper} from "./CourseWrapper";
 import {Divider, Typography, withStyles} from "material-ui";
@@ -79,7 +79,7 @@ function mapEvents(events, offset) {
 export class Timetable extends React.Component {
 
     getEvents() {
-        if (this.props.calendar != null && this.props.events.length === 0) {
+        if (this.props.calendar !== null && this.props.events.length === 0) {
             this.props.getEvents();
         }
     }
@@ -142,7 +142,7 @@ export class Timetable extends React.Component {
     renderMarker() {
         let now = Date.now();
         return !this.isVisible(now) ? null : (
-            <TimetableEntry event={{start: now, end: addHours(now, 1)}} offset={this.offset()}>
+            <TimetableEntry event={{start: now, end: addMinutes(now, 15)}} offset={this.offset()}>
                 <Divider className={this.props.classes.now} />
             </TimetableEntry>
         );

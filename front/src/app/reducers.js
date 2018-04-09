@@ -10,7 +10,8 @@ export const initialState = {
 	subjects: {},
 	focus: null,
 	calendar: null,
-	meta: []
+	meta: [],
+	error: null
 };
 
 export function appReducer(state, action) {
@@ -53,6 +54,8 @@ export function appReducer(state, action) {
 			return {...state, focus: action.event};
 		case 'BLUR_EVENT':
 			return {...state, focus: null};
+		case 'ERROR':
+			return {...state, error: action.message};
 		default:
 			return {...initialState, ...state};
 	}

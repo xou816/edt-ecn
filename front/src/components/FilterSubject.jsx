@@ -68,7 +68,7 @@ export class FilterSubject extends React.Component {
                     Object.keys(subjects).map(calendar => <NestedList
                         key={calendar}
                         title={list.find(cal => cal.id === calendar).display}
-                        nested={subjects[calendar]}
+                        nested={subjects[calendar].sort((a, b) => a.name < b.name ? -1 : 1)}
                         shown={this.state.unfold === calendar}
                         unfold={() => this.toggleCalendar(calendar)}
                         toggle={(subject) => toggleSubject(calendar, subject)}

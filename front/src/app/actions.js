@@ -5,54 +5,78 @@ export function getCalendarList() {
     return (dispatch) => {
         dispatch({type: 'LOAD_START'});
         return fetch(`/api/calendar/list`)
-            .then(res => res.json())
+            .then(res => res.status >= 400 ? Promise.reject('error') : res.json())
             .then(list => dispatch({type: 'SET_LIST', list}))
+            .catch(err => {})
             .then(_ => dispatch({type: 'LOAD_END'}));
     }
 }
 
 export function getCalendar() {
     return (dispatch, getState) => {
-        dispatch({type: 'LOAD_START'});
-        return fetch(`/api/calendar/custom/${getState().app.calendar}`)
-            .then(res => res.json())
-            .then(cal => {
-                dispatch({type: 'SET_META', meta: cal.meta});
-                return cal.events;
-            })
-            .then(events => events.map(e => ({...e, start: parse(e.start), end: parse(e.end)})))
-            .then(events => dispatch({type: 'SET_EVENTS', events}))
-            .catch(err => dispatch({type: 'SET_CALENDAR', calendar: null}))
-            .then(_ => dispatch({type: 'LOAD_END'}));
+        let cal = getState().app.calendar;
+        if (cal !== null) {
+            dispatch({type: 'LOAD_START'});
+            return fetch(`/api/calendar/custom/${cal}`)
+                .then(res => res.status >= 400 ? Promise.reject('error') : res.json())
+                .then(cal => {
+                    dispatch({type: 'SET_META', meta: cal.meta});
+                    return cal.events;
+                })
+                .then(events => events.map(e => ({...e, start: parse(e.start), end: parse(e.end)})))
+                .then(events => dispatch({type: 'SET_EVENTS', events}))
+                .catch(err => {
+                    dispatch({type: 'SET_CALENDAR', calendar: null});
+                    dispatch({type: 'SET_META', meta: []});
+                    dispatch(showError('Calendrier inexistant!'));
+                })
+                .then(_ => dispatch({type: 'LOAD_END'}));
+        } else {
+            return Promise.resolve();
+        }
     };
+}
+
+export function showError(message) {
+    return dispatch => {
+        dispatch({type: 'ERROR', message});
+        setTimeout(() => dispatch({type: 'ERROR', message: null}), 3000);
+    }
 }
 
 export function getSubjects() {
     return (dispatch, getState) => {
-        dispatch({type: 'LOAD_START'});
-        let ids = getState().app.meta.map(meta => meta.id);
-        return ids.reduce((p, id) => p.then(final =>
-                fetch(`/api/calendar/custom/${id}/subjects`)
-                    .then(res => res.json())
-                    .then(res => ({...final, [id]: res}))),
-            Promise.resolve({}))
-            .then(subjects => dispatch({type: 'SET_SUBJECTS', subjects}))
-            .then(_ => dispatch({type: 'LOAD_END'}));
+        let meta = getState().app.meta;
+        if (meta.length > 0) {
+            dispatch({type: 'LOAD_START'});
+            let ids = meta.map(meta => meta.id);
+            return ids.reduce((p, id) => p.then(final =>
+                    fetch(`/api/calendar/custom/${id}/subjects`)
+                        .then(res => res.status >= 400 ? Promise.reject('error') : res.json())
+                        .then(res => ({...final, [id]: res}))),
+                Promise.resolve({}))
+                .then(subjects => dispatch({type: 'SET_SUBJECTS', subjects}))
+                .catch(err => {})
+                .then(_ => dispatch({type: 'LOAD_END'}));
+        } else {
+            return Promise.resolve();
+        }
     }
 }
 
 export function applySelection() {
     return (dispatch, getState) => {
         let {meta, calendar} = getState().app;
-        if (calendar === null) {
+        if (calendar === null && meta.length > 0) {
             dispatch({type: 'LOAD_START'});
             return fetch(`/api/calendar/custom`, {
                 method: 'POST',
                 body: JSON.stringify(meta),
                 headers: {'Content-Type': 'application/json'}
             })
-                .then(res => res.json())
+                .then(res => res.status >= 400 ? Promise.reject('error') : res.json())
                 .then(res => dispatch(setCalendar(res.result)))
+                .catch(err => {})
                 .then(_ => dispatch({type: 'LOAD_END'}));
         } else {
             return Promise.resolve();
@@ -61,11 +85,16 @@ export function applySelection() {
 }
 
 export function setCalendar(calendar) {
-    let pathname = `/${calendar}`;
-    if (history.location.pathname !== pathname) {
-        history.push({pathname: '/'+calendar});
+    return (dispatch, getState) => {
+        let pathname = `/${calendar}`;
+        if (history.location.pathname !== pathname) {
+            history.push({pathname: '/'+calendar});
+        }
+        let action = getState().app.calendar !== calendar ?
+            {type: 'SET_CALENDAR', calendar} :
+            Promise.resolve();
+        dispatch(action);
     }
-    return {type: 'SET_CALENDAR', calendar};
 }
 
 export function resetCalendars() {
