@@ -34,6 +34,7 @@ const mapDispatch = dispatch => ({
         width: '100%'
     },
     root: {
+        width: '35%',
         [theme.breakpoints.down(767)]: {
             width: '100%'
         }
