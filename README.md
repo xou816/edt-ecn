@@ -1,14 +1,14 @@
 edt-ecn
 =======
 
-A tool to aggregate and filter calendars for [Centrale Nantes](https://www.ec-nantes.fr/). Calendars are served as JSON or ICS.
+A API + React app to aggregate and filter calendars for [Centrale Nantes](https://www.ec-nantes.fr/). Calendars are served as JSON or ICS.
 
 You can find it here: [edt-ecn.herokuapp.com](https://edt-ecn.herokuapp.com).
 
 Development
 -----------
 
-A Redis server is used for calendar aliases.
+A Redis server is used for calendar aliases (currently no longer in use).
 
 ```
 npm install
@@ -22,9 +22,7 @@ The app is deployed on Heroku.
 Editor tool
 -----------
 
-The app comes with a simple form-based editor to create links to filtered calendars as described further down.
-
-Additionally, students can authenticate using their LDAP credentials to create an aliased url for their calendar. [No password is stored](/src/ldap.ts).
+A React app allows viewing and editing calendars.
 
 Aggregated and filtered calendars
 ---------------------------------
@@ -46,17 +44,33 @@ or
 for the JSON version, which looks like this:
 
 ```
-[
-	{
-		"start": "2017-11-11T05:00:00.000Z",
-		"end": "2017-11-11T22:00:00.000Z",
-		"subject": "",
-		"full_subject": "",
-		"location": "",
-		"description": "",
-		"organizer": ""
-	}
-]
+{
+    "meta": [
+        {
+            "id": "g999",
+            "filter": [
+                1, 2, 3
+            ],
+            "valid": true
+        }
+    ],
+    "version": "version_one",
+    "events": [
+        {
+            "id": "2522",
+            "colour": "#7FFF7F",
+            "start": "2025-09-04T06:00:00.000Z",
+            "end": "2025-09-04T08:00:00.000Z",
+            "subject": "SUBJECT",
+            "full_subject": "Subject but Fancier",
+            "location": "R217",
+            "description": "...",
+            "organizer": "teacher@ec-nantes.fr",
+            "calendar": "g999",
+            "category": "CM"
+        }
+    ]
+}
 ```
 
 Calendars can also be retrieved by their name (e.g. `AP_2` is `g305`), but it is slower (it requires reading the index of all calendars to map the name to an identifier).
@@ -72,10 +86,10 @@ Courses can be filtered in calendars. Calendar filtering is done __on the fly__,
 The parameter `id` above can be much more complex, and include a filter. Here is one such filter.
 
 ```
-/api/calendar/custom/g305-8g_f62c05.ics
+/api/calendar/custom/g305-8g-f62c05.ics
 ```
 
-The `id` takes the form `[actual id]-[filter]-[filter checksum]`.
+The `id` takes the form `[actual id]-[filter]-[filter checksum]-[version]`.
 
 The filter is a base 32 encoded binary number (here: `100010000`). If the _n_-th bit is on, then the _n_-th subject associated with the calendar will be hidden.
 
@@ -91,12 +105,14 @@ Therefore, the ordering of subjects is done so that subjects that show up first 
 
 The second mitigation of potential filtering issue is the __checksum__. It is built from the names of the _m_ first courses of the calendar, where _m_ is the maximal power of 2 found in the filter. In the example above, _m_ = 8. As a consequence, if a new subject is added among the _m_ first subjects (and would change the filtered subjects by introducing an offset), the checksum would change. If this happens (invalid checksum), __filters are ignored__, and a message is appended to the body of events.
 
+The version flag is here for backward compatibility concerns.
+
 ### Calendar aggregation
 
 Multiple calendars can be aggregated.
 
 ```
-/api/calendar/custom/g304+g305-8g_f62c05.ics
+/api/calendar/custom/g304+g305-8g-f62c05.ics
 ```
 
 Calendars are separated by a `+`. Filtered and unfiltered calendars can be aggregated.

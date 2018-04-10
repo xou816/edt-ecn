@@ -7,16 +7,14 @@ export class Filter {
 	private filters: number[];
 
 	static parse(input: string): Filter {
-		const reg = new RegExp(`[a-z0-9]{1,${Filter.STR_LEN}}`, 'gi');
-		let matches = input.split('').reverse().join('').match(reg);
-		if (matches !== null) {
-			let filters = matches
-				.map(encoded => encoded.split('').reverse().join(''))
-				.map(encoded => parseInt(encoded, Filter.TARGET_BASE));
-			return new Filter(filters);
-		} else {
-			throw new Error('invalid filter');
-		}
+		let len = input.length;
+		let strLen = Filter.STR_LEN;
+		let count = Math.ceil(input.length/strLen);
+		let diff = count*strLen-len;
+		let filters = Array.from({length: count},
+			(x, i) => input.slice(Math.max(0, (count-i-1)*strLen - diff), (count-i)*strLen - diff))
+			.map(fragment => parseInt(fragment, Filter.TARGET_BASE));
+		return new Filter(filters);
 	}
 
 	static from(indices: number[]): Filter {

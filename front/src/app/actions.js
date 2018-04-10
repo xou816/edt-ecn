@@ -20,7 +20,7 @@ export function getCalendar() {
             return fetch(`/api/calendar/custom/${cal}`)
                 .then(res => res.status >= 400 ? Promise.reject('error') : res.json())
                 .then(cal => {
-                    dispatch({type: 'SET_META', meta: cal.meta});
+                    dispatch({type: 'SET_META', meta: cal.version === 'version_one' ? cal.meta : []});
                     return cal.events;
                 })
                 .then(events => events.map(e => ({...e, start: parse(e.start), end: parse(e.end)})))
@@ -49,12 +49,12 @@ export function getSubjects() {
         let meta = getState().app.meta;
         if (meta.length > 0) {
             dispatch({type: 'LOAD_START'});
-            let ids = meta.map(meta => meta.id);
-            return ids.reduce((p, id) => p.then(final =>
-                    fetch(`/api/calendar/custom/${id}/subjects`)
-                        .then(res => res.status >= 400 ? Promise.reject('error') : res.json())
-                        .then(res => ({...final, [id]: res}))),
-                Promise.resolve({}))
+            let ids = meta.map(meta => meta.id).join('+');
+            return fetch(`/api/calendar/custom/${ids}/subjects`)
+                .then(res => res.status >= 400 ? Promise.reject('error') : res.json())
+                .then(res => res.reduce((indexed, cur) => {
+                    return {...indexed, [cur.calendar]: (indexed[cur.calendar] || []).concat([cur])};
+                }, {}))
                 .then(subjects => dispatch({type: 'SET_SUBJECTS', subjects}))
                 .catch(err => {})
                 .then(_ => dispatch({type: 'LOAD_END'}));

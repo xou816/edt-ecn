@@ -9,15 +9,15 @@ function CourseSummary({event, long, classes}) {
     return long ?
         [
             <Typography key="title" variant="title" component="h2" color="inherit">
-                {event.full_subject}
+                {`${event.category} ${event.subject}`.trim()}
             </Typography>,
             <Typography className={classes.par} key="subheading" variant="subheading" component="h3" color="inherit">
-                ({event.subject})
+                ({event.full_subject})
             </Typography>
         ] :
         (
             <Typography className={classes.par} variant="subheading" component="h2" color="inherit">
-                {event.full_subject}
+                {`${event.category} ${event.subject}`.trim()}
             </Typography>
         );
 }

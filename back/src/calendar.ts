@@ -4,6 +4,7 @@ import fetch from 'node-fetch';
 import {createHash} from 'crypto';
 import {parseXmlString, Element} from 'libxmljs';
 import {Filter} from './filter';
+import {__getSubjectFromEvent, __getSubjects} from "./legacy";
 
 const FILTER = 'Groupe';
 const WARN_MESSAGE = "(!) Ce calendrier n'est peut être pas à jour. Les filtres sont désactivés par sécurité."
@@ -16,50 +17,64 @@ export type CalendarId = {
 
 export type CalendarEvent = {
 	id: string,
-	colour: string,
-	start: Moment,
-	end: Moment,
-	subject: string,
-	full_subject: string,
-	raw_subject: string,
-	location: string,
-	description: string,
-	organizer: string,
-	calendar: string
+    calendar: string,
+    colour: string,
+    start: Moment,
+    end: Moment,
+    subject: string,
+    full_subject: string,
+    category: string,
+    location: string,
+    description: string,
+    organizer: string,
 };
 
+export type CalendarType = 'module' | 'group' | 'room';
+
+enum Version {
+    LATEST = 'version_one',
+	UNKNOWN = 'version_unknown',
+	ONE = 'version_one',
+}
+const VERSIONS = [Version.UNKNOWN, Version.ONE];
+
 export type Events = CalendarEvent[];
-export type Meta = {id: string, filter?: number[]};
+export type Meta = {
+	id: string,
+	filter?: number[],
+	valid: boolean
+};
 export type Calendar = {
 	events: Events,
-	meta: Meta[]
+	meta: Meta[],
+    version: Version
 }
 
-export type Subjects = {id: number, name: string}[];
+export type Subjects = {id: number, name: string, calendar: string, [k: string]: any}[];
 
 const calendarList = 'http://website.ec-nantes.fr/sites/edtemps/finder.xml';
 const calendarUrl = (id: string) => `http://website.ec-nantes.fr/sites/edtemps/${id}.xml`;
 
-export function listOnlineCalendars(letter: string = 'g'): Promise<CalendarId[]> {
+export function listOnlineCalendars(type: CalendarType = 'group'): Promise<CalendarId[]> {
 	return fetch(calendarList)
 		.then(res => res.text())
 		.then(body => parseXmlString(body))
 		.then(doc => doc.find('/finder/resource')
-			.map(node => ({
-				link: node.get('link'),
-				name: node.get('name')
-			}))
-			.filter(node => node.link != null && node.name != null)
-			.map(node => ({
-				name: node.name!.text().split(','),
-				id: node.link!.attr('href').value().split('.').shift() || ''
-			}))
-			.filter(node => node.id[0] === letter)
 			.map(node => {
+				let type = node.attr('type').value() as CalendarType;
+				return {
+                    id: type[0]+node.attr('id').value(),
+					name: node.get('name'),
+                    type: type
+                };
+            })
+			.filter(node => node.type === type && node.name != null)
+			.map(node => {
+				let [name, display] = node.name!.text().split(',');
 				return {
 					id: node.id,
-					name: node.name[0].trim(),
-					display: (node.name[1] || '').trim()
+					name: name.trim(),
+					display: (display || name).trim()
 				};
 			}));
 }
@@ -96,14 +111,13 @@ function mapNodeToEvent(node: Element, weekNumToFirstDay: string[][], calendar: 
         organizer = res[2]
     }
 
-    let cat = safeText(node, ['category']);
-    let raw_subject = safeText(node, ['resources/module/item', 'notes']).split('-').shift() || '';
-    let subject = raw_subject;
-    let full_subject = cat + ' ' + raw_subject;
+    let category = safeText(node, ['category']);
+    let subject = safeText(node, ['resources/module/item', 'notes']).split('-').shift() || '';
+    let full_subject = subject;
     res = COURSE_REGEX.exec(subject);
     if (res != null) {
-        subject = res[2];
-        full_subject = cat + ' ' + res[1];
+        subject = res[1];
+        full_subject = res[2];
     }
 
 	let location: string = node.find('resources/room/item')
@@ -121,11 +135,11 @@ function mapNodeToEvent(node: Element, weekNumToFirstDay: string[][], calendar: 
 		end: dateFromCourseTime(date, safeText(node, ['endtime'])),
 		subject: subject.trim(),
 		full_subject: full_subject.trim(),
-		raw_subject: raw_subject.trim(),
 		location: location,
 		description: description,
 		organizer: organizer,
-		calendar: calendar
+		calendar: calendar,
+		category: category
 	}
 }
 
@@ -149,46 +163,77 @@ export function getOnlineCalendar(id: string): Promise<Calendar> {
 		})
 		.then(events => ({
 			events,
-			meta: [{id}]
+			meta: [{id, valid: true}],
+            version: Version.LATEST
 		}))
 }
 
-export function getSubjects(events: Events): Subjects {
-	return events
-		.filter(e => e.subject.length > 0)
-		.map(e => ({ subject: e.raw_subject, date: e.start }))
-		.sort((a, b) => a.date < b.date ? -1 : 1)
-		.reduce((final: Subjects, event) => {
-			let exists = final.find(e => e.name === event.subject) != null;
-			return final.concat(exists ? [] : [{
-				name: event.subject,
-				id: final.length
-			}])
-		}, []);
+const VALID_CAT = ['CM', 'TD', 'TP', 'DS'];
+
+function getSubjectFromEvent(event: CalendarEvent, version: Version = Version.LATEST): string {
+    if (version === Version.UNKNOWN) {
+        return __getSubjectFromEvent(event);
+    }
+    return event.subject.toUpperCase();
+}
+
+export function getSubjects(calendar: Calendar): Subjects {
+	let version = calendar.version;
+    if (version === Version.UNKNOWN) {
+		return __getSubjects(calendar.events);
+	}
+    return calendar.events
+        .filter(e => e.subject.length > 0)
+        .sort((a, b) => a.start < b.start ? -1 : 1)
+        .reduce((final: Subjects, event) => {
+            let subject = getSubjectFromEvent(event, version);
+            let isIrrelevant = VALID_CAT.indexOf(event.category) === -1;
+            if (!isIrrelevant) {
+                let [exists, len] = final.reduce(([exists, len], actualSub) => {
+                    let sameCalendar = actualSub.calendar === event.calendar;
+                    let sameSubject = actualSub.name === subject;
+                    return [
+                        exists as boolean || sameSubject && sameCalendar,
+                        len as number + (sameCalendar ? 1 : 0)
+                    ];
+                }, [false, 0]);
+                return exists ? final : final.concat([{
+                    name: subject,
+                    id: len as number,
+                    calendar: event.calendar
+                }])
+            } else {
+                return final;
+            }
+        }, []);
 }
 
 function getSingleCustomCalendar(id: string): Promise<Calendar> {
-	let [calid, filter_withsum] = id.split('-');
-	if (filter_withsum == null) {
-		return getOnlineCalendar(calid);
+	let [calendarId, filterEnc, checksum, version] = id.split(/[\-_]/);
+	if (filterEnc == null) {
+		return getOnlineCalendar(calendarId);
 	}
-	let [filter_enc, checksum] = filter_withsum.split('_');
-	let filter = Filter.parse(filter_enc);
-	return getOnlineCalendar(calid)
+	let actualVersion = version == null ? Version.UNKNOWN : VERSIONS[parseInt(version, 10)];
+	let filter = Filter.parse(filterEnc);
+	return getOnlineCalendar(calendarId)
 		.then(cal => {
 			let events = cal.events;
-			let subjects = getSubjects(events);
+			cal.version = actualVersion;
+			let subjects = getSubjects(cal);
 			let warn = checksum != null && checkSubjects(filter, subjects, checksum);
 			events = warn ?
 				events.map(event => ({...event, description: event.description + WARN_MESSAGE})) :
-				events.filter(event => filter.test((subjects
-					.find(s => s.name === event.raw_subject) || {id: -1}).id));
+				events
+                    .filter(event => filter.test((subjects
+					.find(s => s.name === getSubjectFromEvent(event, actualVersion)) || {id: 999}).id));
 			return {
 				events,
                 meta: [{
-					id: calid,
-					filter: subjects.map(s => s.id).filter(s => !filter.test(s))
-				}]
+					id: calendarId,
+					filter: subjects.map(s => s.id).filter(s => !filter.test(s)),
+					valid: !warn
+				}],
+				version: actualVersion
 			}
 		});
 }
@@ -199,11 +244,15 @@ export function getCustomCalendar(id: string): Promise<Calendar> {
 			.then(newCalendar => ({...newCalendar, events: newCalendar.events.filter(e => calendar.blacklist.indexOf(e.id) === -1)}))
 			.then(newCalendar => ({
 				meta: calendar.meta.concat(newCalendar.meta),
+				version: newCalendar.version,
 				events: calendar.events.concat(newCalendar.events),
 				blacklist: calendar.blacklist.concat(newCalendar.events.map(e => e.id))
 			})));
-	}, Promise.resolve({meta: [], events: [], blacklist: []}))
-		.then(res => ({meta: res.meta, events: res.events}));
+	}, Promise.resolve({meta: [], events: [], blacklist: [], version: Version.UNKNOWN}))
+		.then(res => {
+			delete res.blacklist;
+			return res;
+		});
 }
 
 function makeChecksum(subjects: Subjects, length: number): string {
@@ -223,9 +272,9 @@ function checkSubjects(filter: Filter, subjects: Subjects, checksum: string): bo
 	return checksum !== makeChecksum(subjects, length);
 }
 
-export function createFilter(id: string, indices: number[], subjects: Subjects): string {
+export function createFilter(id: string, indices: number[], subjects: Subjects, version: Version): string {
 	let filter = Filter.from(indices);
-	return id + '-' + filter.toString() + '_' + makeChecksum(subjects, filter.length());
+	return [id, filter.toString(), makeChecksum(subjects, filter.length()), VERSIONS.indexOf(version)].join('-');
 }
 
 export function createFilterFromMeta(metas: Meta[]): Promise<string> {
@@ -233,7 +282,7 @@ export function createFilterFromMeta(metas: Meta[]): Promise<string> {
 	return metas.reduce((p: Promise<string[]>, meta: Meta) => p.then(filters =>
 		(needFilter(meta) ?
 			getOnlineCalendar(meta.id)
-				.then(cal => createFilter(meta.id, meta.filter!, getSubjects(cal.events))) :
+				.then(cal => createFilter(meta.id, meta.filter!, getSubjects(cal), cal.version)) :
 			Promise.resolve(meta.id))
 			.then((f: string) => filters.concat([f]))),
         Promise.resolve([]))
@@ -251,7 +300,7 @@ export function calendarToIcs(events: Events): string {
 		cal.createEvent({
 			start: event.start.tz('UTC').toDate(),
 			end: event.end.tz('UTC').toDate(),
-			summary: event.full_subject,
+			summary: (event.category + ' ' + event.subject).trim(),
 			description: event.description,
 			location: event.location,
 			// organizer: {

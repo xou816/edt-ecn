@@ -8,6 +8,6 @@ function charcode(string) {
 }
 
 export function subjectId(event) {
-    let sub = event.subject;
+    let sub = event.full_subject;
     return charcode(sub);
 }

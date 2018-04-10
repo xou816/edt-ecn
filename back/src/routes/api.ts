@@ -109,7 +109,6 @@ export default function apiRouter(router: Router): Router {
 		calendar.getIdFromName(req.params.name)
 			.then(id => id == null ? Promise.reject('Events not found') : Promise.resolve(id))
 			.then(calendar.getOnlineCalendar)
-			.then(cal => cal.events)
 			.then(calendar.getSubjects)
 			.then(JSON.stringify)
 			.then(json => res.send(json))
@@ -122,7 +121,6 @@ export default function apiRouter(router: Router): Router {
 	router.get('/calendar/custom/:id/subjects', (req, res) => {
 		res.setHeader('Content-Type', 'application/json');
 		calendar.getCustomCalendar(req.params.id)
-            .then(cal => cal.events)
 			.then(calendar.getSubjects)
 			.then(JSON.stringify)
 			.then(json => res.send(json))
@@ -161,7 +159,6 @@ export default function apiRouter(router: Router): Router {
 		res.setHeader('Content-Type', 'application/json');
 		alias.getCalId(req.params.alias)
 			.then(calendar.getCustomCalendar)
-            .then(cal => cal.events)
 			.then(calendar.getSubjects)
 			.then(JSON.stringify)
 			.then(json => res.send(json))
@@ -181,7 +178,7 @@ export default function apiRouter(router: Router): Router {
 			.then(events => events
 				.filter(e => e.start >= from && e.end <= to))
 			.then(events => events.length === 0);
-		let matches = calendar.listOnlineCalendars('r')
+		let matches = calendar.listOnlineCalendars('room')
 			.then(cals => cals.reduce((promise: Promise<string[]>, cal) => {
 				return promise
 					.then(res => res.length >= count ? res : keepRoom(cal.id)
