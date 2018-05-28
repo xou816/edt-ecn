@@ -107,7 +107,9 @@ export class Timetable extends React.Component {
     }
 
     offset() {
-        return addHours(this.date(), 8).valueOf();
+        let now = new Date();
+        let offset = now.getTimezoneOffset()/-60;
+        return addHours(this.date(), 8 + offset - 2).valueOf();
     }
 
     events() {
