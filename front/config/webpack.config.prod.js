@@ -1,7 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const ManifestPlugin = require('webpack-manifest-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
@@ -19,20 +18,7 @@ module.exports = {
 			include: path.resolve(__dirname, '../src'),
 			exclude: /node_modules/,
 			loaders: 'babel-loader'
-		},
-		// {
-		// 	test: /\.(ts|tsx)?$/,
-		// 	use: 'ts-loader',
-		// 	exclude: /node_modules/,
-		// 	include: path.resolve(__dirname, '../src'),
-		// },
-		{
-			test: /\.scss$/,
-			use: ExtractTextPlugin.extract({
-				fallback: 'style-loader',
-				use: ['css-loader', 'sass-loader']
-			})
-		},
+		}
 		]
 	},
 	plugins: [
@@ -55,9 +41,6 @@ module.exports = {
             },
             sourceMap: true,
 		}
-    }),
-    new ExtractTextPlugin({
-      filename: 'style.[contenthash:8].css',
     }),
     new ManifestPlugin({
       fileName: 'asset-manifest.json',
