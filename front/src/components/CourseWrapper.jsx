@@ -1,7 +1,7 @@
 import * as React from "react";
 import {Course} from "./Course";
 import {TimetableEntry} from "./TimetableEntry";
-import {Button, withStyles} from "material-ui";
+import {Button, withStyles} from "@material-ui/core";
 import {focusEvent} from "../app/actions";
 import {connect} from "react-redux";
 

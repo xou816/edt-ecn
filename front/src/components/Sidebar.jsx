@@ -2,25 +2,27 @@ import React from "react";
 import {
     Button, Divider, Drawer, LinearProgress, MobileStepper, Step, StepContent, StepLabel, Stepper,
     withStyles
-} from "material-ui";
+} from "@material-ui/core";
 import {connect} from "react-redux";
 import {applySelection, getSubjects, toggleMenu} from "../app/actions";
 import {CalendarSelect} from "./CalendarSelect";
 import {FilterSubject} from "./FilterSubject";
+import {withRouter} from "react-router-dom";
 
 const mapState = state => ({
     shown: state.app.menu,
     loading: state.app.loading
 });
 
-const mapDispatch = dispatch => ({
+const mapDispatch = (dispatch, ownProps) => ({
     complete: () => {
-        dispatch(applySelection())
+        dispatch(applySelection(ownProps.history))
             .then(_ => dispatch(toggleMenu()));
     },
     getSubjects: () => dispatch(getSubjects())
 });
 
+@withRouter
 @connect(mapState, mapDispatch)
 @withStyles(theme => ({
     close: {

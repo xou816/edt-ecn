@@ -1,12 +1,13 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
-import {addDays, addHours, addMinutes, compareAsc, format, isToday, startOfDay, startOfWeek} from "date-fns";
+import {addDays, addHours, addMinutes, compareAsc, isEqual, parse, format, isSameDay, startOfDay, startOfWeek} from "date-fns";
 import frLocale from "date-fns/locale/fr";
 import {CourseWrapper} from "./CourseWrapper";
-import {Divider, Typography, withStyles} from "material-ui";
+import {Divider, Typography, withStyles} from "@material-ui/core";
 import {TimetableEntry} from "./TimetableEntry";
 import {FocusedCourse} from "./FocusedCourse";
-import {getCalendar} from "../app/actions";
+import {getCalendar, setDate} from "../app/actions";
+import {withRouter} from "react-router-dom";
 
 function setIntersection(a, b) {
     return a.some(ae => b.indexOf(ae) > -1) || b.some(be => a.indexOf(be) > -1);
@@ -49,13 +50,15 @@ function mapEvents(events, offset) {
     });
 }
 
+@withRouter
 @connect(state => ({
     events: state.app.events,
     date: state.app.date,
     isPhone: state.responsive.isPhone,
     calendar: state.app.calendar,
-}), dispatch => ({
-    getEvents: () => dispatch(getCalendar())
+}), (dispatch, ownProps) => ({
+    getEvents: () => dispatch(getCalendar()),
+    setDate: (date) => dispatch(setDate(ownProps.history, date))
 }))
 @withStyles(theme => ({
     root: {
@@ -84,12 +87,25 @@ export class Timetable extends React.Component {
         }
     }
 
-    componentDidMount() {
-        this.getEvents();
+    getMatch(props) {
+        return parse((props || this.props).match.params.date, 'YYYYMMDD', Date.now());
     }
 
-    componentDidUpdate(a, b, c) {
+    componentDidMount() {
         this.getEvents();
+        let newDate = this.getMatch();
+        if (!isNaN(newDate.getTime())) {
+            this.props.setDate(newDate);
+        }
+    }
+
+    componentDidUpdate(prevProps) {
+        this.getEvents();
+        let date = this.getMatch(prevProps);
+        let newDate = this.getMatch();
+        if (!isEqual(date, newDate) && !isNaN(newDate.getTime())) {
+            this.props.setDate(newDate);
+        }
     }
 
     days() {
@@ -126,8 +142,8 @@ export class Timetable extends React.Component {
     renderDays() {
         return Array.from({length: this.days()}, (x, i) => i).map(i => {
             let date = addDays(this.date(), i);
-            let today = isToday(date);
-            let formatted = format(date, 'dddd DD/MM', {locale: frLocale});
+            let today = isSameDay(date, Date.now());
+            let formatted = format(date, 'dddd Do MMMM', {locale: frLocale});
             return (
                 <Typography align="center" color={today ? 'primary' : 'textSecondary'} key={formatted}
                             style={{gridColumn: i + 1, gridRow: '1 / span 1'}}>

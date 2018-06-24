@@ -1,5 +1,18 @@
-import {parse} from 'date-fns';
-import {history} from "../index";
+import {addDays, addWeeks, isFriday, isMonday, subDays, subWeeks, parse, format, isEqual} from "date-fns";
+import parsePath from "path-to-regexp";
+
+function updateHistory(history, args) {
+    let current = parsePath('/:calendar?/:date?').exec(history.location.pathname);
+    let {calendar, date} = {calendar: current[1], date: current[2], ...args};
+    let pathname;
+    if (calendar === null) {
+        pathname = '/';
+    } else {
+        let formatted = format(date || Date.now(), 'YYYYMMDD');
+        pathname = `/${calendar}/${formatted}`;
+    }
+    history.push(pathname);
+}
 
 export function getCalendarList() {
     return (dispatch) => {
@@ -13,6 +26,7 @@ export function getCalendarList() {
 }
 
 export function getCalendar() {
+    const parseIso = d => parse(d.replace('Z', '+00:00'), 'YYYY-MM-DDThh:mm:ss.SSSZ', Date.now())
     return (dispatch, getState) => {
         let cal = getState().app.calendar;
         if (cal !== null) {
@@ -23,7 +37,7 @@ export function getCalendar() {
                     dispatch({type: 'SET_META', meta: cal.version === 'version_one' ? cal.meta : []});
                     return cal.events;
                 })
-                .then(events => events.map(e => ({...e, start: parse(e.start), end: parse(e.end)})))
+                .then(events => events.map(e => ({...e, start: parseIso(e.start), end: parseIso(e.end)})))
                 .then(events => dispatch({type: 'SET_EVENTS', events}))
                 .catch(err => {
                     dispatch({type: 'SET_CALENDAR', calendar: null});
@@ -64,10 +78,10 @@ export function getSubjects() {
     }
 }
 
-export function applySelection() {
+export function applySelection(history) {
     return (dispatch, getState) => {
         let {meta, calendar} = getState().app;
-        if (calendar === null && meta.length > 0) {
+        if (meta.length > 0) {
             dispatch({type: 'LOAD_START'});
             return fetch(`/api/calendar/custom`, {
                 method: 'POST',
@@ -75,25 +89,24 @@ export function applySelection() {
                 headers: {'Content-Type': 'application/json'}
             })
                 .then(res => res.status >= 400 ? Promise.reject('error') : res.json())
-                .then(res => dispatch(setCalendar(res.result)))
-                .catch(err => {})
-                .then(_ => dispatch({type: 'LOAD_END'}));
+                .then(res => dispatch(setCalendar(history, res.result)))
+                .then(res => dispatch({type: 'LOAD_END'}))
+                .catch(console.error);
         } else {
-            return Promise.resolve();
+            return Promise.resolve(calendar);
         }
     }
 }
 
-export function setCalendar(calendar) {
+export function setCalendar(history, calendar) {
     return (dispatch, getState) => {
-        let pathname = `/${calendar}`;
-        if (history.location.pathname !== pathname) {
-            history.push({pathname: '/'+calendar});
+        const state = getState();
+        if (state.app.calendar !== calendar && calendar != null && calendar.length > 0) {
+            updateHistory(history, {
+                calendar
+            });
+            return dispatch({type: 'SET_CALENDAR', calendar});
         }
-        let action = getState().app.calendar !== calendar ?
-            {type: 'SET_CALENDAR', calendar} :
-            Promise.resolve();
-        dispatch(action);
     }
 }
 
@@ -121,22 +134,40 @@ export function blurEvent() {
     return {type: 'BLUR_EVENT'};
 }
 
-export function next() {
+export function next(history) {
     return (dispatch, getState) => {
-        let isPhone = getState().responsive.isPhone;
-        dispatch(isPhone ? {type: 'NEXT_DAY'} : {type: 'NEXT_WEEK'});
+        const state = getState();
+        let isPhone = state.responsive.isPhone;
+        let current = state.app.date;
+        let date = isPhone ?
+            addDays(current, isFriday(current) ? 3 : 1) :
+            addWeeks(current, 1);
+        return dispatch(setDate(history, date));
     }
 }
 
-export function prev() {
+export function prev(history) {
     return (dispatch, getState) => {
-        let isPhone = getState().responsive.isPhone;
-        dispatch(isPhone ? {type: 'PREV_DAY'} : {type: 'PREV_WEEK'});
+        const state = getState();
+        let isPhone = state.responsive.isPhone;
+        let current = state.app.date;
+        let date = isPhone ?
+            subDays(current, isMonday(current) ? 3 : 1) :
+            subWeeks(current, 1);
+        dispatch(setDate(history, date));
     }
 }
 
-export function today() {
-    return {type: 'TODAY'};
+export function setDate(history, date) {
+    return (dispatch, getState) => {
+        const state = getState();
+        if (!isEqual(state.app.date, date)) {
+            updateHistory(history, {
+                date
+            });
+            dispatch({type: 'SET_DATE', date});
+        }
+    }
 }
 
 export function toggleMenu() {

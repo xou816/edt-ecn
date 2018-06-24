@@ -9,8 +9,8 @@ import {
     TextField,
     Typography,
     withStyles
-} from "material-ui";
-import Copy from "material-ui-icons/ContentCopy";
+} from "@material-ui/core";
+import Copy from "@material-ui/icons/ContentCopy";
 import {connect} from "react-redux";
 
 @connect(state => ({

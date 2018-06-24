@@ -2,12 +2,13 @@ import * as React from 'react';
 import {Timetable} from "./Timetable";
 import Swipeable from 'react-swipeable';
 import {Nav} from "./Nav";
-import {next, prev} from "../app/actions";
+import {next, prev, setCalendar} from "../app/actions";
 import {connect} from "react-redux";
-import {CssBaseline, LinearProgress, Snackbar, Typography, withStyles} from "material-ui";
+import {CssBaseline, LinearProgress, Snackbar, Typography, withStyles} from "@material-ui/core";
 import {Sidebar} from "./Sidebar";
 import {ExportButton} from "./ExportButton";
-import Help from "material-ui-icons/Help";
+import Help from "@material-ui/icons/Help";
+import {withRouter, Route} from "react-router-dom";
 
 const mapState = state => ({
     loading: state.app.loading,
@@ -15,11 +16,13 @@ const mapState = state => ({
     error: state.app.error
 });
 
-const mapDispatch = dispatch => ({
-    next: () => dispatch(next()),
-    prev: () => dispatch(prev())
+const mapDispatch = (dispatch, ownProps) => ({
+    next: () => dispatch(next(ownProps.history)),
+    prev: () => dispatch(prev(ownProps.history)),
+    setCalendar: (cal) => dispatch(setCalendar(ownProps.history, cal))
 });
 
+@withRouter
 @connect(mapState, mapDispatch)
 @withStyles(theme => ({
     caption: {
@@ -32,15 +35,31 @@ const mapDispatch = dispatch => ({
 }))
 export class App extends React.Component {
 
+    getMatch(props) {
+        return (props || this.props).match.params.calendar;
+    }
+
+    componentDidMount() {
+        this.props.setCalendar(this.getMatch());
+    }
+
+    componentDidUpdate(prevProps) {
+        let calendar = this.getMatch(prevProps);
+        let newCalendar = this.getMatch();
+        if (calendar !== newCalendar && newCalendar !== null) {
+            this.props.setCalendar(newCalendar);
+        }
+    }
+
     render() {
-        let {next, prev, loading, calendarReady, classes, error} = this.props;
+        let {next, prev, loading, calendarReady, classes, error, match} = this.props;
         return (
             <React.Fragment>
                 <CssBaseline/>
                 <Swipeable onSwipedLeft={() => next()} onSwipedRight={() => prev()}>
                     <Nav/>
                     {loading ? <LinearProgress /> : null }
-                    {calendarReady ? <Timetable/> : (
+                    {calendarReady ? <Route path={`${match.url}/:date?`} component={Timetable} /> : (
                         <Typography className={classes.caption} align="center" paragraph component="p" variant="caption" color="textSecondary">
                             <Help className={classes.icon} /><br />Ouvrez le menu pour sélectionner un calendrier.
                         </Typography>

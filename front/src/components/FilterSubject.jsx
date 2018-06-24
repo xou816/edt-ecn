@@ -1,6 +1,8 @@
 import React from "react";
 import {connect} from "react-redux";
-import {Checkbox, List, ListSubheader, Typography, withStyles} from "material-ui";
+import {Checkbox, List, ListSubheader, Typography, withStyles} from "@material-ui/core";
+import Visibility from '@material-ui/icons/Visibility';
+import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import {getSubjects, resetSubjects, toggleSubject} from "../app/actions";
 import {NestedList} from "./NestedList";
 import {countSubjects, getCalendars, includesSubject} from "../app/meta";
@@ -75,6 +77,10 @@ export class FilterSubject extends React.Component {
                         checked={(subject) => checked(calendar, subject)}
                         getId={subject => subject.id}
                         getDisplay={subject => subject.name}
+                        checkbox={{
+                            icon: <Visibility />,
+                            checkedIcon: <VisibilityOff />
+                        }}
                     />)
                 }
             </List>

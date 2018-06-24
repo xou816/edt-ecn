@@ -1,5 +1,5 @@
 import React from "react";
-import {Checkbox, List, ListSubheader, Typography, withStyles} from "material-ui";
+import {Checkbox, List, ListSubheader, Typography, withStyles} from "@material-ui/core";
 import {getCalendarList, resetCalendars, toggleCalendar} from "../app/actions";
 import {connect} from "react-redux";
 import {NestedList} from "./NestedList";

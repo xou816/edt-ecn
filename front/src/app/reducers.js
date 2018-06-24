@@ -1,4 +1,3 @@
-import {addDays, addWeeks, isFriday, isMonday, subDays, subWeeks} from "date-fns";
 import {toggleCalendar, toggleSubject, resetSubjects} from "./meta";
 
 export const initialState = {
@@ -34,20 +33,12 @@ export function appReducer(state, action) {
 			return {...state, calendar: null, meta: resetSubjects(state.meta)};
 		case 'SET_META':
 			return {...state, meta: action.meta, subjects: []};
-		case 'NEXT_WEEK':
-            return {...state, date: addWeeks(state.date, 1)};
-		case 'PREV_WEEK':
-			return {...state, date: subWeeks(state.date, 1)};
-		case 'NEXT_DAY':
-			return {...state, date: addDays(state.date, isFriday(state.date) ? 3 : 1)};
-		case 'PREV_DAY':
-			return {...state, date: subDays(state.date, isMonday(state.date) ? 3 : 1)};
         case 'LOAD_START':
             return {...state, loading: true};
         case 'LOAD_END':
             return {...state, loading: false};
-        case 'TODAY':
-            return {...state, date: new Date()};
+        case 'SET_DATE':
+        	return {...state, date: action.date};
 		case 'TOGGLE_MENU':
 			return {...state, menu: !state.menu};
 		case 'FOCUS_EVENT':

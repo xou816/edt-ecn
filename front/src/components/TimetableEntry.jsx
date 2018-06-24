@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {withStyles, Zoom} from "material-ui";
+import {withStyles, Zoom} from "@material-ui/core";
 
 const INCREMENT = 1000 * 60 * 15;
 const DAY_MS = 1000 * 60 * 60 * 24;
