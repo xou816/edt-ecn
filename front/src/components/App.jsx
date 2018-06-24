@@ -35,20 +35,12 @@ const mapDispatch = (dispatch, ownProps) => ({
 }))
 export class App extends React.Component {
 
-    getMatch(props) {
-        return (props || this.props).match.params.calendar;
+    getMatch() {
+        return this.props.match.params.calendar;
     }
 
     componentDidMount() {
         this.props.setCalendar(this.getMatch());
-    }
-
-    componentDidUpdate(prevProps) {
-        let calendar = this.getMatch(prevProps);
-        let newCalendar = this.getMatch();
-        if (calendar !== newCalendar && newCalendar !== null) {
-            this.props.setCalendar(newCalendar);
-        }
     }
 
     render() {

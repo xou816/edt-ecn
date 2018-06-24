@@ -1,17 +1,19 @@
 import {addDays, addWeeks, isFriday, isMonday, subDays, subWeeks, parse, format, isEqual} from "date-fns";
-import parsePath from "path-to-regexp";
+import {default as parsePath, compile} from "path-to-regexp";
 
 function updateHistory(history, args) {
-    let current = parsePath('/:calendar?/:date?').exec(history.location.pathname);
-    let {calendar, date} = {calendar: current[1], date: current[2], ...args};
-    let pathname;
-    if (calendar === null) {
-        pathname = '/';
-    } else {
-        let formatted = format(date || Date.now(), 'YYYYMMDD');
-        pathname = `/${calendar}/${formatted}`;
+    const route = '/:calendar?/:date?';
+    let compiled = compile(route);
+    let current = parsePath(route).exec(history.location.pathname);
+    if (args.date) {
+        args.date = format(args.date, 'YYYYMMDD');
     }
-    history.push(pathname);
+    let final = {
+        calendar: current[1], 
+        date: current[2], 
+        ...args,
+    };
+    history.push(final.calendar === null ? '/' : compiled(final));
 }
 
 export function getCalendarList() {

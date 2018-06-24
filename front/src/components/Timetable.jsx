@@ -87,8 +87,8 @@ export class Timetable extends React.Component {
         }
     }
 
-    getMatch(props) {
-        return parse((props || this.props).match.params.date, 'YYYYMMDD', Date.now());
+    getMatch() {
+        return parse(this.props.match.params.date, 'YYYYMMDD', Date.now());
     }
 
     componentDidMount() {
@@ -101,11 +101,6 @@ export class Timetable extends React.Component {
 
     componentDidUpdate(prevProps) {
         this.getEvents();
-        let date = this.getMatch(prevProps);
-        let newDate = this.getMatch();
-        if (!isEqual(date, newDate) && !isNaN(newDate.getTime())) {
-            this.props.setDate(newDate);
-        }
     }
 
     days() {
