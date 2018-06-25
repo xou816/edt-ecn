@@ -7,7 +7,6 @@ import {Divider, Typography, withStyles} from "@material-ui/core";
 import {TimetableEntry} from "./TimetableEntry";
 import {FocusedCourse} from "./FocusedCourse";
 import {getCalendar, setDate} from "../app/actions";
-import {withRouter} from "react-router-dom";
 
 function setIntersection(a, b) {
     return a.some(ae => b.indexOf(ae) > -1) || b.some(be => a.indexOf(be) > -1);
@@ -50,15 +49,14 @@ function mapEvents(events, offset) {
     });
 }
 
-@withRouter
 @connect(state => ({
     events: state.app.events,
     date: state.app.date,
     isPhone: state.responsive.isPhone,
     calendar: state.app.calendar,
-}), (dispatch, ownProps) => ({
+}), dispatch => ({
     getEvents: () => dispatch(getCalendar()),
-    setDate: (date) => dispatch(setDate(ownProps.history, date))
+    setDate: (date) => dispatch(setDate(date))
 }))
 @withStyles(theme => ({
     root: {
@@ -87,16 +85,8 @@ export class Timetable extends React.Component {
         }
     }
 
-    getMatch() {
-        return parse(this.props.match.params.date, 'YYYYMMDD', Date.now());
-    }
-
     componentDidMount() {
         this.getEvents();
-        let newDate = this.getMatch();
-        if (!isNaN(newDate.getTime())) {
-            this.props.setDate(newDate);
-        }
     }
 
     componentDidUpdate(prevProps) {

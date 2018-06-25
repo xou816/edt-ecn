@@ -12,6 +12,7 @@ import {
 } from "@material-ui/core";
 import Copy from "@material-ui/icons/ContentCopy";
 import {connect} from "react-redux";
+import copy from 'copy-to-clipboard';
 
 @connect(state => ({
     calendar: state.app.calendar
@@ -50,6 +51,10 @@ export class ExportButton extends React.Component {
         return `${window.location.protocol}//${window.location.host}/api/calendar/custom/${this.props.calendar}.ics`;
     }
 
+    copy() {
+        copy(this.link());
+    }
+
     toggleDialog() {
         return !this.disabled() ?
             () => this.setState({showDialog: !this.state.showDialog}) :
@@ -70,7 +75,7 @@ export class ExportButton extends React.Component {
                     </Typography>
                     <TextField value={this.link()} className={this.props.classes.margin} InputProps={{
                         endAdornment: (<InputAdornment position="end">
-                            <IconButton><Copy/></IconButton>
+                            <IconButton onClick={() => this.copy()}><Copy/></IconButton>
                         </InputAdornment>),
                     }}/>
                     <div className={this.props.classes.copyright}>

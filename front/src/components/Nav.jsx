@@ -1,7 +1,7 @@
 import * as React from "react";
 import {next, prev, toggleMenu, setDate} from "../app/actions";
 import {connect} from "react-redux";
-import {AppBar, Button, IconButton, Toolbar, Typography, withStyles, Input} from "@material-ui/core";
+import {AppBar, Button, IconButton, Toolbar, withStyles} from "@material-ui/core";
 import MenuIcon from '@material-ui/icons/Menu';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
@@ -9,35 +9,15 @@ import DatePicker from 'material-ui-pickers/DatePicker';
 import DateFnsUtils from 'material-ui-pickers/utils/date-fns-utils';
 import MuiPickersUtilsProvider from 'material-ui-pickers/utils/MuiPickersUtilsProvider';
 import frLocale from 'date-fns/locale/fr';
-import {startOfWeek, format, parse} from 'date-fns';
-import {withRouter} from "react-router-dom";
+import {startOfWeek, format} from 'date-fns';
 
-let textField = withStyles(theme => ({
-    underline: {
-        color: 'white',
-        '&:after': {
-            borderBottomColor: 'white',
-        },
-        '&:before': {
-            borderBottomColor: 'transparent',
-        }
-    }
-}));
-let DateDisplay = textField((props) => {
-    let otherProps = {...props};
-    delete otherProps.InputProps;
-    delete otherProps.isPhone;
-    delete otherProps.helperText;
+let DateDisplay = (props) => {
     let doFormat = d => format(d, 'Do MMMM', {locale: frLocale});
     let date = props.isPhone ? 
         doFormat(props.date) :
         `Semaine du ${doFormat(startOfWeek(props.date, {weekStartsOn: 1}))}`;
-    return <Input 
-        {...props.InputProps} 
-        {...otherProps} 
-        value={date}
-        classes={{underline: props.classes.underline}} />;
-});
+    return <Button onClick={props.onClick} color="inherit" variant="flat">{date}</Button>;
+};
 
 const mapState = state => ({
     date: state.app.date,
@@ -45,14 +25,13 @@ const mapState = state => ({
     menu: state.app.menu
 });
 
-const mapDispatch = (dispatch, ownProps) => ({
-    next: () => dispatch(next(ownProps.history)),
-    prev: () => dispatch(prev(ownProps.history)),
-    setDate: (date) => dispatch(setDate(ownProps.history, date)),
+const mapDispatch = dispatch => ({
+    next: () => dispatch(next()),
+    prev: () => dispatch(prev()),
+    setDate: (date) => dispatch(setDate(date)),
     toggleMenu: () => dispatch(toggleMenu())
 });
 
-@withRouter
 @connect(mapState, mapDispatch)
 @withStyles(theme => ({
     toolbar: {

@@ -1,20 +1,5 @@
-import {addDays, addWeeks, isFriday, isMonday, subDays, subWeeks, parse, format, isEqual} from "date-fns";
-import {default as parsePath, compile} from "path-to-regexp";
-
-function updateHistory(history, args) {
-    const route = '/:calendar?/:date?';
-    let compiled = compile(route);
-    let current = parsePath(route).exec(history.location.pathname);
-    if (args.date) {
-        args.date = format(args.date, 'YYYYMMDD');
-    }
-    let final = {
-        calendar: current[1], 
-        date: current[2], 
-        ...args,
-    };
-    history.push(final.calendar === null ? '/' : compiled(final));
-}
+import {addDays, addWeeks, isFriday, isMonday, subDays, subWeeks, parse, isEqual} from "date-fns";
+import {updateHistory} from "./routing";
 
 export function getCalendarList() {
     return (dispatch) => {
@@ -80,7 +65,7 @@ export function getSubjects() {
     }
 }
 
-export function applySelection(history) {
+export function applySelection() {
     return (dispatch, getState) => {
         let {meta, calendar} = getState().app;
         if (meta.length > 0) {
@@ -91,7 +76,7 @@ export function applySelection(history) {
                 headers: {'Content-Type': 'application/json'}
             })
                 .then(res => res.status >= 400 ? Promise.reject('error') : res.json())
-                .then(res => dispatch(setCalendar(history, res.result)))
+                .then(res => dispatch(setCalendar(res.result)))
                 .then(res => dispatch({type: 'LOAD_END'}))
                 .catch(console.error);
         } else {
@@ -100,14 +85,12 @@ export function applySelection(history) {
     }
 }
 
-export function setCalendar(history, calendar) {
+export function setCalendar(calendar) {
     return (dispatch, getState) => {
         const state = getState();
         if (state.app.calendar !== calendar && calendar != null && calendar.length > 0) {
-            updateHistory(history, {
-                calendar
-            });
-            return dispatch({type: 'SET_CALENDAR', calendar});
+            dispatch({type: 'SET_CALENDAR', calendar});
+            updateHistory({calendar});
         }
     }
 }
@@ -136,7 +119,7 @@ export function blurEvent() {
     return {type: 'BLUR_EVENT'};
 }
 
-export function next(history) {
+export function next() {
     return (dispatch, getState) => {
         const state = getState();
         let isPhone = state.responsive.isPhone;
@@ -144,11 +127,11 @@ export function next(history) {
         let date = isPhone ?
             addDays(current, isFriday(current) ? 3 : 1) :
             addWeeks(current, 1);
-        return dispatch(setDate(history, date));
+        return dispatch(setDate(date));
     }
 }
 
-export function prev(history) {
+export function prev() {
     return (dispatch, getState) => {
         const state = getState();
         let isPhone = state.responsive.isPhone;
@@ -156,18 +139,16 @@ export function prev(history) {
         let date = isPhone ?
             subDays(current, isMonday(current) ? 3 : 1) :
             subWeeks(current, 1);
-        dispatch(setDate(history, date));
+        dispatch(setDate(date));
     }
 }
 
-export function setDate(history, date) {
+export function setDate(date) {
     return (dispatch, getState) => {
         const state = getState();
         if (!isEqual(state.app.date, date)) {
-            updateHistory(history, {
-                date
-            });
             dispatch({type: 'SET_DATE', date});
+            updateHistory({date});
         }
     }
 }

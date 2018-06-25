@@ -1,7 +1,7 @@
 import format from "date-fns/format";
 import * as React from "react";
 import {subjectId} from "../app/event";
-import {Card, CardContent, Chip, Typography, withStyles, Divider, Button} from "@material-ui/core";
+import {Card, CardContent, Chip, Typography, withStyles} from "@material-ui/core";
 import {COLOR_CLASSES} from "../app/colors";
 import Time from "@material-ui/icons/AccessTime";
 
