@@ -1,6 +1,7 @@
 import {join} from 'path';
 import * as express from 'express';
 import * as session from 'express-session';
+import * as compression from 'compression';
 import * as bodyParser from 'body-parser';
 import apiRouter from './routes/api';
 import mainRouter from './routes/main';
@@ -9,6 +10,7 @@ import reactRouter from './routes/react';
 let app = express();
 app.set('view engine', 'pug');
 app.set('views', join(__dirname, '/../views'));
+app.use(compression());
 app.use('/public', express.static(join(__dirname, '/public')));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
