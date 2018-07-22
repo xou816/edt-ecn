@@ -32,6 +32,13 @@ const mapDispatch = dispatch => ({
 }))
 export class App extends React.Component {
 
+    componentDidMount() {
+        const jssStyles = document.getElementById('jss-server-side');
+        if (jssStyles && jssStyles.parentNode) {
+            jssStyles.parentNode.removeChild(jssStyles);
+        }
+    }
+
     render() {
         let {next, prev, loading, calendarReady, classes, error} = this.props;
         return (

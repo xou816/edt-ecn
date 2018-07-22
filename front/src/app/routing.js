@@ -1,27 +1,28 @@
-import {createHashHistory} from "history";
 import {default as parsePath, compile} from "path-to-regexp";
 import {format, parse} from "date-fns";
 
-import store from "./store";
 import {setCalendar, setDate} from "./actions";
 
 const route = '/:calendar?/:date?';
-const history = createHashHistory();
 
-export function updateStore(location) {
+export function updateStore(dispatch, history, location) {
     location = location || history.location;
+    let promises = [];
     let parsed = parsePath(route).exec(location.pathname);
-    let calendar = parsed[1];
-    let date = parse(parsed[2], 'YYYYMMDD', Date.now());
-    if (calendar && calendar.length > 0) {
-        store.dispatch(setCalendar(calendar));
+    if (parsed) {    
+        let calendar = parsed[1];
+        let date = parse(parsed[2], 'YYYYMMDD', Date.now());
+        if (calendar && calendar.length > 0) {
+            promises.push(dispatch(setCalendar(calendar)));
+        }
+        if (date && !isNaN(date.getTime())) {
+            promises.push(dispatch(setDate(date)));
+        }
     }
-    if (date && !isNaN(date.getTime())) {
-        store.dispatch(setDate(date));
-    }
+    return Promise.all(promises);
 }
 
-export function updateHistory(args) {
+export function updateHistory(history, args) {
     let compiled = compile(route);
     let current = parsePath(route).exec(history.location.pathname);
     if (args.date) {
@@ -34,5 +35,3 @@ export function updateHistory(args) {
     };
     history.push(final.calendar === null ? '/' : compiled(final));
 }
-
-history.listen(updateStore);

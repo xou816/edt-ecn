@@ -48,7 +48,8 @@ export class ExportButton extends React.Component {
     }
 
     link() {
-        return `${window.location.protocol}//${window.location.host}/api/calendar/custom/${this.props.calendar}.ics`;
+        //${window.location.protocol}//${window.location.host}
+        return `/api/calendar/custom/${this.props.calendar}.ics`;
     }
 
     copy() {

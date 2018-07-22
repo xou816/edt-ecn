@@ -1,10 +1,13 @@
 import {addDays, addWeeks, isFriday, isMonday, subDays, subWeeks, parse, isEqual} from "date-fns";
+import {parseIso} from './event';
 import {updateHistory} from "./routing";
+import 'cross-fetch/polyfill';
+import config from './config';
 
 export function getCalendarList() {
     return (dispatch) => {
         dispatch({type: 'LOAD_START'});
-        return fetch(`/api/calendar/list`)
+        return fetch(`${config.api}/calendar/list`)
             .then(res => res.status >= 400 ? Promise.reject('error') : res.json())
             .then(list => dispatch({type: 'SET_LIST', list}))
             .catch(err => {})
@@ -13,12 +16,11 @@ export function getCalendarList() {
 }
 
 export function getCalendar() {
-    const parseIso = d => parse(d.replace('Z', '+00:00'), 'YYYY-MM-DDThh:mm:ss.SSSZ', Date.now())
     return (dispatch, getState) => {
         let cal = getState().app.calendar;
         if (cal !== null) {
             dispatch({type: 'LOAD_START'});
-            return fetch(`/api/calendar/custom/${cal}`)
+            return fetch(`${config.api}/calendar/custom/${cal}`)
                 .then(res => res.status >= 400 ? Promise.reject('error') : res.json())
                 .then(cal => {
                     dispatch({type: 'SET_META', meta: cal.version === 'version_one' ? cal.meta : []});
@@ -51,7 +53,7 @@ export function getSubjects() {
         if (meta.length > 0) {
             dispatch({type: 'LOAD_START'});
             let ids = meta.map(meta => meta.id).join('+');
-            return fetch(`/api/calendar/custom/${ids}/subjects`)
+            return fetch(`${config.api}/calendar/custom/${ids}/subjects`)
                 .then(res => res.status >= 400 ? Promise.reject('error') : res.json())
                 .then(res => res.reduce((indexed, cur) => {
                     return {...indexed, [cur.calendar]: (indexed[cur.calendar] || []).concat([cur])};
@@ -70,7 +72,7 @@ export function applySelection() {
         let {meta, calendar} = getState().app;
         if (meta.length > 0) {
             dispatch({type: 'LOAD_START'});
-            return fetch(`/api/calendar/custom`, {
+            return fetch(`${config.api}/calendar/custom`, {
                 method: 'POST',
                 body: JSON.stringify(meta),
                 headers: {'Content-Type': 'application/json'}
@@ -86,11 +88,11 @@ export function applySelection() {
 }
 
 export function setCalendar(calendar) {
-    return (dispatch, getState) => {
+    return (dispatch, getState, {history}) => {
         const state = getState();
         if (state.app.calendar !== calendar && calendar != null && calendar.length > 0) {
             dispatch({type: 'SET_CALENDAR', calendar});
-            updateHistory({calendar});
+            updateHistory(history, {calendar});
         }
     }
 }
@@ -144,11 +146,11 @@ export function prev() {
 }
 
 export function setDate(date) {
-    return (dispatch, getState) => {
+    return (dispatch, getState, {history}) => {
         const state = getState();
         if (!isEqual(state.app.date, date)) {
             dispatch({type: 'SET_DATE', date});
-            updateHistory({date});
+            updateHistory(history, {date});
         }
     }
 }

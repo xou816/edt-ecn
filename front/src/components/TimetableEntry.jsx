@@ -3,6 +3,10 @@ import {withStyles, Zoom} from "@material-ui/core";
 
 const INCREMENT = 1000 * 60 * 15;
 const DAY_MS = 1000 * 60 * 60 * 24;
+const canUseDOM = !!(
+    (typeof window !== 'undefined' &&
+    window.document && window.document.createElement)
+);
 
 @withStyles(theme => ({
     root: {
@@ -42,13 +46,12 @@ export class TimetableEntry extends React.Component {
     }
 
     render() {
-        let {classes, children} = this.props;
-        return (
-            <Zoom in={true}>
-                <div {...this.props} style={{...this.gridRow(), ...this.gridColumn()}} className={classes.root}>
-                    {children}
-                </div>
-            </Zoom>
+        let {classes, onClick, children} = this.props;
+        let inner = (
+            <div onClick={onClick} style={{...this.gridRow(), ...this.gridColumn()}} className={classes.root}>
+                {children}
+            </div>
         );
+        return canUseDOM ? <Zoom in={true}>{inner}</Zoom> : inner;
     }
 }

@@ -5,9 +5,9 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 process.env.NODE_ENV = 'development';
 
 module.exports = {
-	entry: path.resolve(__dirname, '../src/index.jsx'),
+	entry: path.resolve(__dirname, '../src/client.jsx'),
 	devServer: {
-		contentBase: path.resolve(__dirname, '../../dist/public'),
+		contentBase: path.resolve(__dirname, '../build/public'),
 		watchContentBase: true,
 		proxy: {
 			'/api': 'http://localhost:3000'
@@ -15,7 +15,7 @@ module.exports = {
 	},
 	output: {
 		filename: 'compiled.js',
-		path: path.resolve(__dirname, '../../dist/public'),
+		path: path.resolve(__dirname, '../build/public'),
 		publicPath: '/'
 	},
 	module: {
