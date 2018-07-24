@@ -48,7 +48,7 @@ export class ExportButton extends React.Component {
     }
 
     link() {
-        return `/api/calendar/custom/${this.props.calendar}.ics`;
+        return `${process.env.PUBLIC}/api/calendar/custom/${this.props.calendar}.ics`;
     }
 
     copy() {
