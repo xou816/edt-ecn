@@ -8,12 +8,9 @@ You can find it here: [edt-ecn.herokuapp.com](https://edt-ecn.herokuapp.com).
 Development
 -----------
 
-A Redis server is used for calendar aliases (currently no longer in use).
-
 ```
 npm install
-docker run -p 6379:6379 redis # or locally installed redis
-npm run watch # compile typescript sources
+npm run build
 npm start
 ```
 
