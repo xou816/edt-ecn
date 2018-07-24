@@ -47,7 +47,7 @@ const app = Express();
 
 app.use(compression());
 app.use('/public', Express.static(path.resolve(__dirname, '../build/public')));
-app.use('/api', proxy(`localhost:${(process.env.PORT || 3000) + 1}`, {
+app.use('/api', proxy(`localhost:${parseInt(process.env.PORT || '3000', 10) + 1}`, {
 	proxyReqPathResolver: req => path.join('/api', parse(req.url).path)
 }));
 
