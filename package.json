@@ -14,7 +14,8 @@
     "start-api": "cd api && npm run start",
     "start-client": "cd client && npm run start",
     "start-client-local": "cd client && npm run start-local",
-    "heroku-postbuild": "npm run build"
+    "heroku-postbuild": "npm run build",
+    "heroku-prebuild": "cd api && npm install && cd ../client && npm install && cd .."
   },
   "author": "",
   "license": "ISC",
