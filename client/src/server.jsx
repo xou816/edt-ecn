@@ -12,6 +12,7 @@ import {createServerStore} from "./app/store";
 import {SheetsRegistry} from 'react-jss/lib/jss';
 import JssProvider from 'react-jss/lib/JssProvider';
 import {MuiThemeProvider, createMuiTheme, createGenerateClassName} from '@material-ui/core/styles';
+import {UAParser} from 'ua-parser-js';
 
 const renderPage = (html, css, state) => new Promise((resolve, reject) => {
 	fs.readFile(path.resolve(__dirname, '../build/public/asset-manifest.json'), 'utf8', (err, data) => {
@@ -55,7 +56,7 @@ app.use((req, res) => {
 	const generateClassName = createGenerateClassName();
 	const sheetsRegistry = new SheetsRegistry();
 	const theme = createMuiTheme();
-	createServerStore(path)
+	createServerStore(path, UAParser(req.get('user-agent')).device.type === 'mobile')
 		.then(store => {
 			const html = renderToString(
 				<Provider store={store}>

@@ -38,13 +38,13 @@ export function createClientStore() {
 	return store;
 }
 
-export function createServerStore(path) {
+export function createServerStore(path, isPhone) {
 
 	const history = createMemoryHistory();
 
 	const store = createStore(combineReducers({
     	app: appReducer,
-    	responsive: (state, action) => ({isPhone: false})
+    	responsive: (state, action) => ({isPhone: isPhone})
 	}), applyMiddleware(thunk.withExtraArgument({history})));
 
 	return updateStore(store.dispatch, history, {pathname: path})
