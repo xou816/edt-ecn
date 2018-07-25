@@ -53,7 +53,7 @@ export function getSubjects() {
         if (meta.length > 0) {
             dispatch({type: 'LOAD_START'});
             let ids = meta.map(meta => meta.id).join('+');
-            return fetch(`${process.env.HOST}/api/calendar/custom/${ids}/subjects`)
+            return fetch(`${API}/calendar/custom/${ids}/subjects`)
                 .then(res => res.status >= 400 ? Promise.reject('error') : res.json())
                 .then(res => res.reduce((indexed, cur) => {
                     return {...indexed, [cur.calendar]: (indexed[cur.calendar] || []).concat([cur])};
