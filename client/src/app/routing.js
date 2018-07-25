@@ -1,5 +1,5 @@
 import {default as parsePath, compile} from "path-to-regexp";
-import {format, parse} from "date-fns";
+import {format, parse, setHours} from "date-fns";
 
 import {setCalendar, setDate} from "./actions";
 
@@ -11,7 +11,7 @@ export function updateStore(dispatch, history, location) {
     let parsed = parsePath(route).exec(location.pathname);
     if (parsed) {    
         let calendar = parsed[1];
-        let date = parse(parsed[2], 'YYYYMMDD', Date.now());
+        let date = setHours(parse(parsed[2], 'YYYYMMDD', Date.now()), 12);
         if (calendar && calendar.length > 0) {
             promises.push(dispatch(setCalendar(calendar)));
         }

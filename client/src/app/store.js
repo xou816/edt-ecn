@@ -18,6 +18,8 @@ export function createClientStore() {
 			start: parseIso(e.start),
 			end: parseIso(e.end)
 		}));
+		initialState.app.date = parseIso(window.__PRELOADED_STATE__.app.date);
+		delete window.__PRELOADED_STATE__;
 	}
 
 	const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
