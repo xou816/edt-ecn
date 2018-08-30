@@ -112,7 +112,7 @@ function mapNodeToEvent(node: Element, weekNumToFirstDay: string[][], calendar: 
     }
 
     let category = safeText(node, ['category']);
-    let subject = safeText(node, ['resources/module/item', 'notes']).split('-').shift() || '';
+    let subject = safeText(node, ['resources/module/item']).split('-').shift() || 'unknown';
     let full_subject = subject;
     res = COURSE_REGEX.exec(subject);
     if (res != null) {

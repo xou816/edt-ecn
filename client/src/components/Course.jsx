@@ -6,18 +6,20 @@ import {COLOR_CLASSES} from "../app/colors";
 import Time from "@material-ui/icons/AccessTime";
 
 function CourseSummary({event, long, classes}) {
+    let subject = event.subject === 'unknown' ? '' : event.subject;
+    let full_subject = event.full_subject === 'unknown' ? '' : '(' + event.full_subject + ')';
     return long ?
         [
             <Typography key="title" variant="title" component="h2" color="inherit">
-                {`${event.category} ${event.subject}`.trim()}
+                {`${event.category} ${subject}`.trim()}
             </Typography>,
             <Typography className={classes.par} key="subheading" variant="subheading" component="h3" color="inherit">
-                ({event.full_subject})
+                {full_subject}
             </Typography>
         ] :
         (
             <Typography className={classes.par} variant="subheading" component="h2" color="inherit">
-                {`${event.category} ${event.subject}`.trim()}
+                {`${event.category} ${subject}`.trim()}
             </Typography>
         );
 }

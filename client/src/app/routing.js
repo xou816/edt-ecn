@@ -1,5 +1,5 @@
 import {default as parsePath, compile} from "path-to-regexp";
-import {format, parse, setHours} from "date-fns";
+import {format, parse, setHours, isSameDay} from "date-fns";
 
 import {setCalendar, setDate} from "./actions";
 
@@ -26,7 +26,7 @@ export function updateHistory(history, args) {
     let compiled = compile(route);
     let current = parsePath(route).exec(history.location.pathname);
     if (args.date) {
-        args.date = format(args.date, 'YYYYMMDD');
+        args.date = isSameDay(args.date, Date.now()) ? 'today' : format(args.date, 'YYYYMMDD');
     }
     let final = {
         calendar: current[1],

@@ -31,7 +31,7 @@ module.exports = {
 	plugins: [
 	new webpack.EnvironmentPlugin({
 		NODE_ENV: 'development',
-		PUBLIC: 'http://localhost:3000',
+		PUBLIC: 'http://localhost:3001',
 		PORT: '3000'
 	}),
 	new HtmlWebpackPlugin({

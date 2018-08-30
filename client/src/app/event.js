@@ -14,6 +14,6 @@ function charcode(string) {
 }
 
 export function subjectId(event) {
-    let sub = event.full_subject;
+    let sub = event.subject === 'unknown' ? event.colour : event.full_subject;
     return charcode(sub);
 }
