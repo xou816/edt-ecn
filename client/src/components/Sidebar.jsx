@@ -1,6 +1,13 @@
 import React from "react";
 import {
-    Button, Divider, Drawer, LinearProgress, Step, StepContent, StepLabel, Stepper,
+    Button,
+    Divider,
+    Drawer,
+    LinearProgress,
+    Step,
+    StepContent,
+    StepLabel,
+    Stepper,
     withStyles
 } from "@material-ui/core";
 import {connect} from "react-redux";

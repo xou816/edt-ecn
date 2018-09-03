@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import {Timetable} from "./Timetable";
 import Swipeable from 'react-swipeable';
 import {Nav} from "./Nav";
@@ -46,16 +46,17 @@ export class App extends React.Component {
                 <CssBaseline/>
                 <Swipeable onSwipedLeft={() => next()} onSwipedRight={() => prev()}>
                     <Nav/>
-                    {loading ? <LinearProgress /> : null }
-                    {calendarReady ? <Timetable /> : (
-                        <Typography className={classes.caption} align="center" paragraph component="p" variant="caption" color="textSecondary">
-                            <Help className={classes.icon} /><br />Ouvrez le menu pour sélectionner un calendrier.
+                    {loading ? <LinearProgress/> : null}
+                    {calendarReady ? <Timetable/> : (
+                        <Typography className={classes.caption} align="center" paragraph component="p" variant="caption"
+                                    color="textSecondary">
+                            <Help className={classes.icon}/><br/>Ouvrez le menu pour sélectionner un calendrier.
                         </Typography>
-                    ) }
+                    )}
                 </Swipeable>
                 <Sidebar/>
                 {calendarReady ? <ExportButton/> : null}
-                <Snackbar open={error !== null} message={error} autoHideDuration={3000} />
+                <Snackbar open={error !== null} message={error} autoHideDuration={3000}/>
             </React.Fragment>
         );
     }

@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import {connect} from 'react-redux';
 import {addDays, compareAsc} from "date-fns";
 import {CourseWrapper} from "./CourseWrapper";

@@ -1,6 +1,17 @@
-import * as React from 'react';
+import React from 'react';
 import {connect} from 'react-redux';
-import {addDays, addHours, addMinutes, compareAsc, isEqual, parse, format, isSameDay, startOfDay, startOfWeek} from "date-fns";
+import {
+    addDays,
+    addHours,
+    addMinutes,
+    compareAsc,
+    format,
+    isEqual,
+    isSameDay,
+    parse,
+    startOfDay,
+    startOfWeek
+} from "date-fns";
 import frLocale from "date-fns/locale/fr";
 import {Divider, Typography, withStyles} from "@material-ui/core";
 import {TimetableEntry} from "./TimetableEntry";
@@ -49,7 +60,7 @@ export class Timetable extends React.Component {
 
     offset() {
         let now = new Date();
-        let offset = now.getTimezoneOffset()/-60;
+        let offset = now.getTimezoneOffset() / -60;
         return addHours(this.date(), 8 + offset - 2).valueOf();
     }
 
@@ -77,7 +88,7 @@ export class Timetable extends React.Component {
         let now = Date.now();
         return !this.isVisible(now) ? null : (
             <TimetableEntry event={{start: now, end: addMinutes(now, 15)}} offset={this.offset()}>
-                <Divider className={this.props.classes.now} />
+                <Divider className={this.props.classes.now}/>
             </TimetableEntry>
         );
     }
@@ -87,7 +98,7 @@ export class Timetable extends React.Component {
             <div className={this.props.classes.root}>
                 {this.renderSeparators()}
                 {this.renderDays()}
-                <TimetableEvents offset={this.offset()} days={this.days()} />
+                <TimetableEvents offset={this.offset()} days={this.days()}/>
                 {this.renderMarker()}
                 <FocusedCourse/>
             </div>

@@ -1,4 +1,4 @@
-import {addDays, addWeeks, isFriday, isMonday, subDays, subWeeks, parse, isEqual} from "date-fns";
+import {addDays, addWeeks, isEqual, isFriday, isMonday, parse, subDays, subWeeks} from "date-fns";
 import {parseIso} from './event';
 import {updateHistory} from "./routing";
 import 'cross-fetch/polyfill';
@@ -11,7 +11,8 @@ export function getCalendarList() {
         return fetch(`${API}/calendar/list`)
             .then(res => res.status >= 400 ? Promise.reject('error') : res.json())
             .then(list => dispatch({type: 'SET_LIST', list}))
-            .catch(err => {})
+            .catch(err => {
+            })
             .then(_ => dispatch({type: 'LOAD_END'}));
     }
 }
@@ -59,7 +60,8 @@ export function getSubjects() {
                     return {...indexed, [cur.calendar]: (indexed[cur.calendar] || []).concat([cur])};
                 }, {}))
                 .then(subjects => dispatch({type: 'SET_SUBJECTS', subjects}))
-                .catch(err => {})
+                .catch(err => {
+                })
                 .then(_ => dispatch({type: 'LOAD_END'}));
         } else {
             return Promise.resolve();

@@ -78,8 +78,8 @@ export class FilterSubject extends React.Component {
                         getId={subject => subject.id}
                         getDisplay={subject => subject.name}
                         checkbox={{
-                            icon: <Visibility />,
-                            checkedIcon: <VisibilityOff />
+                            icon: <Visibility/>,
+                            checkedIcon: <VisibilityOff/>
                         }}
                     />)
                 }

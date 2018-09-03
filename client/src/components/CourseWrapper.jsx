@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import {Course} from "./Course";
 import {TimetableEntry} from "./TimetableEntry";
 import {Button, withStyles} from "@material-ui/core";
@@ -72,14 +72,14 @@ export class CourseWrapper extends React.Component {
                 </TimetableEntry>
                 {this.multipage(
                     <TimetableEntry event={curr} offset={this.props.offset} onClick={() => focusEvent(curr.id)}>
-                            <Button mini className={`${classes.btn} ${classes.btnLeft}`}
-                                    onClick={e => this.prevPage(e)} variant="fab" color="primary" aria-label="prev">
-                                &laquo;
-                            </Button>
-                            <Button mini className={`${classes.btn} ${classes.btnRight}`}
-                                    onClick={e => this.nextPage(e)} variant="fab" color="primary" aria-label="next">
-                                &raquo;
-                            </Button>
+                        <Button mini className={`${classes.btn} ${classes.btnLeft}`}
+                                onClick={e => this.prevPage(e)} variant="fab" color="primary" aria-label="prev">
+                            &laquo;
+                        </Button>
+                        <Button mini className={`${classes.btn} ${classes.btnRight}`}
+                                onClick={e => this.nextPage(e)} variant="fab" color="primary" aria-label="next">
+                            &raquo;
+                        </Button>
                     </TimetableEntry>
                 )}
             </React.Fragment>

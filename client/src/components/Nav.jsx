@@ -1,5 +1,5 @@
-import * as React from "react";
-import {next, prev, toggleMenu, setDate} from "../app/actions";
+import React from "react";
+import {next, prev, setDate, toggleMenu} from "../app/actions";
 import {connect} from "react-redux";
 import {AppBar, Button, IconButton, Toolbar, withStyles} from "@material-ui/core";
 import MenuIcon from '@material-ui/icons/Menu';
@@ -9,11 +9,11 @@ import DatePicker from 'material-ui-pickers/DatePicker';
 import DateFnsUtils from 'material-ui-pickers/utils/date-fns-utils';
 import MuiPickersUtilsProvider from 'material-ui-pickers/utils/MuiPickersUtilsProvider';
 import frLocale from 'date-fns/locale/fr';
-import {startOfWeek, format} from 'date-fns';
+import {format, startOfWeek} from 'date-fns';
 
 let DateDisplay = (props) => {
     let doFormat = d => format(d, 'Do MMMM', {locale: frLocale});
-    let date = props.isPhone ? 
+    let date = props.isPhone ?
         doFormat(props.date) :
         `Semaine du ${doFormat(startOfWeek(props.date, {weekStartsOn: 1}))}`;
     return <Button onClick={props.onClick} color="inherit" variant="flat">{date}</Button>;
@@ -68,11 +68,11 @@ export class Nav extends React.Component {
                             format={'L'}
                             autoOk
                             onChange={this.props.setDate}
-                            TextFieldComponent={props => <DateDisplay {...props} 
-                                isPhone={this.props.isPhone} 
-                                date={this.props.date} />} />
+                            TextFieldComponent={props => <DateDisplay {...props}
+                                                                      isPhone={this.props.isPhone}
+                                                                      date={this.props.date}/>}/>
                     </MuiPickersUtilsProvider>
-                    <div className={classes.spread} />
+                    <div className={classes.spread}/>
                     {
                         this.props.isPhone ? null : [
                             <Button className={classes.btn} key="left" variant="raised" color="secondary"

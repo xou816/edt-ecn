@@ -11,17 +11,17 @@ import {renderToString} from 'react-dom/server';
 import {createServerStore} from "./app/store";
 import {SheetsRegistry} from 'react-jss/lib/jss';
 import JssProvider from 'react-jss/lib/JssProvider';
-import {MuiThemeProvider, createMuiTheme, createGenerateClassName} from '@material-ui/core/styles';
+import {createGenerateClassName, createMuiTheme, MuiThemeProvider} from '@material-ui/core/styles';
 import {UAParser} from 'ua-parser-js';
 
 const renderPage = (html, css, state) => new Promise((resolve, reject) => {
-	fs.readFile(path.resolve(__dirname, '../build/public/asset-manifest.json'), 'utf8', (err, data) => {
-		if (err) {
-			reject(err);
-		}
-		let pathToBundle = path.join('/public', JSON.parse(data)['main.js']);
-		let preloaded = JSON.stringify(state).replace(/</g, '\\u003c');
-		resolve(`
+    fs.readFile(path.resolve(__dirname, '../build/public/asset-manifest.json'), 'utf8', (err, data) => {
+        if (err) {
+            reject(err);
+        }
+        let pathToBundle = path.join('/public', JSON.parse(data)['main.js']);
+        let preloaded = JSON.stringify(state).replace(/</g, '\\u003c');
+        resolve(`
 			<!DOCTYPE html>
 			<html>
 			  <head>
@@ -40,7 +40,7 @@ const renderPage = (html, css, state) => new Promise((resolve, reject) => {
 			  </body>
 			</html>
 		`);
-	});
+    });
 });
 
 const app = Express();
@@ -48,29 +48,33 @@ const app = Express();
 app.use(compression());
 app.use('/public', Express.static(path.resolve(__dirname, '../build/public')));
 app.use('/api', proxy(`localhost:${parseInt(process.env.PORT || '3000', 10) + 1}`, {
-	proxyReqPathResolver: req => path.join('/api', parse(req.url).path)
+    proxyReqPathResolver: req => path.join('/api', parse(req.url).path)
 }));
 
 app.use((req, res) => {
-	const path = parse(req.url).path;
-	const generateClassName = createGenerateClassName();
-	const sheetsRegistry = new SheetsRegistry();
-	const theme = createMuiTheme();
-	createServerStore(path, UAParser(req.get('user-agent')).device.type === 'mobile')
-		.then(store => {
-			const html = renderToString(
-				<Provider store={store}>
-					 <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
-					 	<MuiThemeProvider theme={theme} sheetsManager={new Map()}>
-					 		<App />
-					 	</MuiThemeProvider>
-					 </JssProvider>
-				</Provider>
-			);
-			const css = sheetsRegistry.toString();
-			return renderPage(html, css, store.getState())
-		})
-		.then(result => res.send(result));
+    const path = parse(req.url).path;
+    const generateClassName = createGenerateClassName();
+    const sheetsRegistry = new SheetsRegistry();
+    const theme = createMuiTheme();
+    if (req.header('accept') === 'text/calendar') {
+        res.redirect('/api/calendar/custom/' + path.split('/')[1] + '.ics');
+    } else {
+        createServerStore(path, UAParser(req.header('user-agent')).device.type === 'mobile')
+            .then(store => {
+                const html = renderToString(
+                    <Provider store={store}>
+                        <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
+                            <MuiThemeProvider theme={theme} sheetsManager={new Map()}>
+                                <App/>
+                            </MuiThemeProvider>
+                        </JssProvider>
+                    </Provider>
+                );
+                const css = sheetsRegistry.toString();
+                return renderPage(html, css, store.getState())
+            })
+            .then(result => res.send(result));
+    }
 });
 
 app.listen(process.env.PORT || 3000);

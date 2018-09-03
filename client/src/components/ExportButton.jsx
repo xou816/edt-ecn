@@ -27,10 +27,10 @@ import copy from 'copy-to-clipboard';
         backgroundColor: 'inherit'
     },
     margin: {
-        margin: `${theme.spacing.unit}px ${3*theme.spacing.unit}px`
+        margin: `${theme.spacing.unit}px ${3 * theme.spacing.unit}px`
     },
     copyright: {
-        margin: 2*theme.spacing.unit,
+        margin: 2 * theme.spacing.unit,
         textAlign: 'center'
     }
 }))
@@ -58,7 +58,8 @@ export class ExportButton extends React.Component {
     toggleDialog() {
         return !this.disabled() ?
             () => this.setState({showDialog: !this.state.showDialog}) :
-            () => {};
+            () => {
+            };
     }
 
     render() {

@@ -9,9 +9,7 @@ module.exports = {
 	devServer: {
 		contentBase: path.resolve(__dirname, '../build/public'),
 		watchContentBase: true,
-		proxy: {
-			'/api': 'http://localhost:3000'
-		}
+        historyApiFallback: true
 	},
 	output: {
 		filename: 'compiled.js',

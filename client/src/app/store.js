@@ -8,47 +8,47 @@ import {parseIso} from './event';
 
 export function createClientStore() {
 
-	const history = createBrowserHistory();
+    const history = createBrowserHistory();
 
-	let initialState = {};
-	if (window.__PRELOADED_STATE__) {
-		initialState = {...window.__PRELOADED_STATE__};
-		initialState.app.events = window.__PRELOADED_STATE__.app.events.map(e => ({
-			...e,
-			start: parseIso(e.start),
-			end: parseIso(e.end)
-		}));
-		initialState.app.date = parseIso(window.__PRELOADED_STATE__.app.date);
-		delete window.__PRELOADED_STATE__;
-	}
+    let initialState = {};
+    if (window.__PRELOADED_STATE__) {
+        initialState = {...window.__PRELOADED_STATE__};
+        initialState.app.events = window.__PRELOADED_STATE__.app.events.map(e => ({
+            ...e,
+            start: parseIso(e.start),
+            end: parseIso(e.end)
+        }));
+        initialState.app.date = parseIso(window.__PRELOADED_STATE__.app.date);
+        delete window.__PRELOADED_STATE__;
+    }
 
-	const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-	const store = createStore(combineReducers({
-	    responsive,
-	    app: appReducer
-	}), initialState, composeEnhancers(applyMiddleware(thunk.withExtraArgument({history}))));
+    const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+    const store = createStore(combineReducers({
+        responsive,
+        app: appReducer
+    }), initialState, composeEnhancers(applyMiddleware(thunk.withExtraArgument({history}))));
 
-	mediaQueryTracker({
-	    isPhone: "screen and (max-width: 767px)",
-	    innerWidth: true,
-	    innerHeight: true,
-	}, store.dispatch);
+    mediaQueryTracker({
+        isPhone: "screen and (max-width: 767px)",
+        innerWidth: true,
+        innerHeight: true,
+    }, store.dispatch);
 
-	// history.listen(location => updateStore(store.dispatch, history, location));
-	// updateStore(store.dispatch, history);
+    // history.listen(location => updateStore(store.dispatch, history, location));
+    // updateStore(store.dispatch, history);
 
-	return store;
+    return store;
 }
 
 export function createServerStore(path, isPhone) {
 
-	const history = createMemoryHistory();
+    const history = createMemoryHistory();
 
-	const store = createStore(combineReducers({
-    	app: appReducer,
-    	responsive: (state, action) => ({isPhone: isPhone})
-	}), applyMiddleware(thunk.withExtraArgument({history})));
+    const store = createStore(combineReducers({
+        app: appReducer,
+        responsive: (state, action) => ({isPhone: isPhone})
+    }), applyMiddleware(thunk.withExtraArgument({history})));
 
-	return updateStore(store.dispatch, history, {pathname: path})
-		.then(_ => store);
+    return updateStore(store.dispatch, history, {pathname: path})
+        .then(_ => store);
 } 

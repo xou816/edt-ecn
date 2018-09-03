@@ -1,5 +1,5 @@
 import format from "date-fns/format";
-import * as React from "react";
+import React from "react";
 import {subjectId} from "../app/event";
 import {Card, CardContent, Chip, Typography, withStyles} from "@material-ui/core";
 import {COLOR_CLASSES} from "../app/colors";
@@ -41,14 +41,14 @@ function CourseDetails({event, long, classes}) {
                     </Typography>
                 </React.Fragment>
             )}
-            <Time className={classes.icon} />
+            <Time className={classes.icon}/>
             <Typography className={classes.icon} component="span" color="inherit">
                 {displaySpan(event)}
             </Typography>
             <div className={classes.par}>
-            {event.location.length === 0 ?
-                null :
-                event.location.split(',').map(l => <Chip className={classes.chip} key={l} label={l}/>)}
+                {event.location.length === 0 ?
+                    null :
+                    event.location.split(',').map(l => <Chip className={classes.chip} key={l} label={l}/>)}
             </div>
         </React.Fragment>
     );
@@ -61,18 +61,18 @@ function CourseDetails({event, long, classes}) {
         overflow: 'hidden'
     },
     par: {
-        marginBottom: .5*theme.spacing.unit
+        marginBottom: .5 * theme.spacing.unit
     },
     icon: {
         verticalAlign: 'middle',
         display: 'inline',
-        margin: `${.5*theme.spacing.unit}px 0`,
+        margin: `${.5 * theme.spacing.unit}px 0`,
         paddingRight: theme.spacing.unit
     },
     chip: {
         margin: 2
     },
-     ...COLOR_CLASSES
+    ...COLOR_CLASSES
 }))
 export class Course extends React.Component {
 

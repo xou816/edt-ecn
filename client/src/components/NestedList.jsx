@@ -1,4 +1,4 @@
-import {Checkbox, Collapse, List, ListItem, ListItemText, ListItemIcon} from "@material-ui/core";
+import {Checkbox, Collapse, List, ListItem, ListItemIcon, ListItemText} from "@material-ui/core";
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import React from "react";
@@ -14,7 +14,8 @@ export function NestedList(props) {
                 <List>
                     {props.nested.map(element => (
                         <ListItem key={props.getId(element)} onClick={() => props.toggle(props.getId(element))} button>
-                            <Checkbox {...props.checkbox} checked={props.checked(props.getId(element))} tabIndex={-1} disableRipple/>
+                            <Checkbox {...props.checkbox} checked={props.checked(props.getId(element))} tabIndex={-1}
+                                      disableRipple/>
                             <ListItemText primary={props.getDisplay(element)}/>
                         </ListItem>
                     ))}

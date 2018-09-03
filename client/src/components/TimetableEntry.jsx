@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import {withStyles, Zoom} from "@material-ui/core";
 
 const INCREMENT = 1000 * 60 * 15;
