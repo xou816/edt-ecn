@@ -1,8 +1,8 @@
 import format from "date-fns/format";
 import React from "react";
-import {subjectId} from "../app/event";
+import {subjectId} from "../../app/event";
 import {Card, CardContent, Chip, Typography, withStyles} from "@material-ui/core";
-import {COLOR_CLASSES} from "../app/colors";
+import {COLOR_CLASSES} from "../../app/colors";
 import Time from "@material-ui/icons/AccessTime";
 
 function CourseSummary({event, long, classes}) {

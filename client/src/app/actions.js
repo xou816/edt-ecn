@@ -19,7 +19,7 @@ export function getCalendarList() {
 
 export function getCalendar(calendar) {
     return dispatch => {
-        if (calendar !== null) {
+        if (calendar != null) {
             dispatch({type: 'LOAD_START'});
             return fetch(`${API}/calendar/custom/${calendar}`)
                 .then(res => res.status >= 400 ? Promise.reject('error') : res.json())
@@ -30,7 +30,6 @@ export function getCalendar(calendar) {
                 .then(events => events.map(e => ({...e, start: parseIso(e.start), end: parseIso(e.end)})))
                 .then(events => dispatch({type: 'SET_EVENTS', events}))
                 .catch(err => {
-                    dispatch({type: 'SET_CALENDAR', calendar: null});
                     dispatch({type: 'SET_META', meta: []});
                     dispatch(showError('Calendrier inexistant!'));
                 })

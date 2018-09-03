@@ -1,35 +1,15 @@
 import React from 'react';
-import {Timetable} from "./Timetable";
-import Swipeable from 'react-swipeable';
-import {Nav} from "./Nav";
-import {next, prev} from "../app/actions";
 import {connect} from "react-redux";
-import {CssBaseline, LinearProgress, Snackbar, Typography, withStyles} from "@material-ui/core";
-import {Sidebar} from "./Sidebar";
-import {ExportButton} from "./ExportButton";
-import Help from "@material-ui/icons/Help";
+import {CssBaseline, Snackbar} from "@material-ui/core";
+import {BrowserRouter as Router, Route, Redirect, Switch} from 'react-router-dom';
+import {TimetablePage} from "./timetable/TimetablePage";
+import {HomePage} from "./home/HomePage";
 
 const mapState = state => ({
-    loading: state.app.loading,
-    calendarReady: state.app.calendar !== null,
     error: state.app.error
 });
 
-const mapDispatch = dispatch => ({
-    next: () => dispatch(next()),
-    prev: () => dispatch(prev())
-});
-
-@connect(mapState, mapDispatch)
-@withStyles(theme => ({
-    caption: {
-        fontSize: '1em',
-        margin: '3em 1em'
-    },
-    icon: {
-        fontSize: '3em'
-    }
-}))
+@connect(mapState)
 export class App extends React.Component {
 
     componentDidMount() {
@@ -40,22 +20,17 @@ export class App extends React.Component {
     }
 
     render() {
-        let {next, prev, loading, calendarReady, classes, error} = this.props;
+        let {error} = this.props;
         return (
             <React.Fragment>
                 <CssBaseline/>
-                <Swipeable onSwipedLeft={() => next()} onSwipedRight={() => prev()}>
-                    <Nav/>
-                    {loading ? <LinearProgress/> : null}
-                    {calendarReady ? <Timetable/> : (
-                        <Typography className={classes.caption} align="center" paragraph component="p" variant="caption"
-                                    color="textSecondary">
-                            <Help className={classes.icon}/><br/>Ouvrez le menu pour sélectionner un calendrier.
-                        </Typography>
-                    )}
-                </Swipeable>
-                <Sidebar/>
-                {calendarReady ? <ExportButton/> : null}
+                <Router>
+                    <Switch>
+                        <Redirect exact from={'/:calendar'} to={'/:calendar/today'}/>
+                        <Route exact path={'/'} component={HomePage}/>
+                        <Route path={'/:calendar/:date'} component={TimetablePage}/>
+                    </Switch>
+                </Router>
                 <Snackbar open={error !== null} message={error} autoHideDuration={3000}/>
             </React.Fragment>
         );
