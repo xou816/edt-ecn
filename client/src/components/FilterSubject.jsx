@@ -76,7 +76,8 @@ export class FilterSubject extends React.Component {
                         toggle={(subject) => toggleSubject(calendar, subject)}
                         checked={(subject) => checked(calendar, subject)}
                         getId={subject => subject.id}
-                        getDisplay={subject => subject.name}
+                        getPrimary={subject => subject.name}
+                        getSecondary={subject => subject.full_name}
                         checkbox={{
                             icon: <Visibility/>,
                             checkedIcon: <VisibilityOff/>

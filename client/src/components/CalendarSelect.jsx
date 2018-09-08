@@ -93,7 +93,7 @@ export class CalendarSelect extends React.Component {
                         toggle={(id) => toggle(id)}
                         unfold={() => this.togglePrefix(prefix)}
                         getId={calendar => calendar.id}
-                        getDisplay={calendar => calendar.display}
+                        getPrimary={calendar => calendar.display}
                     />)
                 }
             </List>

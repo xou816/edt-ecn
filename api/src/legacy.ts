@@ -22,6 +22,7 @@ export function __getSubjects(events: Events): Subjects {
             }, [false, 0]);
             return final.concat(exists ? [] : [{
                 name: subject,
+                full_name: null,
                 id: len as number,
                 calendar: event.calendar
             }])

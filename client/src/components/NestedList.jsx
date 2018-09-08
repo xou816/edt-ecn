@@ -3,20 +3,23 @@ import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import React from "react";
 
-export function NestedList(props) {
+export function NestedList({unfold, title, shown, nested, getId, toggle, checkbox, checked, getPrimary, getSecondary}) {
+    if (getSecondary == null) {
+        getSecondary = () => null;
+    }
     return (
         <React.Fragment>
-            <ListItem onClick={props.unfold} button>
-                <ListItemText primary={props.title}/>
-                {props.shown ? <ExpandLess/> : <ExpandMore/>}
+            <ListItem onClick={unfold} button>
+                <ListItemText primary={title}/>
+                {shown ? <ExpandLess/> : <ExpandMore/>}
             </ListItem>
-            <Collapse in={props.shown}>
+            <Collapse in={shown}>
                 <List>
-                    {props.nested.map(element => (
-                        <ListItem key={props.getId(element)} onClick={() => props.toggle(props.getId(element))} button>
-                            <Checkbox {...props.checkbox} checked={props.checked(props.getId(element))} tabIndex={-1}
+                    {nested.map(element => (
+                        <ListItem key={getId(element)} onClick={() => toggle(getId(element))} button>
+                            <Checkbox {...checkbox} checked={checked(getId(element))} tabIndex={-1}
                                       disableRipple/>
-                            <ListItemText primary={props.getDisplay(element)}/>
+                            <ListItemText primary={getPrimary(element)} secondary={getSecondary(element)} />
                         </ListItem>
                     ))}
                 </List>

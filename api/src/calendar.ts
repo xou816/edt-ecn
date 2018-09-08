@@ -6,7 +6,7 @@ import {parseXmlString, Element} from 'libxmljs';
 import {Filter} from './filter';
 import {__getSubjectFromEvent, __getSubjects} from "./legacy";
 
-const FILTER = 'Groupe';
+const UNKNOWN_SUBJECT = 'unknown';
 const WARN_MESSAGE = "(!) Ce calendrier n'est peut être pas à jour. Les filtres sont désactivés par sécurité."
 
 export type CalendarId = {
@@ -51,7 +51,7 @@ export type Calendar = {
     version: Version
 }
 
-export type Subjects = { id: number, name: string, calendar: string, [k: string]: any }[];
+export type Subjects = { id: number, name: string, full_name: string|null, calendar: string, [k: string]: any }[];
 
 const calendarList = 'http://website.ec-nantes.fr/sites/edtemps/finder.xml';
 const calendarUrl = (id: string) => `http://website.ec-nantes.fr/sites/edtemps/${id}.xml`;
@@ -113,7 +113,7 @@ function mapNodeToEvent(node: Element, weekNumToFirstDay: string[][], calendar: 
     }
 
     let category = safeText(node, ['category']);
-    let subject = safeText(node, ['resources/module/item']).split('-').shift() || 'unknown';
+    let subject = safeText(node, ['resources/module/item']).split('-').shift() || UNKNOWN_SUBJECT;
     let full_subject = subject;
     res = COURSE_REGEX.exec(subject);
     if (res != null) {
@@ -171,11 +171,17 @@ export function getOnlineCalendar(id: string): Promise<Calendar> {
 
 const VALID_CAT = ['CM', 'TD', 'TP', 'DS'];
 
-function getSubjectFromEvent(event: CalendarEvent, version: Version = Version.LATEST): string {
+function getSubjectFromEvent(event: CalendarEvent, version: Version = Version.LATEST): {name: string, full_name: string|null} {
     if (version === Version.UNKNOWN) {
-        return __getSubjectFromEvent(event);
+        return {
+            name: __getSubjectFromEvent(event),
+            full_name: null
+        };
     }
-    return event.subject.toUpperCase();
+    return {
+        name: event.subject.toUpperCase(),
+        full_name: event.full_subject
+    };
 }
 
 export function getSubjects(calendar: Calendar): Subjects {
@@ -188,18 +194,18 @@ export function getSubjects(calendar: Calendar): Subjects {
         .sort((a, b) => a.start < b.start ? -1 : 1)
         .reduce((final: Subjects, event) => {
             let subject = getSubjectFromEvent(event, version);
-            let isIrrelevant = VALID_CAT.indexOf(event.category) === -1;
+            let isIrrelevant = subject.name === UNKNOWN_SUBJECT.toUpperCase() || VALID_CAT.indexOf(event.category) === -1;
             if (!isIrrelevant) {
                 let [exists, len] = final.reduce(([exists, len], actualSub) => {
                     let sameCalendar = actualSub.calendar === event.calendar;
-                    let sameSubject = actualSub.name === subject;
+                    let sameSubject = actualSub.name === subject.name;
                     return [
                         exists as boolean || sameSubject && sameCalendar,
                         len as number + (sameCalendar ? 1 : 0)
                     ];
                 }, [false, 0]);
                 return exists ? final : final.concat([{
-                    name: subject,
+                    ...subject,
                     id: len as number,
                     calendar: event.calendar
                 }])
@@ -226,7 +232,7 @@ function getSingleCustomCalendar(id: string): Promise<Calendar> {
                 events.map(event => ({...event, description: event.description + WARN_MESSAGE})) :
                 events
                     .filter(event => filter.test((subjects
-                        .find(s => s.name === getSubjectFromEvent(event, actualVersion)) || {id: 999}).id));
+                        .find(s => s.name === getSubjectFromEvent(event, actualVersion).name) || {id: 999}).id));
             return {
                 events,
                 meta: [{
