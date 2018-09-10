@@ -9,7 +9,7 @@ export function __getSubjectFromEvent(event: CalendarEvent): string {
 export function __getSubjects(events: Events): Subjects {
     return events
         .filter(e => e.subject.length > 0)
-        .sort((a, b) => a.start < b.start ? -1 : 1)
+        .sort((a, b) => a.start && b.start && a.start < b.start ? -1 : 1)
         .reduce((final: Subjects, event) => {
             let subject = __getSubjectFromEvent(event);
             let [exists, len] = final.reduce(([exists, len], actualSub) => {

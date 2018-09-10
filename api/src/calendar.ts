@@ -19,14 +19,15 @@ export type CalendarEvent = {
     id: string,
     calendar: string,
     colour: string,
-    start: Moment,
-    end: Moment,
+    start: Moment|null,
+    end: Moment|null,
     subject: string,
     full_subject: string,
     category: string,
     location: string,
     description: string,
     organizer: string,
+    pretty: string
 };
 
 export type CalendarType = 'module' | 'group' | 'room';
@@ -53,11 +54,31 @@ export type Calendar = {
 
 export type Subjects = { id: number, name: string, full_name: string|null, calendar: string, [k: string]: any }[];
 
-const calendarList = 'http://website.ec-nantes.fr/sites/edtemps/finder.xml';
-const calendarUrl = (id: string) => `http://website.ec-nantes.fr/sites/edtemps/${id}.xml`;
+const calendarList = (prefix: string|null) => {
+    return prefix === 'ufr' ?
+        'https://edt.univ-nantes.fr/sciences/finder.xml' :
+        'http://website.ec-nantes.fr/sites/edtemps/finder.xml';
+};
 
-export function listOnlineCalendars(type: CalendarType = 'group'): Promise<CalendarId[]> {
-    return fetch(calendarList)
+const calendarUrl = (id: string) => {
+    let split = id.split(':');
+    let [prefix, _id] = split.length > 1 ? split : [null, id];
+    return prefix === 'ufr' ?
+        `https://edt.univ-nantes.fr/sciences/${_id}.xml` :
+        `http://website.ec-nantes.fr/sites/edtemps/${_id}.xml`;
+};
+
+export function listOnlineCalendars(): Promise<CalendarId[]> {
+    return listCalendarsFromSource(null)
+        .then(calendars => listCalendarsFromSource('ufr')
+            .then(ufrCalendars => ufrCalendars
+                .filter((calendar: CalendarId) => calendar.name.startsWith('M1ECN'))
+                .map((calendar: CalendarId) => ({...calendar, id: 'ufr:' + calendar.id}))
+                .concat(calendars)));
+}
+
+export function listCalendarsFromSource(source: string|null, type: CalendarType = 'group'): Promise<CalendarId[]> {
+    return fetch(calendarList(source))
         .then(res => res.text())
         .then(body => parseXmlString(body))
         .then(doc => doc.find('/finder/resource')
@@ -98,13 +119,15 @@ const ORGANIZER_REGEX = /^([-a-zÀ-ú ]+) \(([-a-zÀ-ú ]+)\)$/i;
 const ROOM_REGEX = /^([\w ]+) \(\1\)$/i;
 const COURSE_REGEX = /^([\w ]+) \((.*)\)$/i;
 
-function mapNodeToEvent(node: Element, weekNumToFirstDay: string[][], calendar: string): CalendarEvent {
+type WeekDesc = {
+	date: string,
+	week: string
+}[];
+
+function mapNodeToEvent(node: Element, weeks: WeekDesc, calendar: string): CalendarEvent {
 
     let id = node.attr('id').value();
     let colour = '#' + node.attr('colour').value();
-    let day = parseInt(safeText(node, ['day']), 10);
-    let week = parseInt(safeText(node, ['prettyweeks']), 10);
-    let date = weekNumToFirstDay[week][day];
     let description = safeText(node, ['notes']);
     let organizer = safeText(node, ['resources/staff/item']);
     let res = ORGANIZER_REGEX.exec(organizer);
@@ -120,6 +143,7 @@ function mapNodeToEvent(node: Element, weekNumToFirstDay: string[][], calendar: 
         subject = res[1];
         full_subject = res[2];
     }
+    let pretty = prettyName(category, full_subject, description);
 
     let location: string = node.find('resources/room/item')
         .map(n => n.text())
@@ -129,23 +153,42 @@ function mapNodeToEvent(node: Element, weekNumToFirstDay: string[][], calendar: 
         })
         .join(', ');
 
+    let day = parseInt(safeText(node, ['day']), 10);
+    let week = safeText(node, ['rawweeks']);
+    let start = dateFromCourseTime(week, day, safeText(node, ['starttime']), weeks);
+    let end = dateFromCourseTime(week, day, safeText(node, ['endtime']), weeks);
+
     return {
-        id: id,
-        colour: colour,
-        start: dateFromCourseTime(date, safeText(node, ['starttime'])),
-        end: dateFromCourseTime(date, safeText(node, ['endtime'])),
+        id,
+        colour,
+        start,
+        end,
+        pretty,
         subject: subject.trim(),
         full_subject: full_subject.trim(),
-        location: location,
-        description: description,
-        organizer: organizer,
-        calendar: calendar,
-        category: category
+        location,
+        description,
+        organizer,
+        calendar,
+        category
     }
 }
 
-function dateFromCourseTime(date: string, hour: string): Moment {
-    return tz(`${date} ${hour}`, 'DD/MM/YYYY hh:mm', 'Europe/Paris');
+function prettyName(category: string, full_subject: string, description: string): string {
+    let possibleNames = [`${category} ${full_subject === 'unknown' ? '' : full_subject}`, `${description}`]
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+    return possibleNames.shift() || '';
+}
+
+function dateFromCourseTime(week: string, day: number, hour: string, weeks: WeekDesc): Moment|null {
+	let match = weeks.find(weekDesc => weekDesc.week === week);
+    if (match) {
+    	let parsed = tz(`${match.date} ${hour}`, 'DD/MM/YYYY hh:mm', 'Europe/Paris');
+    	return parsed.add(day, 'days');
+	} else {
+		return null;
+	}
 }
 
 export function getOnlineCalendar(id: string): Promise<Calendar> {
@@ -153,14 +196,13 @@ export function getOnlineCalendar(id: string): Promise<Calendar> {
         .then(res => res.text())
         .then(body => parseXmlString(body))
         .then(doc => {
-            let dates: string[][] = doc.find('/timetable/span').reduce((acc: string[][], node: Element) => {
-                let index = parseInt((node.get('title') || {text: () => ''}).text(), 10);
-                acc[index] = node.find('day/date').map(date => date.text());
-                return acc;
-            }, []);
+        	let desc: WeekDesc = doc.find('/timetable/span').map((node: Element) => ({
+        		date: node.attr('date').value(),
+        		week: node.get('alleventweeks')!.text()
+        	}));
             return doc.find('//event')
-                .map(node => mapNodeToEvent(node, dates, id))
-                .sort((a, b) => a.start.valueOf() - b.start.valueOf());
+                .map(node => mapNodeToEvent(node, desc, id))
+                .sort((a, b) => a.start && b.start ? a.start.valueOf() - b.start.valueOf() : 0);
         })
         .then(events => ({
             events,
@@ -169,7 +211,7 @@ export function getOnlineCalendar(id: string): Promise<Calendar> {
         }))
 }
 
-const VALID_CAT = ['CM', 'TD', 'TP', 'DS'];
+const VALID_CAT = ['CM', 'CM math', 'TD', 'TD math', 'TP', 'DS'];
 
 function getSubjectFromEvent(event: CalendarEvent, version: Version = Version.LATEST): {name: string, full_name: string|null} {
     if (version === Version.UNKNOWN) {
@@ -191,7 +233,7 @@ export function getSubjects(calendar: Calendar): Subjects {
     }
     return calendar.events
         .filter(e => e.subject.length > 0)
-        .sort((a, b) => a.start < b.start ? -1 : 1)
+        .sort((a, b) => a.start && b.start && a.start < b.start ? -1 : 1)
         .reduce((final: Subjects, event) => {
             let subject = getSubjectFromEvent(event, version);
             let isIrrelevant = subject.name === UNKNOWN_SUBJECT.toUpperCase() || VALID_CAT.indexOf(event.category) === -1;
@@ -308,9 +350,9 @@ export function calendarToIcs(events: Events): string {
     });
     events.forEach(event => {
         cal.createEvent({
-            start: event.start.tz('UTC').toDate(),
-            end: event.end.tz('UTC').toDate(),
-            summary: (event.category + ' ' + (event.subject === 'unknown' ? '' : event.subject)).trim(),
+            start: event.start ? event.start.tz('UTC').toDate() : null,
+            end: event.end ? event.end.tz('UTC').toDate() : null,
+            summary: event.pretty,
             description: event.description,
             location: event.location,
             organizer: (event.organizer || 'unknown') + ' ' + '<scolarite@ec-nantes.fr>'

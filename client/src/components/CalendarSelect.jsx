@@ -10,6 +10,7 @@ const PREFIXES = {
     'EI': 'Cycle ingénieur',
     'AP': 'Cycle ingénieur apprenti',
     'BTP': 'BTP',
+    'M1ECN': 'Fac de sciences',
     'M1': 'Master 1',
     'M2': 'Master 2',
     'MECA': 'Filière mécanique',

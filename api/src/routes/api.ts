@@ -137,9 +137,9 @@ export default function apiRouter(router: Router): Router {
         let keepRoom = (id: string) => calendar.getOnlineCalendar(id)
             .then(cal => cal.events)
             .then(events => events
-                .filter(e => e.start >= from && e.end <= to))
+                .filter(e => e.start && e.end && e.start >= from && e.end <= to))
             .then(events => events.length === 0);
-        let matches = calendar.listOnlineCalendars('room')
+        let matches = calendar.listCalendarsFromSource(null, 'room')
             .then(cals => cals.reduce((promise: Promise<string[]>, cal) => {
                 return promise
                     .then(res => res.length >= count ? res : keepRoom(cal.id)
