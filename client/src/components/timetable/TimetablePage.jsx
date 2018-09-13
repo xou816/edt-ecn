@@ -3,15 +3,16 @@ import {Timetable} from "./Timetable";
 import Swipeable from 'react-swipeable';
 import {TimetableNav} from "./TimetableNav";
 import {connect} from "react-redux";
-import {LinearProgress} from "@material-ui/core";
+import {LinearProgress, withStyles} from "@material-ui/core";
 import {getCalendar} from "../../app/actions";
-import {addDays, addWeeks, format, isFriday, isMonday, parse, subDays, subWeeks} from "date-fns";
+import {addDays, addWeeks, format, isFriday, isMonday, parse, subDays, subWeeks, startOfDay, isSameDay} from "date-fns";
 import {compile} from "path-to-regexp";
 import {withRouter} from "react-router";
+import DatePickerDrawer from "./DatePickerDrawer";
+import Media from "react-media";
 
 const mapState = state => ({
-    loading: state.app.loading,
-    isPhone: state.responsive.isPhone
+    loading: state.app.loading
 });
 
 const mapDispatch = dispatch => ({
@@ -20,10 +21,20 @@ const mapDispatch = dispatch => ({
 
 function makeLink(match) {
     let compiled = compile(match.path);
-    return date => compiled({...match.params, date: format(date, 'YYYYMMDD')});
+    return date => compiled({
+        ...match.params,
+        date: isSameDay(date, Date.now()) ?
+            'today' :
+            format(date, 'YYYYMMDD')
+    });
 }
 
 @withRouter
+@withStyles(theme => ({
+    root: {
+        display: 'flex'
+    }
+}))
 @connect(mapState, mapDispatch)
 export class TimetablePage extends React.Component {
 
@@ -35,11 +46,11 @@ export class TimetablePage extends React.Component {
         let date = this.props.match.params.date;
         return date !== 'today' ?
             parse(date, 'YYYYMMDD', Date.now()) :
-            Date.now();
+            startOfDay(Date.now());
     }
 
-    links() {
-        let {match, isPhone} = this.props;
+    links(isPhone) {
+        let {match} = this.props;
         let current = this.date;
         let make = makeLink(match);
         let next, prev;
@@ -63,16 +74,27 @@ export class TimetablePage extends React.Component {
 
     render() {
         let date = this.date;
-        let {prev, next} = this.links();
-        let {loading, history} = this.props;
+        let {loading, history, classes, match} = this.props;
         return (
-            <Swipeable
-                onSwipedRight={() => history.push(prev)}
-                onSwipedLeft={() => history.push(next)}>
-                <TimetableNav date={date} next={next} prev={prev}/>
-                {loading ? <LinearProgress/> : null}
-                <Timetable date={date}/>
-            </Swipeable>
+            <Media query={{screen: true, maxWidth: '797px'}}>
+                {isPhone => {
+                    let {prev, next} = this.links(isPhone);
+                    return <Swipeable
+                        onSwipedRight={() => history.push(prev)}
+                        onSwipedLeft={() => history.push(next)}>
+                        <TimetableNav date={date} next={next} prev={prev}/>
+                        {loading ? <LinearProgress/> : null}
+                        <Media query={{maxWidth: '1024px', minWidth: '767px'}}>
+                            {isTablet =>
+                                <div className={classes.root}>
+                                    <DatePickerDrawer permanent={!isPhone && !isTablet} makeLink={makeLink(match)} date={date}/>
+                                    <Timetable days={isPhone? 1 : 5} date={date}/>
+                                </div>
+                            }
+                        </Media>
+                    </Swipeable>
+                }}
+            </Media>
         );
     }
 }

@@ -1,5 +1,4 @@
 import React from "react";
-import {connect} from "react-redux";
 import {Button, IconButton, withStyles} from "@material-ui/core";
 import Back from '@material-ui/icons/ArrowBack';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
@@ -8,6 +7,7 @@ import frLocale from 'date-fns/locale/fr';
 import {format, startOfWeek} from 'date-fns';
 import {Nav} from "../Nav";
 import {Link} from "react-router-dom";
+import Media from "react-media";
 
 let DateDisplay = (props) => {
     let doFormat = d => format(d, 'Do MMMM', {locale: frLocale});
@@ -34,9 +34,6 @@ let DateDisplay = (props) => {
                     </MuiPickersUtilsProvider>
  */
 
-@connect(state => ({
-    isPhone: state.responsive.isPhone,
-}))
 @withStyles(theme => ({
     spread: {
         flexGrow: 1
@@ -57,14 +54,15 @@ export class TimetableNav extends React.Component {
                     <Back/>
                 </IconButton>
                 <div className={classes.spread}/>
-                {
-                    this.props.isPhone ? null : [
+                <Media query={{maxWidth: '767px'}}>
+                    {isPhone => [
                         <Button component={Link} className={classes.btn} key="left" variant="raised" color="secondary"
-                                to={prev}><KeyboardArrowLeft/></Button>,
+                                to={prev} size={isPhone ? 'small' : 'medium'}><KeyboardArrowLeft/></Button>,
                         <Button component={Link} className={classes.btn} key="right" variant="raised" color="secondary"
-                                to={next}><KeyboardArrowRight/></Button>
-                    ]
-                }
+                                to={next} size={isPhone ? 'small' : 'medium'}><KeyboardArrowRight/></Button>
+                    ]}
+                </Media>
+
             </Nav>
         );
     }

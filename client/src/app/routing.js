@@ -12,6 +12,7 @@ export function updateStore(dispatch, history, location) {
     if (parsed) {
         let calendar = parsed[1];
         let date = setHours(parse(parsed[2], 'YYYYMMDD', Date.now()), 12);
+        console.log(date);
         if (calendar && calendar.length > 0) {
             promises.push(dispatch(setCalendar(calendar)));
         }

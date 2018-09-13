@@ -4,6 +4,7 @@ import {CssBaseline, Snackbar} from "@material-ui/core";
 import {BrowserRouter as Router, Route, Redirect, Switch} from 'react-router-dom';
 import {TimetablePage} from "./timetable/TimetablePage";
 import {HomePage} from "./home/HomePage";
+import {format} from 'date-fns';
 
 const mapState = state => ({
     error: state.app.error
@@ -20,6 +21,7 @@ export class App extends React.Component {
     }
 
     render() {
+        let now = format(Date.now(), 'YYYYMMDD');
         let {error} = this.props;
         return (
             <React.Fragment>

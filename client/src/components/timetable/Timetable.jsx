@@ -1,32 +1,32 @@
 import React from 'react';
-import {connect} from 'react-redux';
 import {addDays, addHours, addMinutes, format, isSameDay, startOfDay, startOfWeek} from "date-fns";
 import frLocale from "date-fns/locale/fr";
-import {Divider, Typography, withStyles} from "@material-ui/core";
+import {Divider, withStyles, Button} from "@material-ui/core";
 import {TimetableEntry} from "./TimetableEntry";
 import {TimetableEvents} from "./TimetableEvents";
 import {FocusedCourse} from "./FocusedCourse";
+import {toggleMenu} from "../../app/actions";
+import {connect} from 'react-redux';
 
 function Separators() {
     return (
-        Array.from({length: 10}, (x, i) => (
+        Array.from({length: 12}, (x, i) => (
             <Divider key={`sep_${i}`} style={{gridRow: `${4 * i + 2} / span 4`, gridColumn: '1 / span 5'}}/>
         ))
 
     );
 }
 
-function Days({length, date}) {
+function Days({length, date, onClick}) {
     return (
         Array.from({length}, (x, i) => {
             let curDate = addDays(date, i);
             let today = isSameDay(curDate, Date.now());
-            let formatted = format(curDate, 'dddd Do MMMM', {locale: frLocale});
+            let formatted = format(curDate, 'ddd Do MMM', {locale: frLocale});
             return (
-                <Typography align="center" color={today ? 'primary' : 'textSecondary'} key={formatted}
-                            style={{gridColumn: i + 1, gridRow: '1 / span 1'}}>
+                <Button onClick={onClick} color={today ? 'primary' : 'default'} key={formatted} style={{gridColumn: i + 1, gridRow: '1 / span 1', minHeight: '20px', paddingTop: 0}}>
                     {formatted.toUpperCase()}
-                </Typography>
+                </Button>
             )
         })
     );
@@ -39,17 +39,17 @@ function Marker({classes, offset}) {
     </TimetableEntry>);
 }
 
-@connect(state => ({
-    isPhone: state.responsive.isPhone,
-}))
+
+@connect(null, dispatch => ({toggle: () => dispatch(toggleMenu())}))
 @withStyles(theme => ({
     root: {
         display: 'grid',
         gridAutoFlow: 'column',
         gridTemplateColumns: 'repeat(5, 1fr)',
-        gridTemplateRows: 'repeat(40, .7em)',
+        gridTemplateRows: 'repeat(45, .7em)',
         gridGap: '.4em .4em',
         margin: '1em',
+        flex: '1',
         [theme.breakpoints.down(767)]: {
             gridTemplateColumns: '1fr',
             gridGap: '.4em 0'
@@ -63,18 +63,15 @@ function Marker({classes, offset}) {
 }))
 export class Timetable extends React.Component {
 
-    days() {
-        return this.props.isPhone ? 1 : 5;
-    }
-
     date() {
-        let {date} = this.props;
-        return this.days() > 1 ? startOfWeek(date, {weekStartsOn: 1}) : startOfDay(date);
+        let {date, days} = this.props;
+        return days > 1 ? startOfWeek(date, {weekStartsOn: 1}) : startOfDay(date);
     }
 
     isVisible(date) {
+        let {days} = this.props;
         let offset = this.offset();
-        return date >= offset && date < addDays(offset, this.days());
+        return date >= offset && date < addDays(offset, days);
     }
 
     offset() {
@@ -83,14 +80,13 @@ export class Timetable extends React.Component {
         return addHours(this.date(), 8 + offset - 2).valueOf();
     }
 
-
     render() {
-        let {classes} = this.props;
+        let {classes, days, toggle} = this.props;
         return (
             <div className={classes.root}>
                 <Separators/>
-                <Days length={this.days()} date={this.date()}/>
-                <TimetableEvents offset={this.offset()} days={this.days()}/>
+                <Days onClick={toggle} length={days} date={this.date()}/>
+                <TimetableEvents offset={this.offset()} days={days}/>
                 {this.isVisible(Date.now()) ? <Marker offset={this.offset()} classes={classes}/> : null}
                 <FocusedCourse/>
             </div>
