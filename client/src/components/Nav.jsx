@@ -4,10 +4,6 @@ import React from "react";
 @withStyles(theme => ({
     toolbar: {
         display: 'flex'
-    },
-    appbar: {
-        position: 'sticky !important',
-        top: 0
     }
 }))
 export class Nav extends React.Component {
@@ -15,7 +11,7 @@ export class Nav extends React.Component {
     render() {
         let {classes, children} = this.props;
         return (
-            <AppBar className={classes.appbar} position="static">
+            <AppBar position="static">
                 <Toolbar className={classes.toolbar}>
                     {children}
                 </Toolbar>

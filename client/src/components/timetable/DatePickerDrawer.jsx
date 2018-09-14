@@ -43,7 +43,7 @@ class Day extends React.Component {
         let {date, link, selectedDate, dayInCurrentMonth, classes} = this.props;
         let className = classnames(classes.day, {
             [classes.current]: isSameDay(date, Date.now()),
-            [classes.selected]: isSameDay(date, selectedDate) && !isWeekend(date),
+            [classes.selected]: isSameDay(date, selectedDate) && !isWeekend(date) && dayInCurrentMonth,
             [classes.disabled]: !dayInCurrentMonth || isWeekend(date)
         });
         return (

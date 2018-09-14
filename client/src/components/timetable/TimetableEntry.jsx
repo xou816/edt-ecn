@@ -38,7 +38,7 @@ export class TimetableEntry extends React.Component {
 
     gridColumn() {
         let day = this.day();
-        return {gridColumn: day.toString()};
+        return {gridColumn: (day + 1).toString()};
     }
 
     render() {
