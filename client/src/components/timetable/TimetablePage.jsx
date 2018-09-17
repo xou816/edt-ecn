@@ -8,6 +8,7 @@ import {format, isSameDay, parse, startOfDay} from "date-fns";
 import {compile} from "path-to-regexp";
 import DatePickerDrawer from "./DatePickerDrawer";
 import Media from "react-media";
+import {Page, PageContent} from "../Page";
 
 const mapState = state => ({
     loading: state.app.loading
@@ -27,20 +28,6 @@ function makeLink(match) {
     });
 }
 
-@withStyles(theme => ({
-    root: {
-        display: 'flex',
-        flexDirection: 'column',
-        minHeight: '100vh',
-        height: '100vh'
-    },
-    main: {
-        display: 'flex',
-        flexDirection: 'row',
-        flex: 1,
-        overflow: 'hidden'
-    }
-}))
 @connect(mapState, mapDispatch)
 export class TimetablePage extends React.Component {
 
@@ -62,23 +49,23 @@ export class TimetablePage extends React.Component {
 
     render() {
         let date = this.date;
-        let {loading, classes, match} = this.props;
+        let {loading, match} = this.props;
         let makeLinkForMatch = makeLink(match);
         return (
             <Media query={{screen: true, maxWidth: '797px'}}>
-                {isPhone => <div className={classes.root}>
+                {isPhone => <Page>
                     <TimetableNav date={date} makeLink={makeLinkForMatch}/>
                     {loading ? <LinearProgress/> : null}
                     <Media query={{maxWidth: '1024px', minWidth: '767px'}}>
                         {isTablet =>
-                            <div className={classes.main}>
+                            <PageContent>
                                 <DatePickerDrawer permanent={!isPhone && !isTablet} makeLink={makeLinkForMatch}
                                                   date={date}/>
                                 <Timetable days={isPhone ? 1 : 5} makeLink={makeLinkForMatch} date={date}/>
-                            </div>
+                            </PageContent>
                         }
                     </Media>
-                </div>}
+                </Page>}
             </Media>
         );
     }

@@ -31,12 +31,12 @@ export class TimetableNav extends React.Component {
         let {classes, date, toggle} = this.props;
         return (
             <Nav className={classes.nav}>
-                <IconButton component={Link} to={'/'} color="inherit" aria-label="menu">
+                <IconButton component={Link} to={'/'} color="inherit">
                     <Back/>
                 </IconButton>
                 <DateDisplay date={date} onClick={toggle}/>
                 <div className={classes.spread}/>
-                <Button component={Link} to={'/'} color="secondary" variant="raised">
+                <Button component={Link} to={'/'} color="secondary" variant="raised" style={{minWidth: 0}}>
                     <LinkIcon/>
                 </Button>
             </Nav>
