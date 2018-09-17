@@ -136,7 +136,7 @@ function mapNodeToEvent(node: Element, weeks: WeekDesc, calendar: string): Calen
     }
 
     let category = safeText(node, ['category']);
-    let subject = safeText(node, ['resources/module/item']).split('-').shift() || UNKNOWN_SUBJECT;
+    let subject = safeText(node, ['resources/module/item']) || UNKNOWN_SUBJECT;
     let full_subject = subject;
     res = COURSE_REGEX.exec(subject);
     if (res != null) {
