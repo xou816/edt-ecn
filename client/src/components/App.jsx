@@ -1,10 +1,14 @@
 import React from 'react';
 import {connect} from "react-redux";
-import {CssBaseline, Snackbar} from "@material-ui/core";
+import {CssBaseline, Snackbar, Slide} from "@material-ui/core";
 import {BrowserRouter as Router, Route, Redirect, Switch} from 'react-router-dom';
 import {TimetablePage} from "./timetable/TimetablePage";
 import {HomePage} from "./home/HomePage";
 import {format} from 'date-fns';
+
+function Animated(component) {
+    return (props) => <Slide in={true} direction="up">{React.createElement(component, props)}</Slide>
+}
 
 const mapState = state => ({
     error: state.app.error
@@ -21,7 +25,7 @@ export class App extends React.Component {
     }
 
     render() {
-        let now = format(Date.now(), 'YYYYMMDD');
+        let now = format(Date.now(), 'RRRRMMDD');
         let {error} = this.props;
         return (
             <React.Fragment>
@@ -29,8 +33,8 @@ export class App extends React.Component {
                 <Router>
                     <Switch>
                         <Redirect exact from={'/:calendar'} to={'/:calendar/today'}/>
-                        <Route exact path={'/'} component={HomePage}/>
-                        <Route path={'/:calendar/:date'} component={TimetablePage}/>
+                        <Route exact path={'/'} component={Animated(HomePage)}/>
+                        <Route path={'/:calendar/:date'} component={Animated(TimetablePage)}/>
                     </Switch>
                 </Router>
                 <Snackbar open={error !== null} message={error} autoHideDuration={3000}/>

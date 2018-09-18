@@ -43,7 +43,8 @@ const mapDispatch = dispatch => ({
     root: {
         backgroundColor: theme.palette.background.paper,
         margin: '1px',
-        display: 'flex'
+        display: 'flex',
+        position: 'static'
     },
     title: {
         padding: `${1.5 * theme.spacing.unit}px`,

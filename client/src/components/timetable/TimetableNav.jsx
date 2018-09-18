@@ -6,11 +6,9 @@ import frLocale from 'date-fns/locale/fr';
 import {format} from 'date-fns';
 import {Nav} from "../Nav";
 import {Link} from "react-router-dom";
-import {connect} from 'react-redux';
-import {toggleMenu} from "../../app/actions";
 
 function DateDisplay({date, onClick}) {
-    let doFormat = d => format(d, 'Do MMMM', {locale: frLocale});
+    let doFormat = d => format(d, 'd MMMM', {locale: frLocale});
     let dateFormatted= doFormat(date);
     return <Button onClick={onClick} color="inherit" variant="flat">{dateFormatted}</Button>;
 }

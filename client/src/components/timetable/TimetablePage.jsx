@@ -2,7 +2,7 @@ import React from 'react';
 import {Timetable} from "./Timetable";
 import {TimetableNav} from "./TimetableNav";
 import {connect} from "react-redux";
-import {LinearProgress, withStyles} from "@material-ui/core";
+import {LinearProgress} from "@material-ui/core";
 import {getCalendar} from "../../app/actions";
 import {format, isSameDay, parse, startOfDay} from "date-fns";
 import {compile} from "path-to-regexp";
@@ -24,7 +24,7 @@ function makeLink(match) {
         ...match.params,
         date: isSameDay(date, Date.now()) ?
             'today' :
-            format(date, 'YYYYMMDD')
+            format(date, 'RRRRMMDD')
     });
 }
 
@@ -38,7 +38,7 @@ export class TimetablePage extends React.Component {
     get date() {
         let date = this.props.match.params.date;
         return date !== 'today' ?
-            parse(date, 'YYYYMMDD', Date.now()) :
+            parse(date, 'RRRRMMDD', Date.now()) :
             startOfDay(Date.now());
     }
 

@@ -1,12 +1,13 @@
 import {Button, withStyles} from "@material-ui/core";
-import {Link} from "react-router-dom";
 import {Nav} from "../Nav";
 import React from "react";
 import {applySelection} from "../../app/actions";
 import {connect} from 'react-redux';
 import {withRouter} from 'react-router';
+import Done from '@material-ui/icons/Done';
 
-@connect(null, dispatch => ({apply: () => dispatch(applySelection())}))
+@connect(state => ({canApply: state.app.meta.length > 0}),
+        dispatch => ({apply: () => dispatch(applySelection())}))
 @withRouter
 @withStyles(theme => ({
     spread: {
@@ -21,13 +22,13 @@ export default class extends React.Component {
     }
 
     render() {
-        let {classes} = this.props;
+        let {classes, canApply} = this.props;
         return (
             <Nav>
-                Calendriers
+                Sélectionner des calendriers
                 <div className={classes.spread}/>
-                <Button onClick={() => this.apply()} color="secondary" variant="raised" style={{minWidth: 0}}>
-                    Consulter
+                <Button disabled={!canApply} onClick={() => this.apply()} color="secondary" variant="raised" style={{minWidth: 0}}>
+                    <Done />
                 </Button>
             </Nav>
         );

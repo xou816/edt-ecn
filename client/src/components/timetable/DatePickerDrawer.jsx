@@ -1,6 +1,6 @@
 import React from "react";
 import {Drawer, IconButton, withStyles} from '@material-ui/core';
-import Calendar from 'material-ui-pickers/DatePicker/Calendar';
+import Calendar from 'material-ui-pickers/DatePicker/components/Calendar';
 import {MuiPickersUtilsProvider} from "material-ui-pickers";
 import frLocale from 'date-fns/locale/fr';
 import {format, isSameDay, isWeekend} from 'date-fns';
@@ -46,7 +46,7 @@ class Day extends React.Component {
         });
         return (
             <IconButton component={Link} to={link} className={className}>
-                {format(date, 'D')}
+                {format(date, 'd')}
             </IconButton>
         );
     }

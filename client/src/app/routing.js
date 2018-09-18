@@ -11,7 +11,7 @@ export function updateStore(dispatch, history, location) {
     let parsed = parsePath(route).exec(location.pathname);
     if (parsed) {
         let calendar = parsed[1];
-        let date = setHours(parse(parsed[2], 'YYYYMMDD', Date.now()), 12);
+        let date = setHours(parse(parsed[2], 'RRRRMMDD', Date.now()), 12);
         console.log(date);
         if (calendar && calendar.length > 0) {
             promises.push(dispatch(setCalendar(calendar)));
@@ -27,7 +27,7 @@ export function updateHistory(history, args) {
     let compiled = compile(route);
     let current = parsePath(route).exec(history.location.pathname);
     if (args.date) {
-        args.date = isSameDay(args.date, Date.now()) ? 'today' : format(args.date, 'YYYYMMDD');
+        args.date = isSameDay(args.date, Date.now()) ? 'today' : format(args.date, 'RRRRMMDD');
     }
     let final = {
         calendar: current[1],

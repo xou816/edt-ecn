@@ -38,7 +38,7 @@ function Days({length, date, classes}) {
         Array.from({length}, (x, i) => {
             let curDate = addDays(date, i);
             let today = isSameDay(curDate, Date.now());
-            let formatted = format(curDate, 'ddd Do MMM', {locale: frLocale});
+            let formatted = format(curDate, 'eee d MMM', {locale: frLocale});
             return (
                 <Typography align="center" color={today ? 'primary' : 'textSecondary'} key={formatted}
                             style={{gridColumn: i + 2, gridRow: '1 / span 1'}}>

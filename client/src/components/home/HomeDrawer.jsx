@@ -1,28 +1,43 @@
 import React from "react";
-import {Drawer, CircularProgress, withStyles} from "@material-ui/core";
+import {Button, Divider, createMuiTheme, Drawer, MuiThemeProvider, withStyles, withTheme} from "@material-ui/core";
 import {FilterSubject} from "../FilterSubject";
-import connect from "react-redux/es/connect/connect";
 
-@connect(state => ({loading: state.app.loading}))
+const darkTheme = createMuiTheme({
+    palette: {
+        type: 'dark',
+    }
+});
+
+@withTheme()
 @withStyles(theme => ({
     drawer: {
         position: 'relative',
-        zIndex: 0
+        zIndex: 0,
+        maxWidth: '100%',
+        height: '100%'
     },
     docked: {
         width: '25%'
-    }
+    },
+    closeBtn: {
+        width: '100%'
+    },
 }))
 export default class extends React.Component {
 
     render() {
-        let {classes, permanent, open, onClose, loading} = this.props;
+        let {classes, permanent, open, onClose, theme} = this.props;
         return (
-            <Drawer variant={permanent ? 'permanent' : 'temporary'} open={open} onClose={onClose}
-                    classes={{docked: classes.docked, paper: classes.drawer}}>
-                <FilterSubject/>
-                {loading ? <CircularProgress size={50}/> : null}
-            </Drawer>
+            <MuiThemeProvider theme={permanent ? theme : darkTheme}>
+                <Drawer variant={permanent ? 'permanent' : 'temporary'}
+                        anchor={permanent ? 'left' : 'bottom'}
+                        open={open} onClose={onClose}
+                        classes={{docked: classes.docked, paper: classes.drawer}}>
+                    {permanent ? null : <Button onClick={onClose} color="secondary" className={classes.closeBtn} children="Terminer"/>}
+                    <Divider/>
+                    <FilterSubject/>
+                </Drawer>
+            </MuiThemeProvider>
         );
     }
 }
