@@ -42,6 +42,17 @@ export class TimetablePage extends React.Component {
             startOfDay(Date.now());
     }
 
+    constructor(props) {
+        super(props);
+        this.state = {
+            open: false
+        };
+    }
+
+    toggleSidebar(open) {
+        return () => this.setState({open});
+    }
+
     componentDidMount() {
         let {getCalendar} = this.props;
         getCalendar(this.calendar);
@@ -54,14 +65,19 @@ export class TimetablePage extends React.Component {
         return (
             <Media query={{screen: true, maxWidth: '797px'}}>
                 {isPhone => <Page>
-                    <TimetableNav date={date} makeLink={makeLinkForMatch}/>
+                    <TimetableNav date={date} makeLink={makeLinkForMatch} onDateClick={this.toggleSidebar(true)}/>
                     {loading ? <LinearProgress/> : null}
                     <Media query={{maxWidth: '1024px', minWidth: '767px'}}>
                         {isTablet =>
                             <PageContent>
-                                <DatePickerDrawer permanent={!isPhone && !isTablet} makeLink={makeLinkForMatch}
+                                <DatePickerDrawer permanent={!isPhone && !isTablet}
+                                                  makeLink={makeLinkForMatch}
+                                                  open={this.state.open}
+                                                  onClose={this.toggleSidebar(false)}
                                                   date={date}/>
-                                <Timetable days={isPhone ? 1 : 5} makeLink={makeLinkForMatch} date={date}/>
+                                <Timetable days={isPhone ? 1 : 5}
+                                           makeLink={makeLinkForMatch}
+                                           date={date}/>
                             </PageContent>
                         }
                     </Media>

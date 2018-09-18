@@ -79,8 +79,10 @@ export function applySelection() {
                 headers: {'Content-Type': 'application/json'}
             })
                 .then(res => res.status >= 400 ? Promise.reject('error') : res.json())
-                .then(res => dispatch(setCalendar(res.result)))
-                .then(res => dispatch({type: 'LOAD_END'}))
+                .then(res => {
+                    dispatch({type: 'LOAD_END'});
+                    return res.result;
+                })
                 .catch(console.error);
         } else {
             return Promise.resolve(calendar);

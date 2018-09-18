@@ -15,7 +15,6 @@ function DateDisplay({date, onClick}) {
     return <Button onClick={onClick} color="inherit" variant="flat">{dateFormatted}</Button>;
 }
 
-@connect(null, dispatch => ({toggle: () => dispatch(toggleMenu())}))
 @withStyles(theme => ({
     spread: {
         flexGrow: 1
@@ -28,13 +27,13 @@ export class TimetableNav extends React.Component {
 
 
     render() {
-        let {classes, date, toggle} = this.props;
+        let {classes, date, onDateClick} = this.props;
         return (
             <Nav className={classes.nav}>
                 <IconButton component={Link} to={'/'} color="inherit">
                     <Back/>
                 </IconButton>
-                <DateDisplay date={date} onClick={toggle}/>
+                <DateDisplay date={date} onClick={onDateClick}/>
                 <div className={classes.spread}/>
                 <Button component={Link} to={'/'} color="secondary" variant="raised" style={{minWidth: 0}}>
                     <LinkIcon/>

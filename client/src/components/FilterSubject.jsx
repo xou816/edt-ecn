@@ -42,6 +42,12 @@ export class FilterSubject extends React.Component {
         };
     }
 
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.calendars.length !== this.props.calendars.length) {
+            this.props.getSubjects();
+        }
+    }
+
     componentDidMount() {
         if (Object.keys(this.props.subjects).length === 0) {
             this.props.getSubjects();
@@ -69,7 +75,7 @@ export class FilterSubject extends React.Component {
                 {
                     Object.keys(subjects).map(calendar => <NestedList
                         key={calendar}
-                        title={list.find(cal => cal.id === calendar).display}
+                        title={(list.find(cal => cal.id === calendar) || {display: ''}).display}
                         nested={subjects[calendar].sort((a, b) => a.name < b.name ? -1 : 1)}
                         shown={this.state.unfold === calendar}
                         unfold={() => this.toggleCalendar(calendar)}

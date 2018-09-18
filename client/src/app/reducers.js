@@ -24,15 +24,15 @@ export function appReducer(state, action) {
         case 'SET_SUBJECTS':
             return {...state, subjects: action.subjects};
         case 'TOGGLE_CALENDAR':
-            return {...state, calendar: null, subjects: [], meta: toggleCalendar(state.meta, action.calendar)};
+            return {...state, calendar: null, meta: toggleCalendar(state.meta, action.calendar)};
         case 'TOGGLE_SUBJECT':
             return {...state, calendar: null, meta: toggleSubject(state.meta, action.calendar, action.subject)};
         case 'RESET_CALENDARS':
-            return {...state, calendar: null, subjects: [], meta: []};
+            return {...state, calendar: null, meta: [], subjects: []};
         case 'RESET_SUBJECTS':
             return {...state, calendar: null, meta: resetSubjects(state.meta)};
         case 'SET_META':
-            return {...state, meta: action.meta, subjects: []};
+            return {...state, meta: action.meta};
         case 'LOAD_START':
             return {...state, loading: true};
         case 'LOAD_END':

@@ -4,6 +4,9 @@ import React from "react";
 @withStyles(theme => ({
     toolbar: {
         display: 'flex'
+    },
+    spread: {
+        flexGrow: 1
     }
 }))
 export class Nav extends React.Component {

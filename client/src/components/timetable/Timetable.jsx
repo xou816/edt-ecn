@@ -14,12 +14,10 @@ import {
     subWeeks
 } from "date-fns";
 import frLocale from "date-fns/locale/fr";
-import {Divider, withStyles, Button, Typography} from "@material-ui/core";
+import {Button, Divider, Typography, withStyles} from "@material-ui/core";
 import {TimetableEntry} from "./TimetableEntry";
 import {TimetableEvents} from "./TimetableEvents";
 import {FocusedCourse} from "./FocusedCourse";
-import {toggleMenu} from "../../app/actions";
-import {connect} from 'react-redux';
 import Swipeable from 'react-swipeable';
 import {withRouter} from 'react-router';
 import {Link} from "react-router-dom";
@@ -73,7 +71,6 @@ function Marker({classes, offset}) {
 
 
 @withRouter
-@connect(null, dispatch => ({toggle: () => dispatch(toggleMenu())}))
 @withStyles(theme => ({
     root: {
         display: 'grid',
@@ -135,7 +132,7 @@ export class Timetable extends React.Component {
     }
 
     render() {
-        let {classes, days, toggle, history} = this.props;
+        let {classes, days, history} = this.props;
         let {prev, next} = this.links();
         return (
             <Swipeable onSwipedRight={() => history.push(prev)}
@@ -143,7 +140,7 @@ export class Timetable extends React.Component {
                        className={classes.root}>
                 <Separators days={days}/>
                 <NavButtons classes={classes} days={days} prev={prev} next={next}/>
-                <Days classes={classes} onClick={toggle} length={days} date={this.date()}/>
+                <Days classes={classes} length={days} date={this.date()}/>
                 <TimetableEvents offset={this.offset()} days={days}/>
                 {this.isVisible(Date.now()) ?
                     <Marker offset={this.offset()} classes={classes}/> : null}

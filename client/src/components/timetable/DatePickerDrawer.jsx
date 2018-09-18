@@ -1,5 +1,5 @@
 import React from "react";
-import {Drawer, withStyles, IconButton} from '@material-ui/core';
+import {Drawer, IconButton, withStyles} from '@material-ui/core';
 import Calendar from 'material-ui-pickers/DatePicker/Calendar';
 import {MuiPickersUtilsProvider} from "material-ui-pickers";
 import frLocale from 'date-fns/locale/fr';
@@ -9,8 +9,6 @@ import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import classnames from 'classnames';
 import {Link} from "react-router-dom";
-import {connect} from "react-redux";
-import {toggleMenu} from "../../app/actions";
 
 @withStyles(theme => ({
     day: {
@@ -54,30 +52,32 @@ class Day extends React.Component {
     }
 }
 
-@connect(state => ({open: state.app.menu}),
-        dispatch => ({toggle: () => dispatch(toggleMenu())}))
 @withStyles(theme => ({
     drawer: {
         position: 'relative',
-        zIndex: 0
+        zIndex: 0,
+        flexGrow: 0,
+        [theme.breakpoints.down(767)]: {
+            flexGrow: 1
+        }
     }
 }))
 export default class extends React.Component {
 
     render() {
-        let {toggle, classes, date, makeLink, permanent, open} = this.props;
+        let {classes, date, makeLink, permanent, open, onClose} = this.props;
         return (
-            <Drawer open={open} variant={permanent ? 'permanent' : 'temporary'} classes={{paper: classes.drawer}}>
+            <Drawer open={open} variant={permanent ? 'permanent' : 'temporary'} onClose={onClose} classes={{paper: classes.drawer}}>
                 <MuiPickersUtilsProvider utils={DateFnsUtils} locale={frLocale}>
                     <Calendar date={date}
                               rightArrowIcon={<KeyboardArrowRight/>}
                               leftArrowIcon={<KeyboardArrowLeft/>}
-                              onChange={toggle}
+                              onChange={onClose}
                               renderDay={(date, selectedDate, dayInCurrentMonth) =>
                                   <Day date={date}
                                        link={makeLink(date)}
                                        selectedDate={selectedDate}
-                                       dayInCurrentMonth={dayInCurrentMonth} />}/>
+                                       dayInCurrentMonth={dayInCurrentMonth}/>}/>
                 </MuiPickersUtilsProvider>
             </Drawer>
         )
