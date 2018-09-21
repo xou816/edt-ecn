@@ -90,17 +90,6 @@ export function applySelection() {
     }
 }
 
-export function setCalendar(calendar) {
-    return (dispatch, getState, {history}) => {
-        const state = getState();
-        if (state.app.calendar !== calendar && calendar != null && calendar.length > 0) {
-            dispatch({type: 'SET_CALENDAR', calendar});
-            updateHistory(history, {calendar});
-            return dispatch(getCalendar(calendar));
-        }
-    }
-}
-
 export function resetCalendars() {
     return {type: 'RESET_CALENDARS'};
 }
@@ -123,42 +112,4 @@ export function focusEvent(id) {
 
 export function blurEvent() {
     return {type: 'BLUR_EVENT'};
-}
-
-export function next() {
-    return (dispatch, getState) => {
-        const state = getState();
-        let isPhone = state.responsive.isPhone;
-        let current = state.app.date;
-        let date = isPhone ?
-            addDays(current, isFriday(current) ? 3 : 1) :
-            addWeeks(current, 1);
-        return dispatch(setDate(date));
-    }
-}
-
-export function prev() {
-    return (dispatch, getState) => {
-        const state = getState();
-        let isPhone = state.responsive.isPhone;
-        let current = state.app.date;
-        let date = isPhone ?
-            subDays(current, isMonday(current) ? 3 : 1) :
-            subWeeks(current, 1);
-        dispatch(setDate(date));
-    }
-}
-
-export function setDate(date) {
-    return (dispatch, getState, {history}) => {
-        const state = getState();
-        if (!isEqual(state.app.date, date)) {
-            dispatch({type: 'SET_DATE', date});
-            updateHistory(history, {date});
-        }
-    }
-}
-
-export function toggleMenu() {
-    return {type: 'TOGGLE_MENU'};
 }

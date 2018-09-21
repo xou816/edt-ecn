@@ -48,8 +48,10 @@ export class FilterSubject extends React.Component {
         }
     }
 
+
     componentDidMount() {
-        if (Object.keys(this.props.subjects).length === 0) {
+        const subLen = Object.keys(this.props.subjects).length;
+        if (subLen === 0 || subLen !== this.props.calendars.length) {
             this.props.getSubjects();
         }
     }

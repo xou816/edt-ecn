@@ -2,16 +2,20 @@ import React from "react";
 import {CalendarSelect} from "../CalendarSelect";
 import HomeDrawer from "./HomeDrawer";
 import {Page, PageContent} from "../Page";
-import {IconButton, Paper, Snackbar, LinearProgress, TextField, withStyles} from "@material-ui/core";
+import {IconButton, LinearProgress, Paper, Portal, Snackbar, withStyles} from "@material-ui/core";
 import Filter from '@material-ui/icons/FilterList';
 import Media from "react-media";
 import {connect} from 'react-redux';
 import HomeNav from "./HomeNav";
 
 function FilterMessage({show, doFilter}) {
-    return <Snackbar open={show}
-                     message={"Filtrer les matières pour la sélection"}
-                     action={<IconButton onClick={doFilter} color={"secondary"}><Filter/></IconButton>}/>;
+    return (
+        <Portal>
+            <Snackbar open={show}
+                      message={"Filtrer les matières pour la sélection"}
+                      action={<IconButton onClick={doFilter} color={"secondary"}><Filter/></IconButton>}/>
+        </Portal>
+    );
 }
 
 const ConditionalFilterMessage = connect(state => ({show: state.app.meta.length > 0}))(FilterMessage);
@@ -23,7 +27,7 @@ const ConditionalFilterMessage = connect(state => ({show: state.app.meta.length 
     },
     rightContainer: {
         padding: 2 * theme.spacing.unit,
-        flex: 1,
+        flex: 3,
         overflow: 'auto'
     },
     spread: {
@@ -31,6 +35,13 @@ const ConditionalFilterMessage = connect(state => ({show: state.app.meta.length 
     },
     searchField: {
         margin: `0 0 ${2 * theme.spacing.unit}px 0`
+    },
+    paper: {
+        margin: `0 auto 5em auto`,
+        maxWidth: '60%',
+        [theme.breakpoints.down(1024)]: {
+            maxWidth: '100%'
+        }
     }
 }))
 export class HomePage extends React.Component {
@@ -55,15 +66,13 @@ export class HomePage extends React.Component {
                 <Media query={{screen: true, maxWidth: '797px'}}>
                     {isPhone => (
                         <PageContent className={classes.main}>
-                            <HomeDrawer open={this.state.open} onClose={this.toggleSidebar(false)}
-                                        permanent={!isPhone}/>
                             <div className={classes.rightContainer}>
-                                {true ? null : <TextField className={classes.searchField} variant="standard"
-                                           label="Rechercher" margin="normal" fullWidth/>}
-                                <Paper style={{marginBottom: '5em'}}>
+                                <Paper className={classes.paper}>
                                     <CalendarSelect/>
                                 </Paper>
                             </div>
+                            <HomeDrawer open={this.state.open} onClose={this.toggleSidebar(false)}
+                                        permanent={!isPhone}/>
                             {!isPhone || this.state.open ? null :
                                 <ConditionalFilterMessage doFilter={this.toggleSidebar(true)}/>}
                         </PageContent>

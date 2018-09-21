@@ -11,7 +11,7 @@ export function NestedList({unfold, title, shown, nested, getId, toggle, checkbo
     return (
         <React.Fragment>
             <ListItem onClick={unfold} button>
-                <ListItemText primary={title} secondary={count > 0 ? `Sélectionnés : ${count}` : null}/>
+                <ListItemText primary={title} secondary={count > 0 ? `Sélection : ${count}` : null}/>
                 {shown ? <ExpandLess color="secondary"/> : <ExpandMore color="secondary"/>}
             </ListItem>
             <Collapse in={shown}>

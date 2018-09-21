@@ -14,52 +14,41 @@ import {
     subWeeks
 } from "date-fns";
 import frLocale from "date-fns/locale/fr";
-import {Button, Divider, Typography, withStyles} from "@material-ui/core";
+import {Divider, Typography, withStyles} from "@material-ui/core";
 import {TimetableEntry} from "./TimetableEntry";
 import {TimetableEvents} from "./TimetableEvents";
 import {FocusedCourse} from "./FocusedCourse";
 import Swipeable from 'react-swipeable';
 import {withRouter} from 'react-router';
-import {Link} from "react-router-dom";
-import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
-import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 
 function Separators({days}) {
-    return (
-        Array.from({length: 12}, (x, i) => (
-            <Divider key={`sep_${i}`} style={{gridRow: `${4 * i + 2} / span 4`, gridColumn: `2 / span ${days}`}}/>
-        ))
-
-    );
+    return Array.from({length: 12}, (x, i) => (
+        <Divider key={`sep_${i}`} style={{gridRow: `${4 * i + 2} / span 4`, gridColumn: `2 / span ${days}`}}/>
+    ));
 }
 
-function Days({length, date, classes}) {
-    return (
-        Array.from({length}, (x, i) => {
-            let curDate = addDays(date, i);
-            let today = isSameDay(curDate, Date.now());
-            let formatted = format(curDate, 'eee d MMM', {locale: frLocale});
-            return (
-                <Typography align="center" color={today ? 'primary' : 'textSecondary'} key={formatted}
-                            style={{gridColumn: i + 2, gridRow: '1 / span 1'}}>
-                    {formatted.toUpperCase()}
-                </Typography>
-            )
-        })
-    );
+function Hours({classes}) {
+    return Array.from({length: 12}, (x, i) => (
+        <Typography className={classes.hour} align="center" color="textSecondary" key={`hour_${i}`}
+                    style={{gridRow: `${4 * i + 2} / span 1`, gridColumn: `1 / span 1`}}>
+            {`${8 + i}:00`}
+        </Typography>
+    ));
 }
 
-function NavButtons({days, prev, next, classes}) {
-    return [
-        <Button component={Link} key="left" to={prev} size="small" className={classes.btn} color="primary"
-                style={{gridColumn: 1, gridRow: 1}}>
-            <KeyboardArrowLeft/>
-        </Button>,
-        <Button component={Link} key="right" to={next} size="small" className={classes.btn} color="primary"
-                style={{gridColumn: days + 2, gridRow: 1}}>
-            <KeyboardArrowRight/>
-        </Button>
-    ]
+
+function Days({length, date}) {
+    return Array.from({length}, (x, i) => {
+        let curDate = addDays(date, i);
+        let today = isSameDay(curDate, Date.now());
+        let formatted = format(curDate, 'eee d MMM', {locale: frLocale});
+        return (
+            <Typography align="center" color={today ? 'primary' : 'textSecondary'} key={formatted}
+                        style={{gridColumn: i + 2, gridRow: '1 / span 1'}}>
+                {formatted.toUpperCase()}
+            </Typography>
+        )
+    });
 }
 
 function Marker({classes, offset}) {
@@ -75,17 +64,17 @@ function Marker({classes, offset}) {
     root: {
         display: 'grid',
         gridAutoFlow: 'column',
-        gridTemplateColumns: '2em repeat(5, 1fr) 2em',
+        gridTemplateColumns: '3em repeat(5, 1fr) 2em',
         gridTemplateRows: '1em repeat(45, .7em)',
-        gridGap: '.4em .4em',
+        gridGap: '.3em .3em',
         padding: '1em 0',
         flex: '1',
         height: '100%',
         overflowY: 'auto',
         overflowX: 'hidden',
         [theme.breakpoints.down(767)]: {
-            gridTemplateColumns: '2em 1fr 2em',
-            gridGap: '.4em 0'
+            gridTemplateColumns: '3em 1fr 2em',
+            gridGap: '.3em 0'
         }
     },
     now: {
@@ -97,6 +86,9 @@ function Marker({classes, offset}) {
         padding: '0 .5em',
         minWidth: 0,
         minHeight: 0
+    },
+    hour: {
+        marginTop: '-.5em'
     }
 }))
 export class Timetable extends React.Component {
@@ -138,9 +130,9 @@ export class Timetable extends React.Component {
             <Swipeable onSwipedRight={() => history.push(prev)}
                        onSwipedLeft={() => history.push(next)}
                        className={classes.root}>
+                <Hours classes={classes}/>
                 <Separators days={days}/>
-                <NavButtons classes={classes} days={days} prev={prev} next={next}/>
-                <Days classes={classes} length={days} date={this.date()}/>
+                <Days length={days} date={this.date()}/>
                 <TimetableEvents offset={this.offset()} days={days}/>
                 {this.isVisible(Date.now()) ?
                     <Marker offset={this.offset()} classes={classes}/> : null}

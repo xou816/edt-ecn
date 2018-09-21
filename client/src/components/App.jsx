@@ -4,7 +4,6 @@ import {CssBaseline, Snackbar, Slide} from "@material-ui/core";
 import {BrowserRouter as Router, Route, Redirect, Switch} from 'react-router-dom';
 import {TimetablePage} from "./timetable/TimetablePage";
 import {HomePage} from "./home/HomePage";
-import {format} from 'date-fns';
 
 function Animated(component) {
     return (props) => <Slide in={true} direction="up">{React.createElement(component, props)}</Slide>
@@ -25,15 +24,15 @@ export class App extends React.Component {
     }
 
     render() {
-        let now = format(Date.now(), 'RRRRMMDD');
         let {error} = this.props;
         return (
             <React.Fragment>
                 <CssBaseline/>
                 <Router>
                     <Switch>
-                        <Redirect exact from={'/:calendar'} to={'/:calendar/today'}/>
+                        <Route exact path={'/ics'} component={null}/>
                         <Route exact path={'/'} component={Animated(HomePage)}/>
+                        <Redirect exact from={'/:calendar'} to={'/:calendar/today'}/>
                         <Route path={'/:calendar/:date'} component={Animated(TimetablePage)}/>
                     </Switch>
                 </Router>

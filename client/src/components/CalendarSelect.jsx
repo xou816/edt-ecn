@@ -1,6 +1,6 @@
 import React from "react";
-import {Checkbox, List, ListSubheader, Typography, withStyles} from "@material-ui/core";
-import {getCalendarList, resetCalendars, toggleCalendar} from "../app/actions";
+import {List, CircularProgress, withStyles} from "@material-ui/core";
+import {getCalendarList, toggleCalendar} from "../app/actions";
 import {connect} from "react-redux";
 import {NestedList} from "./NestedList";
 import {includesCalendar} from "../app/meta";
@@ -28,27 +28,20 @@ function indexList(list) {
 
 const mapState = state => ({
     list: indexList(state.app.list),
-    checked: includesCalendar(state.app.meta),
-    count: state.app.meta.length
+    checked: includesCalendar(state.app.meta)
 });
 
 const mapDispatch = dispatch => ({
     toggle: id => dispatch(toggleCalendar(id)),
-    resetCalendars: () => dispatch(resetCalendars()),
     getList: () => dispatch(getCalendarList())
 });
 
 @connect(mapState, mapDispatch)
 @withStyles(theme => ({
-    root: {
-        backgroundColor: theme.palette.background.paper,
-        margin: '1px',
-        display: 'flex',
-        position: 'static'
-    },
-    title: {
-        padding: `${1.5 * theme.spacing.unit}px`,
-        flexGrow: 1
+    loader: {
+        margin: `${theme.spacing.unit}px auto`,
+        display: 'block',
+        width: '1em'
     }
 }))
 export class CalendarSelect extends React.Component {
@@ -73,19 +66,10 @@ export class CalendarSelect extends React.Component {
     }
 
     render() {
-        let {resetCalendars, count, list, toggle, classes, checked} = this.props;
-        let s = count > 1 ? 's' : '';
+        let {list, toggle, checked, classes} = this.props;
         return (
-            <List component="nav" subheader={(
-                <ListSubheader onClick={resetCalendars} className={classes.root} component="div">
-                    <Checkbox checked={count > 0}
-                              disableRipple/>
-                    <Typography component="h2" variant="subheading" className={classes.title}>
-                        {count} calendrier{s} sélectionné{s}
-                    </Typography>
-                </ListSubheader>
-            )}>
-                {
+            <List component="nav">
+                {Object.keys(list).length > 0 ?
                     Object.keys(list).map(prefix => <NestedList
                         key={`prefix_${prefix}`}
                         title={PREFIXES[prefix]}
@@ -96,8 +80,7 @@ export class CalendarSelect extends React.Component {
                         unfold={() => this.togglePrefix(prefix)}
                         getId={calendar => calendar.id}
                         getPrimary={calendar => calendar.display}
-                    />)
-                }
+                    />) : <CircularProgress className={classes.loader}/>}
             </List>
         );
     }

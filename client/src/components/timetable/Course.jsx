@@ -32,6 +32,11 @@ function displaySpan(event) {
     return `${start}h - ${end}h`;
 }
 
+function shorten(str, len) {
+    const shorter = len < str.length;
+    return str.substring(0, len) + (shorter ? '...' : '')
+}
+
 function CourseDetails({event, long, classes}) {
     return (
         <React.Fragment>
@@ -50,7 +55,7 @@ function CourseDetails({event, long, classes}) {
             <div className={classes.par}>
                 {event.location.length === 0 ?
                     null :
-                    event.location.split(',').map(l => <Chip className={classes.chip} key={l} label={l}/>)}
+                    event.location.split(',').map(l => <Chip className={classes.chip} key={l} label={long ? l : shorten(l, 10)}/>)}
             </div>
         </React.Fragment>
     );
