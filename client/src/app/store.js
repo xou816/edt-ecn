@@ -1,14 +1,9 @@
 import thunk from "redux-thunk";
 import {appReducer} from "./reducers";
-import {mediaQueryTracker, reducer as responsive} from "redux-mediaquery";
 import {applyMiddleware, combineReducers, compose, createStore} from "redux";
-import {createBrowserHistory, createMemoryHistory} from "history";
-import {updateStore} from "./routing";
 import {parseIso} from './event';
 
 export function createClientStore() {
-
-    const history = createBrowserHistory();
 
     let initialState = {};
     if (window.__PRELOADED_STATE__) {
@@ -23,32 +18,14 @@ export function createClientStore() {
     }
 
     const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-    const store = createStore(combineReducers({
-        responsive,
+    return createStore(combineReducers({
         app: appReducer
-    }), initialState, composeEnhancers(applyMiddleware(thunk.withExtraArgument({history}))));
-
-    mediaQueryTracker({
-        isPhone: "screen and (max-width: 767px)",
-        innerWidth: true,
-        innerHeight: true,
-    }, store.dispatch);
-
-    // history.listen(location => updateStore(store.dispatch, history, location));
-    // updateStore(store.dispatch, history);
-
-    return store;
+    }), initialState, composeEnhancers(applyMiddleware(thunk)));
 }
 
-export function createServerStore(path, isPhone) {
+export function createServerStore() {
 
-    const history = createMemoryHistory();
-
-    const store = createStore(combineReducers({
+    return createStore(combineReducers({
         app: appReducer,
-        responsive: (state, action) => ({isPhone: isPhone})
-    }), applyMiddleware(thunk.withExtraArgument({history})));
-
-    return updateStore(store.dispatch, history, {pathname: path})
-        .then(_ => store);
+    }), applyMiddleware(thunk));
 } 

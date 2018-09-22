@@ -1,6 +1,4 @@
-import {addDays, addWeeks, isEqual, isFriday, isMonday, parse, subDays, subWeeks} from "date-fns";
 import {parseIso} from './event';
-import {updateHistory} from "./routing";
 import 'cross-fetch/polyfill';
 
 const API = `${process.env.PUBLIC}/api`;

@@ -4,7 +4,7 @@ import HomeDrawer from "./HomeDrawer";
 import {Page, PageContent} from "../Page";
 import {IconButton, LinearProgress, Paper, Portal, Snackbar, withStyles} from "@material-ui/core";
 import Filter from '@material-ui/icons/FilterList';
-import Media from "react-media";
+import {Media} from "../Media";
 import {connect} from 'react-redux';
 import HomeNav from "./HomeNav";
 
@@ -63,7 +63,7 @@ export class HomePage extends React.Component {
             <Page>
                 <HomeNav/>
                 {loading ? <LinearProgress/> : null}
-                <Media query={{screen: true, maxWidth: '797px'}}>
+                <Media query={{screen: true, maxWidth: '797px'}} serverMatchDevices={['mobile']}>
                     {isPhone => (
                         <PageContent className={classes.main}>
                             <div className={classes.rightContainer}>

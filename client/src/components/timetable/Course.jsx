@@ -46,17 +46,18 @@ function CourseDetails({event, long, classes}) {
                     <Typography component="p" color="inherit">
                         Intervenant : {event.organizer || 'non spécifié'}
                     </Typography>
+                    <Time className={classes.icon}/>
+                    <Typography className={classes.icon} component="span" color="inherit">
+                        {displaySpan(event)}
+                    </Typography>
                 </React.Fragment>
             )}
-            <Time className={classes.icon}/>
-            <Typography className={classes.icon} component="span" color="inherit">
-                {displaySpan(event)}
-            </Typography>
-            <div className={classes.par}>
-                {event.location.length === 0 ?
-                    null :
-                    event.location.split(',').map(l => <Chip className={classes.chip} key={l} label={long ? l : shorten(l, 10)}/>)}
-            </div>
+            {event.location.length === 0 ? null :
+                <div className={classes.par}>
+                    {event.location
+                        .split(',')
+                        .map(l => <Chip className={classes.chip} key={l} label={long ? l : shorten(l, 10)}/>)}
+                </div>}
         </React.Fragment>
     );
 }
@@ -88,16 +89,17 @@ export class Course extends React.Component {
     }
 
     ifLarge(expr) {
-        return this.props.long || this.props.end.valueOf() - this.props.start.valueOf() > 5 * 1000 * 60 * 15 ? expr : null;
+        let {long, end, start} = this.props;
+        return long || end.valueOf() - start.valueOf() > 6 * 1000 * 60 * 15 ? expr : null;
     }
 
     render() {
-        let {long, colour} = this.props;
+        let {long, colour, classes, ...event} = this.props;
         return (
             <Card className={this.className()}>
                 <CardContent className={this.className()} style={{backgroundColor: colour}}>
-                    <CourseSummary long={long} classes={this.props.classes} event={this.props}/>
-                    {this.ifLarge(<CourseDetails long={long} classes={this.props.classes} event={this.props}/>)}
+                    <CourseSummary long={long} classes={classes} event={event}/>
+                    {this.ifLarge(<CourseDetails long={long} classes={classes} event={event}/>)}
                 </CardContent>
             </Card>
         );

@@ -1,5 +1,5 @@
 import React from "react";
-import {List, CircularProgress, withStyles} from "@material-ui/core";
+import {CircularProgress, List, withStyles} from "@material-ui/core";
 import {getCalendarList, toggleCalendar} from "../app/actions";
 import {connect} from "react-redux";
 import {NestedList} from "./NestedList";
@@ -39,7 +39,7 @@ const mapDispatch = dispatch => ({
 @connect(mapState, mapDispatch)
 @withStyles(theme => ({
     loader: {
-        margin: `${theme.spacing.unit}px auto`,
+        margin: `${2 * theme.spacing.unit}px auto`,
         display: 'block',
         width: '1em'
     }
@@ -59,6 +59,12 @@ export class CalendarSelect extends React.Component {
         }
     }
 
+    componentWillMount() {
+        if (Object.keys(this.props.list).length === 0) {
+            this.props.getList();
+        }
+    }
+
     togglePrefix(prefix) {
         this.setState({
             unfold: this.state.unfold === prefix ? null : prefix
@@ -67,21 +73,20 @@ export class CalendarSelect extends React.Component {
 
     render() {
         let {list, toggle, checked, classes} = this.props;
-        return (
+        return Object.keys(list).length ? (
             <List component="nav">
-                {Object.keys(list).length > 0 ?
-                    Object.keys(list).map(prefix => <NestedList
-                        key={`prefix_${prefix}`}
-                        title={PREFIXES[prefix]}
-                        nested={list[prefix]}
-                        shown={this.state.unfold === prefix}
-                        checked={checked}
-                        toggle={(id) => toggle(id)}
-                        unfold={() => this.togglePrefix(prefix)}
-                        getId={calendar => calendar.id}
-                        getPrimary={calendar => calendar.display}
-                    />) : <CircularProgress className={classes.loader}/>}
+                {Object.keys(list).map(prefix => <NestedList
+                    key={`prefix_${prefix}`}
+                    title={PREFIXES[prefix]}
+                    nested={list[prefix]}
+                    shown={this.state.unfold === prefix}
+                    checked={checked}
+                    toggle={(id) => toggle(id)}
+                    unfold={() => this.togglePrefix(prefix)}
+                    getId={calendar => calendar.id}
+                    getPrimary={calendar => calendar.display}
+                />)}
             </List>
-        );
+        ) : <CircularProgress className={classes.loader}/>;
     }
 }

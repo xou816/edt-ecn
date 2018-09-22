@@ -8,7 +8,7 @@ import frLocale from 'date-fns/locale/fr';
 import {addWeeks, format, subWeeks} from 'date-fns';
 import {Nav} from "../Nav";
 import {Link} from "react-router-dom";
-import Media from "react-media";
+import {Media} from "../Media";
 
 function DateDisplay({date, onClick}) {
     let doFormat = d => format(d, 'd MMMM', {locale: frLocale});
@@ -34,7 +34,7 @@ export class TimetableNav extends React.Component {
                 <IconButton component={Link} to={'/'} color="inherit">
                     <Menu/>
                 </IconButton>
-                <Media query={{maxWidth: '767px'}}>
+                <Media query={{screen: true, maxWidth: '767px'}} serverMatchDevices={['mobile']}>
                     {isPhone => [
                         isPhone ? null : <IconButton color="inherit" component={Link}
                                                      key="prev"

@@ -3,6 +3,18 @@ import {hydrate} from 'react-dom';
 import {Provider} from 'react-redux';
 
 import {App} from "./components/App";
+import {MediaProvider} from "./components/Media";
 import {createClientStore} from "./app/store";
+import {BrowserRouter} from "react-router-dom";
 
-hydrate(<Provider store={createClientStore()}><App/></Provider>, document.getElementById('react_root'));
+const clientApp = (
+    <MediaProvider value={null}>
+        <Provider store={createClientStore()}>
+            <BrowserRouter>
+                <App/>
+            </BrowserRouter>
+        </Provider>
+    </MediaProvider>
+);
+
+hydrate(clientApp, document.getElementById('react_root'));

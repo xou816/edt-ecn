@@ -1,5 +1,5 @@
 import path from 'path';
-import fs from 'fs';
+import {readFile} from 'fs';
 import {parse} from 'url';
 import Express from 'express';
 import proxy from 'express-http-proxy';
@@ -13,35 +13,40 @@ import {SheetsRegistry} from 'react-jss/lib/jss';
 import JssProvider from 'react-jss/lib/JssProvider';
 import {createGenerateClassName, createMuiTheme, MuiThemeProvider} from '@material-ui/core/styles';
 import {UAParser} from 'ua-parser-js';
+import {MediaProvider} from "./components/Media";
+import {StaticRouter} from "react-router";
+import CleanCss from 'clean-css';
 
-const renderPage = (html, css, state) => new Promise((resolve, reject) => {
-    fs.readFile(path.resolve(__dirname, '../build/public/asset-manifest.json'), 'utf8', (err, data) => {
+const cleanCss = new CleanCss({returnPromise: true});
+
+const pathToBundle = () => new Promise((resolve, reject) => {
+    readFile(path.resolve(__dirname, '../build/public/asset-manifest.json'), 'utf8', (err, data) => {
         if (err) {
             reject(err);
+        } else {
+            resolve(path.join('/public', JSON.parse(data)['main.js']));
         }
-        let pathToBundle = path.join('/public', JSON.parse(data)['main.js']);
-        let preloaded = JSON.stringify(state).replace(/</g, '\\u003c');
-        resolve(`
-			<!DOCTYPE html>
-			<html>
-			  <head>
-			    <meta charset="UTF-8">
-			    <meta name="viewport" content="width=device-width" />
-			    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500">
-			    <title>Emploi du temps</title>
-			  </head>
-			  <body>
-			    <div id="react_root">${html}</div>
-			    <script>
-	          	window.__PRELOADED_STATE__ = ${preloaded};
-	        	</script>
-	        	<style id="jss-server-side">${css}</style>
-	        	<script src="${pathToBundle}"></script>
-			  </body>
-			</html>
-		`);
     });
 });
+
+function renderPage(html, css, js, state) {
+    let preloaded = JSON.stringify(state).replace(/</g, '\\u003c');
+    return `<!DOCTYPE html>
+		<html>
+		<head>
+	        <meta charset="UTF-8">
+			<meta name="viewport" content="width=device-width" />
+			<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500">
+			<title>Emploi du temps</title>
+	    </head>
+	    <body>
+	        <div id="react_root">${html}</div>
+			<script>window.__PRELOADED_STATE__ = ${preloaded};</script>
+	        <style id="jss-server-side">${css}</style>
+	        <script src="${js}"></script>
+	    </body>
+		</html>`;
+}
 
 const app = Express();
 
@@ -51,30 +56,44 @@ app.use('/api', proxy(`localhost:${parseInt(process.env.PORT || '3000', 10) + 1}
     proxyReqPathResolver: req => path.join('/api', parse(req.url).path)
 }));
 
+function storeReady(store) {
+    return new Promise((resolve) => {
+        store.subscribe(() => {
+            const state = store.getState();
+            if (!state.app.loading) {
+                resolve(state);
+            }
+        })
+    });
+}
+
 app.use((req, res) => {
-    const path = parse(req.url).path;
+    const context = {};
     const generateClassName = createGenerateClassName();
     const sheetsRegistry = new SheetsRegistry();
     const theme = createMuiTheme();
-    if (req.header('accept') === 'text/calendar') {
-        res.redirect('/api/calendar/custom/' + path.split('/')[1] + '.ics');
-    } else {
-        createServerStore(path, UAParser(req.header('user-agent')).device.type === 'mobile')
-            .then(store => {
-                const html = renderToString(
-                    <Provider store={store}>
-                        <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
-                            <MuiThemeProvider theme={theme} sheetsManager={new Map()}>
-                                <App/>
-                            </MuiThemeProvider>
-                        </JssProvider>
-                    </Provider>
-                );
-                const css = sheetsRegistry.toString();
-                return renderPage(html, css, store.getState())
-            })
-            .then(result => res.send(result));
-    }
+    const store = createServerStore();
+    setTimeout(() => store.dispatch({type: '__WAKE_SUBSCRIBER__'}), 10); // needed if no dispatch occurs when rendering
+    const deviceType = UAParser(req.header('user-agent')).device.type;
+    const html = renderToString(
+        <MediaProvider value={deviceType}>
+            <Provider store={store}>
+                <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
+                    <MuiThemeProvider theme={theme} sheetsManager={new Map()}>
+                        <StaticRouter location={req.url} context={context}>
+                            <App/>
+                        </StaticRouter>
+                    </MuiThemeProvider>
+                </JssProvider>
+            </Provider>
+        </MediaProvider>
+    );
+    cleanCss.minify(sheetsRegistry.toString())
+        .then(css => css.styles)
+        .then(css => pathToBundle().then(js => ({js, css})))
+        .then(data => storeReady(store).then(state => ({...data, state})))
+        .then(({css, js, state}) => renderPage(html, css, js, state))
+        .then(result => res.send(result));
 });
 
 app.listen(process.env.PORT || 3000);

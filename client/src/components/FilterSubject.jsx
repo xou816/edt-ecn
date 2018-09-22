@@ -50,10 +50,7 @@ export class FilterSubject extends React.Component {
 
 
     componentDidMount() {
-        const subLen = Object.keys(this.props.subjects).length;
-        if (subLen === 0 || subLen !== this.props.calendars.length) {
-            this.props.getSubjects();
-        }
+        this.props.getSubjects();
     }
 
     toggleCalendar(cal) {

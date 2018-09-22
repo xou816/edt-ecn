@@ -7,8 +7,8 @@ import {getCalendar} from "../../app/actions";
 import {format, isSameDay, parse, startOfDay} from "date-fns";
 import {compile} from "path-to-regexp";
 import DatePickerDrawer from "./DatePickerDrawer";
-import Media from "react-media";
 import {Page, PageContent} from "../Page";
+import {Media} from "../Media";
 
 const mapState = state => ({
     loading: state.app.loading
@@ -58,16 +58,21 @@ export class TimetablePage extends React.Component {
         getCalendar(this.calendar);
     }
 
+    componentWillMount() {
+        let {getCalendar} = this.props;
+        getCalendar(this.calendar);
+    }
+
     render() {
         let date = this.date;
         let {loading, match} = this.props;
         let makeLinkForMatch = makeLink(match);
         return (
-            <Media query={{screen: true, maxWidth: '797px'}}>
+            <Media query={{screen: true, maxWidth: '797px'}} serverMatchDevices={['mobile']}>
                 {isPhone => <Page>
                     <TimetableNav date={date} makeLink={makeLinkForMatch} onDateClick={this.toggleSidebar(true)}/>
                     {loading ? <LinearProgress/> : null}
-                    <Media query={{maxWidth: '1024px', minWidth: '767px'}}>
+                    <Media query={{screen: true, maxWidth: '1024px', minWidth: '767px'}} serverMatchDevices={['tablet']}>
                         {isTablet =>
                             <PageContent>
                                 <DatePickerDrawer permanent={!isPhone && !isTablet}
