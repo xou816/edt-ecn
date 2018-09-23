@@ -1,13 +1,14 @@
 const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 process.env.NODE_ENV = 'development';
 
 module.exports = {
     entry: path.resolve(__dirname, '../src/client.jsx'),
     devServer: {
-        contentBase: path.resolve(__dirname, '../build/public'),
+        contentBase: path.resolve(__dirname, '../build'),
         watchContentBase: true,
         historyApiFallback: true
     },
@@ -23,10 +24,6 @@ module.exports = {
                 include: path.resolve(__dirname, '../src'),
                 exclude: /node_modules/,
                 loaders: 'babel-loader'
-            },
-            {
-                test: /\.(png|svg|jpg|gif)$/,
-                use: 'file-loader'
             }
         ]
     },
@@ -36,6 +33,11 @@ module.exports = {
             PUBLIC: 'http://localhost:3001',
             PORT: '3000'
         }),
+        new CopyWebpackPlugin([{
+            from: 'src/**/*.svg',
+            to: path.resolve(__dirname, '../build/public', '[path]', '..', '[name].[ext]'),
+            toType: 'template'
+        }]),
         new HtmlWebpackPlugin({
             template: path.resolve(__dirname, '../src/index.html')
         }),
