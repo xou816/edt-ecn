@@ -5,16 +5,16 @@ import LinkIcon from '@material-ui/icons/Link';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import frLocale from 'date-fns/locale/fr';
-import {addWeeks, format, subWeeks} from 'date-fns';
+import {addWeeks, format, subWeeks, startOfISOWeek} from 'date-fns';
 import {Nav} from "../Nav";
 import {Link} from "react-router-dom";
 import {Media} from "../Media";
 import DatePicker from "./DatePicker";
 
-function DateDisplay({date, onClick}) {
+function DateDisplay({week, date, onClick}) {
     let doFormat = d => format(d, 'd MMMM', {locale: frLocale});
-    let dateFormatted = doFormat(date);
-    return <Button onClick={onClick} color="inherit" variant="flat">{dateFormatted}</Button>;
+    let dateFormatted = doFormat(week ? startOfISOWeek(date) : date);
+    return <Button onClick={onClick} color="inherit" variant="flat">{week ? 'Semaine du ' : ''}{dateFormatted}</Button>;
 }
 
 @withStyles(theme => ({
@@ -33,7 +33,7 @@ export class TimetableNav extends React.Component {
     }
 
     render() {
-        let {classes, date, onOpenPicker, onClosePicker, makeLink, open} = this.props;
+        let {calendar, classes, date, onOpenPicker, onClosePicker, makeLink, open} = this.props;
         return (
             <Media queries={[{screen: true, maxWidth: '767px'}]} serverMatchDevices={['mobile']}>
                 {([isPhone]) =>
@@ -45,17 +45,17 @@ export class TimetableNav extends React.Component {
                             {!isPhone && <IconButton color="inherit" component={Link}
                                                      children={<KeyboardArrowLeft/>}
                                                      to={makeLink(subWeeks(date, 1))}/>}
-                            <DateDisplay date={date} onClick={onOpenPicker}/>
+                            <DateDisplay week={!isPhone} date={date} onClick={onOpenPicker}/>
                             {!isPhone && <IconButton color="inherit" component={Link}
                                                      children={<KeyboardArrowRight/>}
                                                      to={makeLink(addWeeks(date, 1))}/>}
 
                         </div>
                         <Menu anchorEl={open ? this.ref : null} open={open} onClose={onClosePicker}>
-                            <DatePicker date={date} makeLink={makeLink} onChange={onClosePicker}/>
+                            <DatePicker week={!isPhone} date={date} makeLink={makeLink} onChange={onClosePicker}/>
                         </Menu>
                         <div className={classes.spread}/>
-                        <Button size="small" component={Link} to={'/ics'} color="secondary" variant="raised"
+                        <Button size="small" component={Link} to={`/${calendar}/ics`} color="secondary" variant="raised"
                                 style={{minWidth: 0}}>
                             <LinkIcon/>
                         </Button>

@@ -3,6 +3,7 @@ import {Slide} from "@material-ui/core";
 import {Redirect, Route, Switch} from 'react-router-dom';
 import {TimetablePage} from "./timetable/TimetablePage";
 import {HomePage} from "./home/HomePage";
+import IcsPage from "./ics/IcsPage";
 
 export class App extends React.Component {
 
@@ -16,7 +17,8 @@ export class App extends React.Component {
     render() {
         return (
             <Switch>
-                <Route exact path={'/ics'} component={null}/>
+                <Route exact path={'/:calendar/ics'}
+                       render={(props) => <Slide in direction="up"><IcsPage {...props}/></Slide>}/>
                 <Route exact path={'/'}
                        render={(props) => <Slide in direction="up"><HomePage {...props}/></Slide>}/>
                 <Route exact path={'/:calendar/:date'}

@@ -11,10 +11,11 @@ import {renderToString} from 'react-dom/server';
 import {createServerStore} from "./app/store";
 import {SheetsRegistry} from 'react-jss/lib/jss';
 import JssProvider from 'react-jss/lib/JssProvider';
-import {createGenerateClassName, createMuiTheme, MuiThemeProvider} from '@material-ui/core/styles';
+import {createGenerateClassName, MuiThemeProvider} from '@material-ui/core/styles';
 import {UAParser} from 'ua-parser-js';
 import {MediaProvider} from "./components/Media";
 import {StaticRouter} from "react-router";
+import {theme} from "./app/theme";
 import CleanCss from 'clean-css';
 
 const cleanCss = new CleanCss({returnPromise: true});
@@ -71,7 +72,6 @@ app.use((req, res) => {
     const context = {};
     const generateClassName = createGenerateClassName();
     const sheetsRegistry = new SheetsRegistry();
-    const theme = createMuiTheme();
     const store = createServerStore();
     setTimeout(() => store.dispatch({type: '__WAKE_SUBSCRIBER__'}), 10); // needed if no dispatch occurs when rendering
     const deviceType = UAParser(req.header('user-agent')).device.type;

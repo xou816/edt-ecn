@@ -7,6 +7,7 @@ import Filter from '@material-ui/icons/FilterList';
 import {Media} from "../Media";
 import {connect} from 'react-redux';
 import HomeNav from "./HomeNav";
+import ECN from "../../ecn.svg";
 
 function FilterMessage({show, doFilter}) {
     return (
@@ -41,6 +42,14 @@ const ConditionalFilterMessage = connect(state => ({show: state.app.meta.length 
         [theme.breakpoints.down(1024)]: {
             maxWidth: '100%'
         }
+    },
+    ecn: {
+        margin: `${4 * theme.spacing.unit}px auto`,
+        maxWidth: '20%',
+        display: 'block',
+        [theme.breakpoints.down(797)]: {
+            maxWidth: '60%'
+        }
     }
 }))
 export class HomePage extends React.Component {
@@ -65,6 +74,7 @@ export class HomePage extends React.Component {
                     {([isPhone]) => (
                         <PageContent className={classes.main}>
                             <div className={classes.rightContainer}>
+                                <img className={classes.ecn} src={ECN}/>
                                 <Paper className={classes.paper}>
                                     <CalendarSelect/>
                                 </Paper>

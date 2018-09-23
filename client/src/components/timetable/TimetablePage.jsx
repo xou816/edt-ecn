@@ -69,6 +69,7 @@ export class TimetablePage extends React.Component {
                    serverMatchDevices={['mobile', 'tablet']}>
                 {([isPhone, isTablet]) => (<Page>
                     <TimetableNav date={date}
+                                  calendar={this.calendar}
                                   open={this.state.open}
                                   makeLink={makeLinkForMatch}
                                   onOpenPicker={this.toggleDatePicker(isTablet || isPhone)}
@@ -76,7 +77,7 @@ export class TimetablePage extends React.Component {
                     <PageContent>
                         {(isPhone || isTablet) ? <div/> :
                             <Drawer variant="permanent" classes={{paper: classes.drawer}}>
-                                <DatePicker date={date} makeLink={makeLinkForMatch}/>
+                                <DatePicker week={!isPhone} date={date} makeLink={makeLinkForMatch}/>
                             </Drawer>}
                         <Timetable days={isPhone ? 1 : 5}
                                    makeLink={makeLinkForMatch}

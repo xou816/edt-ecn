@@ -2,9 +2,11 @@ import React from "react";
 import {Button, Divider, Typography, createMuiTheme, Drawer, MuiThemeProvider, withStyles, Slide} from "@material-ui/core";
 import {FilterSubject} from "../FilterSubject";
 import {connect} from 'react-redux';
+import {palette} from "../../app/theme";
 
 const darkTheme = createMuiTheme({
     palette: {
+        ...palette,
         type: 'dark'
     }
 });
