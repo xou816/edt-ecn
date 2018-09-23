@@ -1,12 +1,21 @@
 import React from 'react';
-import ReactMedia from 'react-media';
+import M from 'react-media';
 
 const {Provider, Consumer} = React.createContext('mobile');
 
-function Media({serverMatchDevices, ...others}) {
+function RecursiveMedia({device, serverMatchDevices, queries, children, ...others}) {
+    let factory = queries.reduce((prevChild, query, index) => {
+        const defaultMatches = serverMatchDevices[index] === device;
+        const childFunc = data => matches => prevChild([matches, ...data]);
+        return data => React.createElement(M, {...others, query, defaultMatches}, childFunc(data));
+    }, children);
+    return factory([]);
+}
+
+function Media(props) {
     return (
         <Consumer>
-            {device => <ReactMedia {...others} defaultMatches={serverMatchDevices.indexOf(device) > -1}/>}
+            {device => <RecursiveMedia {...props} device={device}/>}
         </Consumer>
     );
 }

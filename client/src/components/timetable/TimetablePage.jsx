@@ -2,21 +2,13 @@ import React from 'react';
 import {Timetable} from "./Timetable";
 import {TimetableNav} from "./TimetableNav";
 import {connect} from "react-redux";
-import {LinearProgress} from "@material-ui/core";
+import {Drawer, withStyles} from "@material-ui/core";
 import {getCalendar} from "../../app/actions";
 import {format, isSameDay, parse, startOfDay} from "date-fns";
 import {compile} from "path-to-regexp";
-import DatePickerDrawer from "./DatePickerDrawer";
 import {Page, PageContent} from "../Page";
 import {Media} from "../Media";
-
-const mapState = state => ({
-    loading: state.app.loading
-});
-
-const mapDispatch = dispatch => ({
-    getCalendar: calendar => dispatch(getCalendar(calendar))
-});
+import DatePicker from "./DatePicker";
 
 function makeLink(match) {
     let compiled = compile(match.path);
@@ -28,7 +20,15 @@ function makeLink(match) {
     });
 }
 
-@connect(mapState, mapDispatch)
+@connect(state => ({count: state.app.events.length}),
+        dispatch => ({getCalendar: calendar => dispatch(getCalendar(calendar))}))
+@withStyles(theme => ({
+    drawer: {
+        position: 'relative',
+        zIndex: 0,
+        flexGrow: 0
+    },
+}))
 export class TimetablePage extends React.Component {
 
     get calendar() {
@@ -49,44 +49,40 @@ export class TimetablePage extends React.Component {
         };
     }
 
-    toggleSidebar(open) {
+    toggleDatePicker(open) {
         return () => this.setState({open});
     }
 
-    componentDidMount() {
-        let {getCalendar} = this.props;
-        getCalendar(this.calendar);
-    }
-
     componentWillMount() {
-        let {getCalendar} = this.props;
-        getCalendar(this.calendar);
+        let {getCalendar, count} = this.props;
+        if (count === 0) {
+            getCalendar(this.calendar);
+        }
     }
 
     render() {
         let date = this.date;
-        let {loading, match} = this.props;
+        let {match, classes} = this.props;
         let makeLinkForMatch = makeLink(match);
         return (
-            <Media query={{screen: true, maxWidth: '797px'}} serverMatchDevices={['mobile']}>
-                {isPhone => <Page>
-                    <TimetableNav date={date} makeLink={makeLinkForMatch} onDateClick={this.toggleSidebar(true)}/>
-                    {loading ? <LinearProgress/> : null}
-                    <Media query={{screen: true, maxWidth: '1024px', minWidth: '767px'}} serverMatchDevices={['tablet']}>
-                        {isTablet =>
-                            <PageContent>
-                                <DatePickerDrawer permanent={!isPhone && !isTablet}
-                                                  makeLink={makeLinkForMatch}
-                                                  open={this.state.open}
-                                                  onClose={this.toggleSidebar(false)}
-                                                  date={date}/>
-                                <Timetable days={isPhone ? 1 : 5}
-                                           makeLink={makeLinkForMatch}
-                                           date={date}/>
-                            </PageContent>
-                        }
-                    </Media>
-                </Page>}
+            <Media queries={[{maxWidth: '797px'}, {maxWidth: '1024px', minWidth: '767px'}]}
+                   serverMatchDevices={['mobile', 'tablet']}>
+                {([isPhone, isTablet]) => (<Page>
+                    <TimetableNav date={date}
+                                  open={this.state.open}
+                                  makeLink={makeLinkForMatch}
+                                  onOpenPicker={this.toggleDatePicker(isTablet || isPhone)}
+                                  onClosePicker={this.toggleDatePicker(false)} />
+                    <PageContent>
+                        {(isPhone || isTablet) ? <div/> :
+                            <Drawer variant="permanent" classes={{paper: classes.drawer}}>
+                                <DatePicker date={date} makeLink={makeLinkForMatch}/>
+                            </Drawer>}
+                        <Timetable days={isPhone ? 1 : 5}
+                                   makeLink={makeLinkForMatch}
+                                   date={date}/>
+                    </PageContent>
+                </Page>)}
             </Media>
         );
     }

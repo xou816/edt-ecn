@@ -1,5 +1,5 @@
 import React from "react";
-import {Button, Divider, Drawer, IconButton, withStyles} from '@material-ui/core';
+import {Button, withStyles} from '@material-ui/core';
 import Calendar from 'material-ui-pickers/DatePicker/components/Calendar';
 import {MuiPickersUtilsProvider} from "material-ui-pickers";
 import frLocale from 'date-fns/locale/fr';
@@ -53,42 +53,29 @@ class Day extends React.Component {
 }
 
 @withStyles(theme => ({
-    drawer: {
-        position: 'relative',
-        zIndex: 0,
-        flexGrow: 0,
-        [theme.breakpoints.down(767)]: {
-            flexGrow: 1
-        }
-    },
-    closeBtn: {
-        width: '100%'
-    },
+    picker: {
+        margin: `0 ${theme.spacing.unit}px`,
+        textAlign: 'center'
+    }
 }))
 export default class extends React.Component {
-
     render() {
-        let {classes, date, makeLink, permanent, open, onClose} = this.props;
+        let {date, makeLink, onChange, classes} = this.props;
         return (
-            <Drawer anchor={permanent ? 'left' : 'top'} open={open} variant={permanent ? 'permanent' : 'temporary'}
-                    onClose={onClose} classes={{paper: classes.drawer}}>
-                {permanent ? null : [
-                    <Button key="btn" onClick={onClose} color="secondary" className={classes.closeBtn} children="Terminer"/>,
-                    <Divider key="div"/>
-                ]}
+            <div className={classes.picker}>
                 <MuiPickersUtilsProvider utils={DateFnsUtils} locale={frLocale}>
                     <Calendar date={date}
                               rightArrowIcon={<KeyboardArrowRight/>}
                               leftArrowIcon={<KeyboardArrowLeft/>}
-                              onChange={onClose}
+                              onChange={onChange || (() => null)}
                               renderDay={(date, selectedDate, dayInCurrentMonth) =>
                                   <Day date={date}
                                        link={makeLink(date)}
                                        selectedDate={selectedDate}
                                        dayInCurrentMonth={dayInCurrentMonth}/>}/>
                 </MuiPickersUtilsProvider>
-                <Button component={Link} to={makeLink(Date.now())} onClick={onClose}>Aujourd'hui</Button>
-            </Drawer>
-        )
+                <Button variant="outlined" component={Link} to={makeLink(Date.now())} onClick={onChange}>Aujourd'hui</Button>
+            </div>
+        );
     }
 }

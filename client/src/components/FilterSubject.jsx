@@ -42,14 +42,15 @@ export class FilterSubject extends React.Component {
         };
     }
 
-    componentWillReceiveProps(nextProps) {
-        if (nextProps.calendars.length !== this.props.calendars.length) {
-            this.props.getSubjects();
+    componentWillReceiveProps(nextProps, nextContext) {
+        let {calendars, getSubjects} = this.props;
+        if (nextProps.calendars.length !== calendars.length) {
+            getSubjects();
         }
     }
 
 
-    componentDidMount() {
+    componentWillMount() {
         this.props.getSubjects();
     }
 

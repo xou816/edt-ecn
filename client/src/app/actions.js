@@ -71,6 +71,7 @@ export function applySelection() {
         let {meta, calendar} = getState().app;
         if (meta.length > 0) {
             dispatch({type: 'LOAD_START'});
+            dispatch({type: 'SET_EVENTS', events: []});
             return fetch(`${API}/calendar/custom`, {
                 method: 'POST',
                 body: JSON.stringify(meta),

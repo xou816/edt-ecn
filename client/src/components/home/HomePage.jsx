@@ -2,7 +2,7 @@ import React from "react";
 import {CalendarSelect} from "../CalendarSelect";
 import HomeDrawer from "./HomeDrawer";
 import {Page, PageContent} from "../Page";
-import {IconButton, LinearProgress, Paper, Portal, Snackbar, withStyles} from "@material-ui/core";
+import {IconButton, Paper, Portal, Snackbar, withStyles} from "@material-ui/core";
 import Filter from '@material-ui/icons/FilterList';
 import {Media} from "../Media";
 import {connect} from 'react-redux';
@@ -20,7 +20,6 @@ function FilterMessage({show, doFilter}) {
 
 const ConditionalFilterMessage = connect(state => ({show: state.app.meta.length > 0}))(FilterMessage);
 
-@connect(state => ({loading: state.app.loading}))
 @withStyles(theme => ({
     main: {
         background: theme.palette.grey[100]
@@ -58,20 +57,20 @@ export class HomePage extends React.Component {
     }
 
     render() {
-        let {classes, loading} = this.props;
+        let {classes} = this.props;
         return (
             <Page>
                 <HomeNav/>
-                {loading ? <LinearProgress/> : null}
-                <Media query={{screen: true, maxWidth: '797px'}} serverMatchDevices={['mobile']}>
-                    {isPhone => (
+                <Media queries={[{maxWidth: '797px'}]} serverMatchDevices={['mobile']}>
+                    {([isPhone]) => (
                         <PageContent className={classes.main}>
                             <div className={classes.rightContainer}>
                                 <Paper className={classes.paper}>
                                     <CalendarSelect/>
                                 </Paper>
                             </div>
-                            <HomeDrawer open={this.state.open} onClose={this.toggleSidebar(false)}
+                            <HomeDrawer open={this.state.open}
+                                        onClose={this.toggleSidebar(false)}
                                         permanent={!isPhone}/>
                             {!isPhone || this.state.open ? null :
                                 <ConditionalFilterMessage doFilter={this.toggleSidebar(true)}/>}

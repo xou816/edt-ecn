@@ -48,14 +48,6 @@ function renderPage(html, css, js, state) {
 		</html>`;
 }
 
-const app = Express();
-
-app.use(compression());
-app.use('/public', Express.static(path.resolve(__dirname, '../build/public')));
-app.use('/api', proxy(`localhost:${parseInt(process.env.PORT || '3000', 10) + 1}`, {
-    proxyReqPathResolver: req => path.join('/api', parse(req.url).path)
-}));
-
 function storeReady(store) {
     return new Promise((resolve) => {
         store.subscribe(() => {
@@ -66,6 +58,14 @@ function storeReady(store) {
         })
     });
 }
+
+const app = Express();
+
+app.use(compression());
+app.use('/public', Express.static(path.resolve(__dirname, '../build/public')));
+app.use('/api', proxy(`localhost:${parseInt(process.env.PORT || '3000', 10) + 1}`, {
+    proxyReqPathResolver: req => path.join('/api', parse(req.url).path)
+}));
 
 app.use((req, res) => {
     const context = {};

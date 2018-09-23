@@ -1,9 +1,21 @@
 import React from "react";
-import {CircularProgress, List, withStyles} from "@material-ui/core";
+import {List, withStyles} from "@material-ui/core";
 import {getCalendarList, toggleCalendar} from "../app/actions";
 import {connect} from "react-redux";
 import {NestedList} from "./NestedList";
 import {includesCalendar} from "../app/meta";
+
+const fake = classes => Array.from({length: 5}, (x, i) => ({
+    key: `skeleton_${i}`,
+    title: <div className={classes.skeleton}/>,
+    nested: [],
+    shown: false,
+    checked: false,
+    toggle: () => null,
+    unfold: () => null,
+    getId: () => null,
+    getPrimary: () => null,
+}));
 
 const PREFIXES = {
     'OD': 'Option disciplinaire',
@@ -38,10 +50,31 @@ const mapDispatch = dispatch => ({
 
 @connect(mapState, mapDispatch)
 @withStyles(theme => ({
-    loader: {
-        margin: `${2 * theme.spacing.unit}px auto`,
+    skeleton: {
+        margin: 0,
         display: 'block',
-        width: '1em'
+        height: theme.typography.body1.lineHeight,
+        background: theme.palette.grey[200],
+        position: 'relative',
+        overflow: 'hidden',
+        '&:after': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            background: `linear-gradient(90deg, ${theme.palette.grey[200]}, ${theme.palette.grey[100]}, ${theme.palette.grey[200]})`,
+            animation: 'progress 1s ease-in-out infinite'
+        }
+    },
+    '@keyframes progress': {
+        '0%': {
+            transform: 'translate3d(-100%, 0, 0)'
+        },
+        '100%': {
+            transform: 'translate3d(100%, 0, 0)'
+        },
     }
 }))
 export class CalendarSelect extends React.Component {
@@ -53,15 +86,10 @@ export class CalendarSelect extends React.Component {
         };
     }
 
-    componentDidMount() {
-        if (Object.keys(this.props.list).length === 0) {
-            this.props.getList();
-        }
-    }
-
     componentWillMount() {
-        if (Object.keys(this.props.list).length === 0) {
-            this.props.getList();
+        let {getList, list} = this.props;
+        if (Object.keys(list).length === 0) {
+            getList();
         }
     }
 
@@ -73,20 +101,21 @@ export class CalendarSelect extends React.Component {
 
     render() {
         let {list, toggle, checked, classes} = this.props;
-        return Object.keys(list).length ? (
+        let mapped = Object.keys(list).length ? Object.keys(list).map(prefix => ({
+            key: `prefix_${prefix}`,
+            title: PREFIXES[prefix],
+            nested: list[prefix],
+            shown: this.state.unfold === prefix,
+            checked,
+            toggle: (id) => toggle(id),
+            unfold: () => this.togglePrefix(prefix),
+            getId: calendar => calendar.id,
+            getPrimary: calendar => calendar.display
+        })) : fake(classes);
+        return (
             <List component="nav">
-                {Object.keys(list).map(prefix => <NestedList
-                    key={`prefix_${prefix}`}
-                    title={PREFIXES[prefix]}
-                    nested={list[prefix]}
-                    shown={this.state.unfold === prefix}
-                    checked={checked}
-                    toggle={(id) => toggle(id)}
-                    unfold={() => this.togglePrefix(prefix)}
-                    getId={calendar => calendar.id}
-                    getPrimary={calendar => calendar.display}
-                />)}
+                {mapped.map(({key, ...props}) => <NestedList key={key} {...props} />)}
             </List>
-        ) : <CircularProgress className={classes.loader}/>;
+        );
     }
 }

@@ -16,7 +16,7 @@ export function NestedList({unfold, title, shown, nested, getId, toggle, checkbo
             </ListItem>
             <Collapse in={shown}>
                 <List>
-                    {nested.map(element => (
+                    {nested.map(element => shown && (
                         <ListItem key={getId(element)} onClick={() => toggle(getId(element))} button>
                             <Checkbox {...checkbox} checked={checked(getId(element))} tabIndex={-1}
                                       disableRipple/>

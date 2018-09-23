@@ -64,7 +64,7 @@ function Marker({classes, offset}) {
     root: {
         display: 'grid',
         gridAutoFlow: 'column',
-        gridTemplateColumns: '3em repeat(5, 1fr) 2em',
+        gridTemplateColumns: '3em repeat(5, 1fr) 1em',
         gridTemplateRows: '1em repeat(45, .7em)',
         gridGap: '.3em .3em',
         padding: '1em 0',
@@ -73,7 +73,8 @@ function Marker({classes, offset}) {
         overflowY: 'auto',
         overflowX: 'hidden',
         [theme.breakpoints.down(767)]: {
-            gridTemplateColumns: '3em 1fr 2em',
+            gridTemplateColumns: '3em 1fr 1em',
+            gridTemplateRows: '1em repeat(45, .6em)',
             gridGap: '.3em 0'
         }
     },
