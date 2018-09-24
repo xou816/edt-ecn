@@ -3,12 +3,14 @@ import {Button, withStyles} from '@material-ui/core';
 import Calendar from 'material-ui-pickers/DatePicker/components/Calendar';
 import {MuiPickersUtilsProvider} from "material-ui-pickers";
 import frLocale from 'date-fns/locale/fr';
-import {format, isSameDay, isWeekend, isMonday, isFriday, isSameISOWeek} from 'date-fns';
+import {format, isSameDay, isWeekend, isMonday, isFriday, isSameISOWeek, setHours} from 'date-fns';
 import DateFnsUtils from "material-ui-pickers/utils/date-fns-utils";
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import classnames from 'classnames';
 import {Link} from "react-router-dom";
+
+const TODAY = setHours(Date.now(), 12);
 
 @withStyles(theme => ({
     day: {
@@ -60,14 +62,14 @@ class Day extends React.Component {
         let disabled = !dayInCurrentMonth || isWeekend(date);
         let mon = isMonday(date);
         let fri = isFriday(date);
-        let selected = isSameDay(date, selectedDate) || (isSameISOWeek(date, selectedDate) && week);
+        let selected = (isSameDay(date, selectedDate) || (isSameISOWeek(date, selectedDate) && week)) && !isWeekend(date);
         let className = classnames(classes.day, {
             [classes.current]: isSameDay(date, Date.now()),
-            [classes.selected]: selected && !disabled,
+            [classes.selected]: selected,
             [classes.selectedStart]: selected && week && mon,
             [classes.selectedEnd]: selected && week && fri,
             [classes.selectedMid]: selected && week && !mon && !fri,
-            [classes.disabled]: disabled
+            [classes.disabled]: disabled && !selected
         });
         return (
             <Button component={Link} to={link} className={className}>
@@ -101,7 +103,7 @@ export default class extends React.Component {
                                        dayInCurrentMonth={dayInCurrentMonth}/>}/>
                 </MuiPickersUtilsProvider>
                 <Button variant="outlined"
-                        disabled={week && isSameISOWeek(date, Date.now()) || isSameDay(date, Date.now())}
+                        disabled={week && isSameISOWeek(date, TODAY) || isSameDay(date, TODAY)}
                         component={Link}
                         to={makeLink(Date.now())}
                         onClick={onChange}>

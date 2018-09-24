@@ -12,18 +12,16 @@ import {blurEvent} from "../../app/actions";
 }))
 export class FocusedCourse extends React.Component {
 
-    event() {
+    get event() {
         return this.props.events.find(e => e.id === this.props.focus);
     }
 
-    open() {
-        return this.props.focus != null;
-    }
-
     render() {
-        return (
-            <Dialog fullWidth open={this.open()} onClose={() => this.props.blur()}>
-                {!this.open() ? '' : (<Course long {...this.event()} />)}
+        let {blur, allowFocus, focus} = this.props;
+        const open = focus !== null && allowFocus;
+        return open && (
+            <Dialog fullWidth open={true} onClose={() => blur()}>
+                <Course long {...this.event} />
             </Dialog>
         );
     }

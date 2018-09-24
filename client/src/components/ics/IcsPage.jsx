@@ -67,7 +67,7 @@ export default class extends React.Component {
                             Instructions
                         </Typography>
                         <Typography variant="subheading" gutterBottom>
-                            Dans Google Agenda, cliquez sur le {<IconButton size="small">+</IconButton>} au dessus de vos agendas, et choisissez "À partir de l'URL". Copiez alors l'URL ci-dessus.
+                            Dans Google Agenda, cliquez sur le "+" au dessus de vos agendas, et choisissez "À partir de l'URL". Copiez alors l'URL ci-dessus.
                         </Typography>
                        </Paper>
                 </PageContent>

@@ -7,6 +7,7 @@ import Filter from '@material-ui/icons/FilterList';
 import {Media} from "../Media";
 import {connect} from 'react-redux';
 import HomeNav from "./HomeNav";
+import Logo from "../Logo";
 
 function FilterMessage({show, doFilter}) {
     return (
@@ -73,7 +74,7 @@ export class HomePage extends React.Component {
                     {([isPhone]) => (
                         <PageContent className={classes.main}>
                             <div className={classes.rightContainer}>
-                                <img className={classes.ecn} src="/public/ecn.svg"/>
+                                <Logo className={classes.ecn}/>
                                 <Paper className={classes.paper}>
                                     <CalendarSelect/>
                                 </Paper>

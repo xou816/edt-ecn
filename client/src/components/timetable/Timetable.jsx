@@ -1,25 +1,10 @@
 import React from 'react';
-import {
-    addDays,
-    addHours,
-    addMinutes,
-    addWeeks,
-    format,
-    isFriday,
-    isMonday,
-    isSameDay,
-    startOfDay,
-    startOfWeek,
-    subDays,
-    subWeeks
-} from "date-fns";
+import {addDays, addHours, addMinutes, format, isSameDay, startOfDay, startOfWeek} from "date-fns";
 import frLocale from "date-fns/locale/fr";
-import {Divider, Typography, withStyles} from "@material-ui/core";
+import {Divider, Typography, NoSsr, withStyles} from "@material-ui/core";
 import {TimetableEntry} from "./TimetableEntry";
 import {TimetableEvents} from "./TimetableEvents";
 import {FocusedCourse} from "./FocusedCourse";
-import Swipeable from 'react-swipeable';
-import {withRouter} from 'react-router';
 
 function Separators({days}) {
     return Array.from({length: 12}, (x, i) => (
@@ -51,15 +36,16 @@ function Days({length, date}) {
     });
 }
 
-function Marker({classes, offset}) {
+function Marker({days, offset, classes}) {
     let now = Date.now();
-    return (<TimetableEntry event={{start: now, end: addMinutes(now, 15)}} offset={offset}>
-        <Divider className={classes.now}/>
-    </TimetableEntry>);
+    return now >= offset && now < addDays(offset, days) ? (
+        <TimetableEntry event={{start: now, end: addMinutes(now, 15)}} offset={offset}>
+            <Divider className={classes.now}/>
+        </TimetableEntry>
+    ) : <div/>;
 }
 
 
-@withRouter
 @withStyles(theme => ({
     root: {
         display: 'grid',
@@ -94,51 +80,28 @@ function Marker({classes, offset}) {
 }))
 export class Timetable extends React.Component {
 
-    date() {
+    get date() {
         let {date, days} = this.props;
         return days > 1 ? startOfWeek(date, {weekStartsOn: 1}) : startOfDay(date);
     }
 
-    links() {
-        let {days, date, makeLink} = this.props;
-        let next, prev;
-        if (days === 1) {
-            next = addDays(date, isFriday(date) ? 3 : 1);
-            prev = subDays(date, isMonday(date) ? 3 : 1);
-        } else {
-            next = addWeeks(date, 1);
-            prev = subWeeks(date, 1);
-        }
-        return {prev: makeLink(prev), next: makeLink(next)};
-    }
-
-    isVisible(date) {
-        let {days} = this.props;
-        let offset = this.offset();
-        return date >= offset && date < addDays(offset, days);
-    }
-
-    offset() {
+    get offset() {
         let now = new Date();
         let offset = now.getTimezoneOffset() / -60;
-        return addHours(this.date(), 8 + offset - 2).valueOf();
+        return addHours(this.date, 8 + offset - 2).valueOf();
     }
 
     render() {
-        let {classes, days, history} = this.props;
-        let {prev, next} = this.links();
+        let {classes, days, active} = this.props;
         return (
-            <Swipeable onSwipedRight={() => history.push(prev)}
-                       onSwipedLeft={() => history.push(next)}
-                       className={classes.root}>
+            <div className={classes.root}>
                 <Hours classes={classes}/>
                 <Separators days={days}/>
-                <Days length={days} date={this.date()}/>
-                <TimetableEvents offset={this.offset()} days={days}/>
-                {this.isVisible(Date.now()) ?
-                    <Marker offset={this.offset()} classes={classes}/> : null}
-                <FocusedCourse/>
-            </Swipeable>
+                <Days length={days} date={this.date}/>
+                <TimetableEvents offset={this.offset} days={days}/>
+                <NoSsr><Marker days={days} offset={this.offset} classes={classes}/></NoSsr>
+                <FocusedCourse allowFocus={active}/>
+            </div>
         );
     }
 
