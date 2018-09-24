@@ -9,30 +9,16 @@ const VirtualizeSwipeableViews = virtualize(SwipeableViews);
 @timetableAware
 export default class extends React.Component {
 
-    constructor(props) {
-        super(props);
-        this.newIndex = null;
-    }
-
     get index() {
         let {position, date} = this.props;
         return position(date);
     }
 
     onChangeIndex() {
-        return index => {
-            this.newIndex = index;
+        return newIndex => {
+            let {navigateTo, atPosition, date} = this.props;
+            navigateTo(atPosition(date, newIndex));
         };
-    }
-
-    onTransitionEnd() {
-        return () => {
-            if (this.newIndex !== null) {
-                let {navigateTo, atPosition, date} = this.props;
-                navigateTo(atPosition(date, this.newIndex));
-            }
-            this.newIndex = null;
-        }
     }
 
     slideRenderer() {
@@ -50,7 +36,6 @@ export default class extends React.Component {
             <VirtualizeSwipeableViews overscanSlideAfter={1}
                                       overscanSlideBefore={1}
                                       onChangeIndex={this.onChangeIndex()}
-                                      onTransitionEnd={this.onTransitionEnd()}
                                       index={this.index}
                                       slideRenderer={this.slideRenderer()}/>
         );
