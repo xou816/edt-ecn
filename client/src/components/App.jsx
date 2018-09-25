@@ -18,11 +18,11 @@ export class App extends React.Component {
         return (
             <Switch>
                 <Route exact path={'/:calendar/ics'}
-                       render={(props) => <Slide in direction="up"><IcsPage {...props}/></Slide>}/>
+                       render={(props) => <IcsPage {...props}/>}/>
                 <Route exact path={'/'}
-                       render={(props) => <Slide in direction="up"><HomePage {...props}/></Slide>}/>
+                       render={(props) => <HomePage {...props}/>}/>
                 <Route exact path={'/:calendar/:date'}
-                       render={(props) => <Slide in direction="up"><TimetablePage {...props}/></Slide>}/>
+                       render={(props) => <TimetablePage {...props}/>}/>
                 <Redirect exact from={'/:calendar'} to={'/:calendar/today'}/>
             </Switch>
         );

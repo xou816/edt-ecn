@@ -37,6 +37,7 @@ export default class extends React.Component {
                                       overscanSlideBefore={1}
                                       onChangeIndex={this.onChangeIndex()}
                                       index={this.index}
+                                      style={{flexGrow: 1}}
                                       slideRenderer={this.slideRenderer()}/>
         );
     }

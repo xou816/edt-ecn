@@ -8,6 +8,7 @@ import DateFnsUtils from "material-ui-pickers/utils/date-fns-utils";
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import classnames from 'classnames';
+import {fade} from '@material-ui/core/styles/colorManipulator';
 import {Link} from "react-router-dom";
 
 const TODAY = setHours(Date.now(), 12);
@@ -23,8 +24,8 @@ const TODAY = setHours(Date.now(), 12);
         borderRadius: '50%'
     },
     current: {
-        color: theme.palette.primary.main,
-        fontWeight: 600,
+        color: theme.palette.secondary.main,
+        fontWeight: '600',
     },
     selected: {
         color: theme.palette.common.white,
@@ -53,18 +54,28 @@ const TODAY = setHours(Date.now(), 12);
     },
     disabled: {
         color: theme.palette.text.hint,
+    },
+    currentSelected: {
+        fontWeight: '600',
+        backgroundColor: fade(theme.palette.secondary.main, 0.5),
+        ['&:hover']: {
+            backgroundColor: fade(theme.palette.secondary.main, 0.5)
+        }
     }
 }))
 class Day extends React.Component {
 
     render() {
         let {week, date, link, selectedDate, dayInCurrentMonth, classes} = this.props;
-        let disabled = !dayInCurrentMonth || isWeekend(date);
+        let weekend = isWeekend(date);
+        let disabled = !dayInCurrentMonth || weekend;
         let mon = isMonday(date);
         let fri = isFriday(date);
-        let selected = (isSameDay(date, selectedDate) || (isSameISOWeek(date, selectedDate) && week)) && !isWeekend(date);
+        let strictSelected = isSameDay(date, selectedDate);
+        let selected = (strictSelected || (isSameISOWeek(date, selectedDate) && week)) && !weekend;
         let className = classnames(classes.day, {
             [classes.current]: isSameDay(date, Date.now()),
+            [classes.currentSelected]: strictSelected && week && !weekend,
             [classes.selected]: selected,
             [classes.selectedStart]: selected && week && mon,
             [classes.selectedEnd]: selected && week && fri,
@@ -103,7 +114,7 @@ export default class extends React.Component {
                                        dayInCurrentMonth={dayInCurrentMonth}/>}/>
                 </MuiPickersUtilsProvider>
                 <Button variant="outlined"
-                        disabled={week && isSameISOWeek(date, TODAY) || isSameDay(date, TODAY)}
+                        // disabled={week && isSameISOWeek(date, TODAY) || isSameDay(date, TODAY)}
                         component={Link}
                         to={makeLink(Date.now())}
                         onClick={onChange}>

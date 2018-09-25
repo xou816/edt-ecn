@@ -10,9 +10,14 @@ const withStyle = withStyles(theme => ({
         minHeight: '100vh',
         height: '100vh'
     },
+    column: {
+        flexDirection: 'column'
+    },
+    row: {
+        flexDirection: 'row',
+    },
     main: {
         display: 'flex',
-        flexDirection: 'row',
         flex: 1,
         overflow: 'hidden'
     }
@@ -36,11 +41,16 @@ export const Page = withStyle(({classes, className, children, ...others}) => {
     );
 });
 
-export const PageContent = withStyle(({classes, className, children, ...others}) => {
+export const PageContent = withStyle(({classes, orientation, className, children, ...others}) => {
     return (
         <React.Fragment>
             <Loader/>
-            <div className={classnames([classes.main, className])} {...others}>
+            <div className={classnames({
+                [classes.main]: true,
+                [className]: true,
+                [classes.column]: orientation === 'column',
+                [classes.row]: orientation !== 'column'
+            })} {...others}>
                 {children}
             </div>
         </React.Fragment>

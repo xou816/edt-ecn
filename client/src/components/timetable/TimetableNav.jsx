@@ -12,9 +12,10 @@ import {Media} from "../Media";
 import DatePicker from "./DatePicker";
 
 function DateDisplay({week, date, onClick}) {
-    let doFormat = d => format(d, 'd MMMM', {locale: frLocale});
-    let dateFormatted = doFormat(week ? startOfISOWeek(date) : date);
-    return <Button onClick={onClick} color="inherit" variant="flat">{week ? 'Semaine du ' : ''}{dateFormatted}</Button>;
+    let formatted = week ?
+        'Semaine ' + format(date, 'I', {locale: frLocale}) :
+        format(date, 'd MMMM', {locale: frLocale});
+    return <Button onClick={onClick} color="inherit" variant="flat">{formatted}</Button>;
 }
 
 @withStyles(theme => ({
@@ -45,10 +46,10 @@ export class TimetableNav extends React.Component {
                             {!isPhone && <IconButton color="inherit" component={Link}
                                                      children={<KeyboardArrowLeft/>}
                                                      to={makeLink(subWeeks(date, 1))}/>}
-                            <DateDisplay week={!isPhone} date={date} onClick={onOpenPicker}/>
                             {!isPhone && <IconButton color="inherit" component={Link}
                                                      children={<KeyboardArrowRight/>}
                                                      to={makeLink(addWeeks(date, 1))}/>}
+                            <DateDisplay week={!isPhone} date={date} onClick={onOpenPicker}/>
 
                         </div>
                         <Menu anchorEl={open ? this.ref : null} open={open} onClose={onClosePicker}>

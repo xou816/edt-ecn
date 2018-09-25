@@ -4,7 +4,7 @@ import {
     addDays,
     addWeeks,
     differenceInCalendarDays,
-    differenceInCalendarWeeks,
+    differenceInCalendarISOWeeks,
     format,
     isSameDay,
     isWeekend,
@@ -35,7 +35,7 @@ function makeLink(match) {
     return date => compiled({
         ...match.params,
         date: dateFormat(date)
-    });
+    }, {encode: (value, token) => value});
 }
 
 function navigateTo(history) {
@@ -64,7 +64,7 @@ function prev(weekView) {
 
 function position(weekView) {
     return date => weekView ?
-        differenceInCalendarWeeks(date, TODAY) :
+        differenceInCalendarISOWeeks(date, TODAY) :
         differenceInCalendarDays(date, TODAY);
 }
 

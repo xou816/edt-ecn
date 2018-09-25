@@ -135,7 +135,7 @@ function mapNodeToEvent(node: Element, weeks: WeekDesc, calendar: string): Calen
         organizer = res[2]
     }
 
-    let category = safeText(node, ['category']);
+    let category = safeText(node, ['category']).replace(' math', '');
     let subject = safeText(node, ['resources/module/item']) || UNKNOWN_SUBJECT;
     let full_subject = subject;
     res = COURSE_REGEX.exec(subject);
