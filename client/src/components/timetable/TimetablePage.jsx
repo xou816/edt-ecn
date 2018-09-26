@@ -1,13 +1,14 @@
 import React from 'react';
 import {TimetableNav} from "./TimetableNav";
 import {connect} from "react-redux";
-import {Drawer, withStyles} from "@material-ui/core";
+import {Drawer, NoSsr, withStyles} from "@material-ui/core";
 import {getCalendar} from "../../app/actions";
 import {Page, PageContent} from "../Page";
 import {Media} from "../Media";
 import DatePicker from "./DatePicker";
 import timetableAware from "./timetableAware";
 import SwipeableTimetable from "./SwipeableTimetable";
+import classnames from 'classnames';
 
 
 @timetableAware
@@ -19,6 +20,9 @@ import SwipeableTimetable from "./SwipeableTimetable";
         zIndex: 0,
         flexGrow: 0
     },
+    drawerHidden: {
+        width: 0
+    }
 }))
 export class TimetablePage extends React.Component {
 
@@ -53,11 +57,12 @@ export class TimetablePage extends React.Component {
                                   onOpenPicker={this.toggleDatePicker(isTablet || isPhone)}
                                   onClosePicker={this.toggleDatePicker(false)}/>
                     <PageContent>
-                        {(isPhone || isTablet) ? <div/> :
+                        <NoSsr>{!(isPhone || isTablet) &&
                             <Drawer variant="permanent" classes={{paper: classes.drawer}}>
                                 <DatePicker week={weekView} date={date} makeLink={makeLink}/>
                             </Drawer>}
-                            <SwipeableTimetable/>
+                        </NoSsr>
+                        <SwipeableTimetable/>
                     </PageContent>
                 </Page>)}
             </Media>

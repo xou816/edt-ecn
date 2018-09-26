@@ -43,23 +43,20 @@ function navigateTo(history) {
 }
 
 function atPosition(weekView) {
-    return (current, pos) => {
-        let direction = pos - position(weekView)(current);
+    return (pos) => {
         let newDate = weekView ?
             addWeeks(TODAY, pos) :
             addDays(TODAY, pos);
-        return isWeekend(newDate) ?
-            addDays(startOfISOWeek(newDate), direction > 0 ? 7 : 4) :
-            newDate;
+        return newDate;
     }
 }
 
 function next(weekView) {
-    return date => atPosition(weekView)(date, position(date) + 1);
+    return date => atPosition(weekView)(position(date) + 1);
 }
 
 function prev(weekView) {
-    return date => atPosition(weekView)(date, position(date) - 1);
+    return date => atPosition(weekView)(position(date) - 1);
 }
 
 function position(weekView) {
