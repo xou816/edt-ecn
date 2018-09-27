@@ -50,6 +50,7 @@ function renderPage(html, css, js, state) {
 }
 
 function storeReady(store) {
+    setTimeout(() => store.dispatch({type: '__WAKE_SUBSCRIBER__'}), 10); // needed if no dispatch occurs when rendering
     return new Promise((resolve) => {
         store.subscribe(() => {
             const state = store.getState();
@@ -73,7 +74,6 @@ app.use((req, res) => {
     const generateClassName = createGenerateClassName();
     const sheetsRegistry = new SheetsRegistry();
     const store = createServerStore();
-    setTimeout(() => store.dispatch({type: '__WAKE_SUBSCRIBER__'}), 10); // needed if no dispatch occurs when rendering
     const deviceType = UAParser(req.header('user-agent')).device.type;
     const html = renderToString(
         <MediaProvider value={deviceType}>
