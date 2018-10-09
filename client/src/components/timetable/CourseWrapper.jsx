@@ -1,9 +1,10 @@
 import React from "react";
 import {Course} from "./Course";
 import {TimetableEntry} from "./TimetableEntry";
-import {Button, withStyles} from "@material-ui/core";
 import {focusEvent} from "../../app/actions";
 import {connect} from "react-redux";
+import Button from "@material-ui/core/Button/Button";
+import withStyles from "@material-ui/core/styles/withStyles";
 
 @connect(null, dispatch => ({
     focusEvent: id => dispatch(focusEvent(id))

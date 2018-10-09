@@ -1,15 +1,15 @@
 import React from 'react';
 import {TimetableNav} from "./TimetableNav";
 import {connect} from "react-redux";
-import {Drawer, NoSsr, withStyles} from "@material-ui/core";
 import {getCalendar} from "../../app/actions";
 import {Page, PageContent} from "../Page";
 import {Media} from "../Media";
 import DatePicker from "./DatePicker";
 import timetableAware from "./timetableAware";
 import SwipeableTimetable from "./SwipeableTimetable";
-import classnames from 'classnames';
-
+import withStyles from "@material-ui/core/styles/withStyles";
+import Drawer from "@material-ui/core/Drawer/Drawer";
+import NoSsr from "@material-ui/core/NoSsr/NoSsr";
 
 @timetableAware
 @connect(state => ({count: state.app.events.length}),

@@ -6,8 +6,8 @@ import {App} from "./components/App";
 import {MediaProvider} from "./components/Media";
 import {createClientStore} from "./app/store";
 import {BrowserRouter} from "react-router-dom";
-import {MuiThemeProvider} from "@material-ui/core";
 import {theme} from './app/theme';
+import MuiThemeProvider from "@material-ui/core/styles/MuiThemeProvider";
 
 const clientApp = (
     <MediaProvider value={null}>

@@ -1,6 +1,5 @@
 import React from 'react';
-import {Slide} from "@material-ui/core";
-import {Redirect, Route, Switch} from 'react-router-dom';
+import {Redirect, Route, Switch} from "react-router";
 import {TimetablePage} from "./timetable/TimetablePage";
 import {HomePage} from "./home/HomePage";
 import IcsPage from "./ics/IcsPage";

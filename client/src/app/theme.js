@@ -1,4 +1,4 @@
-import {createMuiTheme} from "@material-ui/core";
+import createMuiTheme from "@material-ui/core/styles/createMuiTheme";
 
 export const palette = {/*
     primary: {
@@ -10,6 +10,9 @@ export const palette = {/*
 */};
 
 export const theme = createMuiTheme({
+    typography: {
+        useNextVariants: true
+    },
     palette
 });
 

@@ -1,15 +1,18 @@
 import React from "react";
-import {Button, Menu, IconButton, withStyles} from "@material-ui/core";
 import MenuIcon from '@material-ui/icons/Menu';
 import LinkIcon from '@material-ui/icons/Link';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import frLocale from 'date-fns/locale/fr';
-import {addWeeks, format, subWeeks, startOfISOWeek} from 'date-fns';
+import {addWeeks, format, subWeeks} from 'date-fns';
 import {Nav} from "../Nav";
 import {Link} from "react-router-dom";
 import {Media} from "../Media";
 import DatePicker from "./DatePicker";
+import withStyles from "@material-ui/core/styles/withStyles";
+import IconButton from "@material-ui/core/IconButton/IconButton";
+import Menu from "@material-ui/core/Menu/Menu";
+import Button from "@material-ui/core/Button/Button";
 
 function DateDisplay({week, date, onClick}) {
     let formatted = week ?
@@ -56,7 +59,7 @@ export class TimetableNav extends React.Component {
                             <DatePicker week={!isPhone} date={date} makeLink={makeLink} onChange={onClosePicker}/>
                         </Menu>
                         <div className={classes.spread}/>
-                        <Button size="small" component={Link} to={`/${calendar}/ics`} color="secondary" variant="raised"
+                        <Button size="small" component={Link} to={`/${calendar}/ics`} color="secondary" variant="contained"
                                 style={{minWidth: 0}}>
                             <LinkIcon/>
                         </Button>

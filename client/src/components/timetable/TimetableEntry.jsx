@@ -1,6 +1,6 @@
 import React from 'react';
-import {withStyles} from "@material-ui/core";
-import {Zoom} from "@material-ui/core";
+import Zoom from "@material-ui/core/Zoom/Zoom";
+import withStyles from "@material-ui/core/styles/withStyles";
 
 const INCREMENT = 1000 * 60 * 15;
 const DAY_MS = 1000 * 60 * 60 * 24;

@@ -1,11 +1,15 @@
 import React from "react";
 import {connect} from "react-redux";
-import {Checkbox, List, ListSubheader, Typography, withStyles} from "@material-ui/core";
 import Visibility from '@material-ui/icons/Visibility';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
-import {getSubjects, resetSubjects, toggleSubject} from "../app/actions";
-import {NestedList} from "./NestedList";
-import {countSubjects, getCalendars, includesSubject} from "../app/meta";
+import {getSubjects, resetSubjects, toggleSubject} from "../../app/actions";
+import {NestedList} from "../NestedList";
+import {countSubjects, getCalendars, includesSubject} from "../../app/meta";
+import withStyles from "@material-ui/core/styles/withStyles";
+import ListSubheader from "@material-ui/core/ListSubheader/ListSubheader";
+import Checkbox from "@material-ui/core/Checkbox/Checkbox";
+import Typography from "@material-ui/core/Typography/Typography";
+import List from "@material-ui/core/List/List";
 
 const mapState = state => ({
     subjects: state.app.subjects,
@@ -67,7 +71,7 @@ export class FilterSubject extends React.Component {
             <List component="nav" subheader={(
                 <ListSubheader onClick={reset} className={classes.root} component="div">
                     <Checkbox checked={count > 0} disableRipple/>
-                    <Typography component="h2" variant="subheading" className={classes.title}>
+                    <Typography component="h2" variant="subtitle1" className={classes.title}>
                         {count} matière{s} filtrée{s}
                     </Typography>
                 </ListSubheader>

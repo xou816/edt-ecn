@@ -1,8 +1,8 @@
 import React from "react";
 import {connect} from "react-redux";
-import {Dialog} from "@material-ui/core";
 import {Course} from "./Course";
 import {blurEvent} from "../../app/actions";
+import Dialog from "@material-ui/core/Dialog/Dialog";
 
 @connect(state => ({
     focus: state.app.focus,

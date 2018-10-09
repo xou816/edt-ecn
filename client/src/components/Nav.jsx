@@ -1,5 +1,7 @@
-import {AppBar, Toolbar, withStyles} from "@material-ui/core";
 import React from "react";
+import withStyles from "@material-ui/core/styles/withStyles";
+import AppBar from "@material-ui/core/AppBar/AppBar";
+import Toolbar from "@material-ui/core/Toolbar/Toolbar";
 
 @withStyles(theme => ({
     toolbar: {

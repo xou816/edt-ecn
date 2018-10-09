@@ -1,7 +1,11 @@
 import React from "react";
-import {CssBaseline, Fade, LinearProgress, Snackbar, withStyles} from '@material-ui/core';
 import classnames from 'classnames';
 import {connect} from "react-redux";
+import withStyles from "@material-ui/core/styles/withStyles";
+import Snackbar from "@material-ui/core/Snackbar/Snackbar";
+import Fade from "@material-ui/core/Fade/Fade";
+import LinearProgress from "@material-ui/core/LinearProgress/LinearProgress";
+import CssBaseline from "@material-ui/core/CssBaseline/CssBaseline";
 
 const withStyle = withStyles(theme => ({
     root: {

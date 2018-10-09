@@ -9,8 +9,7 @@ import {Provider} from 'react-redux';
 import {App} from './components/App';
 import {renderToString} from 'react-dom/server';
 import {createServerStore} from "./app/store";
-import {SheetsRegistry} from 'react-jss/lib/jss';
-import JssProvider from 'react-jss/lib/JssProvider';
+import {SheetsRegistry, JssProvider} from 'react-jss';
 import {createGenerateClassName, MuiThemeProvider} from '@material-ui/core/styles';
 import {UAParser} from 'ua-parser-js';
 import {MediaProvider} from "./components/Media";
@@ -25,7 +24,7 @@ const pathToBundle = () => new Promise((resolve, reject) => {
         if (err) {
             reject(err);
         } else {
-            resolve(path.join('/public', JSON.parse(data)['main.js']));
+            resolve(JSON.parse(data));
         }
     });
 });
@@ -44,7 +43,8 @@ function renderPage(html, css, js, state) {
 	        <div id="react_root">${html}</div>
 			<script>window.__PRELOADED_STATE__ = ${preloaded};</script>
 	        <style id="jss-server-side">${css}</style>
-	        <script src="${js}"></script>
+	        <script src="${path.join('/public', js['main.js'])}"></script>
+	        <script src="${path.join('/public', js['vendors.js'])}"></script>
 	    </body>
 		</html>`;
 }

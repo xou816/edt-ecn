@@ -1,9 +1,13 @@
 import format from "date-fns/format";
 import React from "react";
 import {subjectId} from "../../app/event";
-import {Card, CardContent, Chip, Typography, withStyles} from "@material-ui/core";
 import Time from "@material-ui/icons/AccessTime";
 import {COLOR_CLASSES} from "../../app/theme";
+import Typography from "@material-ui/core/Typography/Typography";
+import withStyles from "@material-ui/core/styles/withStyles";
+import CardContent from "@material-ui/core/CardContent/CardContent";
+import Card from "@material-ui/core/Card/Card";
+import Chip from "@material-ui/core/Chip/Chip";
 
 function CourseSummary({event, long, classes}) {
     let subject = event.subject === 'unknown' ? event.category.trim() === '' ?
@@ -12,15 +16,15 @@ function CourseSummary({event, long, classes}) {
         '' : '(' + event.full_subject + ')';
     return long ?
         [
-            <Typography key="title" variant="title" component="h2" color="inherit">
+            <Typography key="title" variant="h6" component="h6" color="inherit">
                 {subject.trim()}
             </Typography>,
-            <Typography className={classes.par} key="subheading" variant="subheading" component="h3" color="inherit">
+            <Typography className={classes.par} key="subheading" variant="subtitle1" component="h3" color="inherit">
                 {full_subject.trim()}
             </Typography>
         ] :
         (
-            <Typography className={classes.par} variant="subheading" component="h2" color="inherit">
+            <Typography className={classes.par} variant="subtitle1" component="h2" color="inherit">
                 {subject.trim()}
             </Typography>
         );

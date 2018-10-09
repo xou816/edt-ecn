@@ -1,10 +1,13 @@
 import React from 'react';
 import {addDays, addHours, addMinutes, format, isSameDay, startOfDay, startOfWeek} from "date-fns";
 import frLocale from "date-fns/locale/fr";
-import {Divider, Typography, NoSsr, withStyles} from "@material-ui/core";
 import {TimetableEntry} from "./TimetableEntry";
 import {TimetableEvents} from "./TimetableEvents";
 import {FocusedCourse} from "./FocusedCourse";
+import Typography from "@material-ui/core/Typography/Typography";
+import Divider from "@material-ui/core/Divider/Divider";
+import withStyles from "@material-ui/core/styles/withStyles";
+import NoSsr from "@material-ui/core/NoSsr/NoSsr";
 
 function Separators({days}) {
     return Array.from({length: 12}, (x, i) => (

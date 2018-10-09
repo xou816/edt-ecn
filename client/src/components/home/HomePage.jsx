@@ -1,13 +1,17 @@
 import React from "react";
-import {CalendarSelect} from "../CalendarSelect";
+import {CalendarSelect} from "./CalendarSelect";
 import HomeDrawer from "./HomeDrawer";
 import {Page, PageContent} from "../Page";
-import {IconButton, Paper, Portal, Snackbar, withStyles} from "@material-ui/core";
 import Filter from '@material-ui/icons/FilterList';
 import {Media} from "../Media";
 import {connect} from 'react-redux';
 import HomeNav from "./HomeNav";
 import Logo from "../Logo";
+import Portal from "@material-ui/core/Portal/Portal";
+import Snackbar from "@material-ui/core/Snackbar/Snackbar";
+import withStyles from "@material-ui/core/styles/withStyles";
+import Paper from "@material-ui/core/Paper/Paper";
+import IconButton from "@material-ui/core/IconButton/IconButton";
 
 function FilterMessage({show, doFilter}) {
     return (

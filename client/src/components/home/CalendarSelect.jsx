@@ -1,9 +1,10 @@
 import React from "react";
-import {List, withStyles} from "@material-ui/core";
-import {getCalendarList, toggleCalendar} from "../app/actions";
+import {getCalendarList, toggleCalendar} from "../../app/actions";
 import {connect} from "react-redux";
-import {NestedList} from "./NestedList";
-import {includesCalendar} from "../app/meta";
+import {NestedList} from "../NestedList";
+import {includesCalendar} from "../../app/meta";
+import withStyles from "@material-ui/core/styles/withStyles";
+import List from "@material-ui/core/List/List";
 
 const fake = classes => Array.from({length: 5}, (x, i) => ({
     key: `skeleton_${i}`,
@@ -53,7 +54,7 @@ const mapDispatch = dispatch => ({
     skeleton: {
         margin: 0,
         display: 'block',
-        height: theme.typography.body1.lineHeight,
+        height: '1.5rem',
         background: theme.palette.grey[200],
         position: 'relative',
         overflow: 'hidden',

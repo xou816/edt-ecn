@@ -6,6 +6,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 process.env.NODE_ENV = 'development';
 
 module.exports = {
+    mode: 'development',
     entry: path.resolve(__dirname, '../src/client.jsx'),
     devServer: {
         contentBase: path.resolve(__dirname, '../build'),

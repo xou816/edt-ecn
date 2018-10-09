@@ -2,11 +2,11 @@ const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ManifestPlugin = require('webpack-manifest-plugin');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
-
 module.exports = {
+    mode: 'production',
     entry: path.resolve(__dirname, '../src/client.jsx'),
     output: {
         filename: 'bundle.[chunkhash:8].js',
@@ -37,20 +37,6 @@ module.exports = {
             to: path.resolve(__dirname, '../build/public', '[path]', '..', '[name].[ext]'),
             toType: 'template'
         }]),
-        new UglifyJsPlugin({
-            uglifyOptions: {
-                compress: {
-                    warnings: false,
-                    comparisons: false,
-                },
-                mangle: false,
-                output: {
-                    comments: false,
-                    ascii_only: true,
-                },
-                sourceMap: true,
-            }
-        }),
         new ManifestPlugin({
             fileName: 'asset-manifest.json',
         })
@@ -58,4 +44,16 @@ module.exports = {
     resolve: {
         extensions: ['.js', '.jsx'],
     },
+    optimization: {
+        minimizer: [new TerserPlugin()],
+        splitChunks: {
+          cacheGroups: {
+            commons: {
+              test: /[\\/]node_modules[\\/]/,
+              name: 'vendors',
+              chunks: 'all'
+            }
+          }
+        }
+    }
 };

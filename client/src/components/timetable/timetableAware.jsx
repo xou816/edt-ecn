@@ -7,10 +7,8 @@ import {
     differenceInCalendarISOWeeks,
     format,
     isSameDay,
-    isWeekend,
     parse,
-    setHours,
-    startOfISOWeek
+    setHours
 } from "date-fns";
 import {withRouter} from 'react-router';
 import {Media} from "../Media";

@@ -1,7 +1,5 @@
 import React from "react";
-import {Button, withStyles} from '@material-ui/core';
 import Calendar from 'material-ui-pickers/DatePicker/components/Calendar';
-import {MuiPickersUtilsProvider} from "material-ui-pickers";
 import frLocale from 'date-fns/locale/fr';
 import {format, isSameDay, isWeekend, isMonday, isFriday, isSameISOWeek, setHours} from 'date-fns';
 import DateFnsUtils from "material-ui-pickers/utils/date-fns-utils";
@@ -10,6 +8,9 @@ import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import classnames from 'classnames';
 import {fade} from '@material-ui/core/styles/colorManipulator';
 import {Link} from "react-router-dom";
+import withStyles from "@material-ui/core/styles/withStyles";
+import Button from "@material-ui/core/Button/Button";
+import MuiPickersUtilsProvider from "material-ui-pickers/utils/MuiPickersUtilsProvider";
 
 const TODAY = setHours(Date.now(), 12);
 
