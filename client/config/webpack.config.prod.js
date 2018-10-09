@@ -3,7 +3,7 @@ const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ManifestPlugin = require('webpack-manifest-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
+const WorkboxPlugin = require('workbox-webpack-plugin');
 
 module.exports = {
     mode: 'production',
@@ -11,14 +11,14 @@ module.exports = {
     output: {
         filename: 'bundle.[chunkhash:8].js',
         path: path.resolve(__dirname, '../build/public'),
-        publicPath: '/'
+        publicPath: '/public/'
     },
     module: {
         rules: [
             {
                 test: /\.(js|jsx)$/,
                 include: path.resolve(__dirname, '../src'),
-                exclude: /node_modules/,
+                exclude: /(node_modules|service-worker\.js)/,
                 loaders: 'babel-loader'
             }
         ]
@@ -32,13 +32,11 @@ module.exports = {
         new HtmlWebpackPlugin({
             template: path.resolve(__dirname, '../src/index.html')
         }),
-        new CopyWebpackPlugin([{
-            from: 'src/**/*.svg',
-            to: path.resolve(__dirname, '../build/public', '[path]', '..', '[name].[ext]'),
-            toType: 'template'
-        }]),
         new ManifestPlugin({
             fileName: 'asset-manifest.json',
+        }),
+        new WorkboxPlugin.InjectManifest({
+            swSrc: path.resolve(__dirname, '../src/service-worker.js')
         })
     ],
     resolve: {
@@ -47,13 +45,13 @@ module.exports = {
     optimization: {
         minimizer: [new TerserPlugin()],
         splitChunks: {
-          cacheGroups: {
-            commons: {
-              test: /[\\/]node_modules[\\/]/,
-              name: 'vendors',
-              chunks: 'all'
+            cacheGroups: {
+                commons: {
+                    test: /[\\/]node_modules[\\/]/,
+                    name: 'vendors',
+                    chunks: 'all'
+                }
             }
-          }
         }
     }
 };

@@ -43,8 +43,8 @@ function renderPage(html, css, js, state) {
 	        <div id="react_root">${html}</div>
 			<script>window.__PRELOADED_STATE__ = ${preloaded};</script>
 	        <style id="jss-server-side">${css}</style>
-	        <script src="${path.join('/public', js['main.js'])}"></script>
-	        <script src="${path.join('/public', js['vendors.js'])}"></script>
+	        <script src="${js['main.js']}"></script>
+	        <script src="${js['vendors.js']}"></script>
 	    </body>
 		</html>`;
 }
@@ -68,6 +68,9 @@ app.use('/public', Express.static(path.resolve(__dirname, '../build/public')));
 app.use('/api', proxy(`localhost:${parseInt(process.env.PORT || '3000', 10) + 1}`, {
     proxyReqPathResolver: req => path.join('/api', parse(req.url).path)
 }));
+
+app.get('/service-worker.js', (req, res) => res.sendFile(path.resolve(__dirname, '../build/public/service-worker.js')));
+app.get('/favicon.ico', (req, res) => res.sendStatus(404));
 
 app.use((req, res) => {
     const context = {};

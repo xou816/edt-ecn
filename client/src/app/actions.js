@@ -68,8 +68,11 @@ export function getSubjects() {
 
 export function applySelection() {
     return (dispatch, getState) => {
-        let {meta, calendar} = getState().app;
-        if (meta.length > 0) {
+        let meta = getState().app.meta;
+        if (meta.length === 1 && (meta[0].filter || []).length === 0) {
+            dispatch({type: 'SET_EVENTS', events: []});
+            return Promise.resolve(meta[0].id);
+        } else if (meta.length > 0) {
             dispatch({type: 'LOAD_START'});
             dispatch({type: 'SET_EVENTS', events: []});
             return fetch(`${API}/calendar/custom`, {
@@ -83,8 +86,6 @@ export function applySelection() {
                     return res.result;
                 })
                 .catch(console.error);
-        } else {
-            return Promise.resolve(calendar);
         }
     }
 }
