@@ -35,7 +35,7 @@ module.exports = {
             PORT: '3000'
         }),
         new CopyWebpackPlugin([{
-            from: 'src/**/*.svg',
+            from: 'public/**/*',
             to: path.resolve(__dirname, '../build/public', '[path]', '..', '[name].[ext]'),
             toType: 'template'
         }]),

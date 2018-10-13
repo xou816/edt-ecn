@@ -37,6 +37,9 @@ function renderPage(html, css, js, state) {
 	        <meta charset="UTF-8">
 			<meta name="viewport" content="width=device-width" />
 			<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500">
+			<meta name="theme-color" content="#FF005B">
+            <link rel="manifest" href="/public/manifest.json">
+            <link rel="shortcut icon" href="/public/favicon.ico">
 			<title>Emploi du temps</title>
 	    </head>
 	    <body>
@@ -49,8 +52,9 @@ function renderPage(html, css, js, state) {
 		</html>`;
 }
 
-function storeReady(store) {
+function storeReady(store, timeout) {
     setTimeout(() => store.dispatch({type: '__WAKE_SUBSCRIBER__'}), 10); // needed if no dispatch occurs when rendering
+    setTimeout(() => store.dispatch({type: 'LOAD_END'}), timeout);
     return new Promise((resolve) => {
         store.subscribe(() => {
             const state = store.getState();
@@ -69,8 +73,8 @@ app.use('/api', proxy(`localhost:${parseInt(process.env.PORT || '3000', 10) + 1}
     proxyReqPathResolver: req => path.join('/api', parse(req.url).path)
 }));
 
+// needs to be served at the root
 app.get('/service-worker.js', (req, res) => res.sendFile(path.resolve(__dirname, '../build/public/service-worker.js')));
-app.get('/favicon.ico', (req, res) => res.sendStatus(404));
 
 app.use((req, res) => {
     const context = {};
@@ -94,7 +98,7 @@ app.use((req, res) => {
     cleanCss.minify(sheetsRegistry.toString())
         .then(css => css.styles)
         .then(css => pathToBundle().then(js => ({js, css})))
-        .then(data => storeReady(store).then(state => ({...data, state})))
+        .then(data => storeReady(store, 1000).then(state => ({...data, state})))
         .then(({css, js, state}) => renderPage(html, css, js, state))
         .then(result => res.send(result));
 });

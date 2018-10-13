@@ -1,0 +1,20 @@
+{
+  "short_name": "EDT",
+  "name": "Emploi du temps Centrale",
+  "icons": [
+    {
+      "src": "/public/192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/public/512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#FF005B",
+  "background_color": "#F5F5F5"
+}

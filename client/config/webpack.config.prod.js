@@ -4,6 +4,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ManifestPlugin = require('webpack-manifest-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const WorkboxPlugin = require('workbox-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
     mode: 'production',
@@ -35,6 +36,11 @@ module.exports = {
         new ManifestPlugin({
             fileName: 'asset-manifest.json',
         }),
+        new CopyWebpackPlugin([{
+            from: 'public/**/*',
+            to: path.resolve(__dirname, '../build/public', '[path]', '..', '[name].[ext]'),
+            toType: 'template'
+        }]),
         new WorkboxPlugin.InjectManifest({
             swSrc: path.resolve(__dirname, '../src/service-worker.js')
         })
