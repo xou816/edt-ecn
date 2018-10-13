@@ -10,6 +10,7 @@ import Button from "@material-ui/core/Button/Button";
 import Divider from "@material-ui/core/Divider/Divider";
 import Slide from "@material-ui/core/Slide/Slide";
 import MuiThemeProvider from "@material-ui/core/styles/MuiThemeProvider";
+import {T} from '../Translation';
 
 const darkTheme = createMuiTheme({
     palette: {
@@ -47,8 +48,8 @@ export default class extends React.Component {
                     open={open} onClose={onClose}
                     classes={{docked: classes.docked, paper: classes.drawer}}>
                 {permanent ?
-                    <Typography className={classes.help} variant="subtitle1" align="center" color="textSecondary" children={"Filtrer les matières pour la sélection"}/> :
-                    <Button onClick={onClose} color="secondary" className={classes.closeBtn} children="Terminer"/>}
+                    <Typography className={classes.help} variant="subtitle1" align="center" color="textSecondary" children={<T.FilterForSelection />}/> :
+                    <Button onClick={onClose} color="secondary" className={classes.closeBtn}><T.Done/></Button>}
                 <Divider/>
                 <FilterSubject/>
             </Drawer>

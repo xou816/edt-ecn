@@ -9,6 +9,7 @@ import Slide from "@material-ui/core/Slide/Slide";
 import Checkbox from "@material-ui/core/Checkbox/Checkbox";
 import Typography from "@material-ui/core/Typography/Typography";
 import Button from "@material-ui/core/Button/Button";
+import {T} from '../Translation';
 
 @connect(state => ({count: state.app.meta.length}),
         dispatch => ({apply: () => dispatch(applySelection()), reset: () => dispatch(resetCalendars())}))
@@ -27,7 +28,6 @@ export default class extends React.Component {
 
     render() {
         let {classes, count, reset} = this.props;
-        const s = count > 1 ? 's' : '';
         return (
             <Nav>
                 {count > 0 ?
@@ -37,8 +37,8 @@ export default class extends React.Component {
                               disableRipple/>
                 </Slide> : null}
                 <div onClick={reset}>
-                    <Typography color="inherit" variant="subtitle1">Sélectionner des calendriers</Typography>
-                    {count === 0 ? null : <Typography color="inherit" variant="caption">{count} calendrier{s} sélectionné{s}</Typography>}
+                    <Typography color="inherit" variant="subtitle1"><T.SelectCalendars/></Typography>
+                    {count === 0 ? null : <Typography color="inherit" variant="caption"><T.NSelectedCalendars n={count}/></Typography>}
                 </div>
                 <div className={classes.spread}/>
                 <Button size="small"

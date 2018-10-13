@@ -5,6 +5,7 @@ import {NestedList} from "../NestedList";
 import {includesCalendar} from "../../app/meta";
 import withStyles from "@material-ui/core/styles/withStyles";
 import List from "@material-ui/core/List/List";
+import {Translation} from '../Translation';
 
 const fake = classes => Array.from({length: 5}, (x, i) => ({
     key: `skeleton_${i}`,
@@ -18,23 +19,11 @@ const fake = classes => Array.from({length: 5}, (x, i) => ({
     getPrimary: () => null,
 }));
 
-const PREFIXES = {
-    'OD': 'Option disciplinaire',
-    'EI': 'Cycle ingénieur',
-    'AP': 'Cycle ingénieur apprenti',
-    'BTP': 'BTP',
-    'M1ECN': 'Fac de sciences',
-    'M1': 'Master 1',
-    'M2': 'Master 2',
-    'MECA': 'Filière mécanique',
-    'OP': 'Option profesionnelle',
-    'PROMO': 'Promo EI1',
-    '': 'Autres'
-};
+const PREFIXES = ['OD', 'EI', 'AP', 'BTP', 'M1ECN', 'M1', 'M2', 'MECA', 'OP', 'PROMO', 'OTHER'];
 
 function indexList(list) {
     return list.reduce((acc, calendar) => {
-        let prefix = Object.keys(PREFIXES).find(prefix => calendar.name.startsWith(prefix));
+        let prefix = PREFIXES.find(prefix => calendar.name.startsWith(prefix)) || 'OTHER';
         return {...acc, [prefix]: (acc[prefix] || []).concat([calendar])};
     }, {});
 }
@@ -104,7 +93,7 @@ export class CalendarSelect extends React.Component {
         let {list, toggle, checked, classes} = this.props;
         let mapped = Object.keys(list).length ? Object.keys(list).map(prefix => ({
             key: `prefix_${prefix}`,
-            title: PREFIXES[prefix],
+            title: <Translation for={'Calendar' + prefix} />,
             nested: list[prefix],
             shown: this.state.unfold === prefix,
             checked,

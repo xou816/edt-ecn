@@ -10,6 +10,7 @@ import ListSubheader from "@material-ui/core/ListSubheader/ListSubheader";
 import Checkbox from "@material-ui/core/Checkbox/Checkbox";
 import Typography from "@material-ui/core/Typography/Typography";
 import List from "@material-ui/core/List/List";
+import {T} from '../Translation';
 
 const mapState = state => ({
     subjects: state.app.subjects,
@@ -66,13 +67,12 @@ export class FilterSubject extends React.Component {
 
     render() {
         let {classes, count, toggleSubject, checked, reset, subjects, list} = this.props;
-        let s = count > 1 ? 's' : '';
         return (
             <List component="nav" subheader={(
                 <ListSubheader onClick={reset} className={classes.root} component="div">
                     <Checkbox checked={count > 0} disableRipple/>
                     <Typography component="h2" variant="subtitle1" className={classes.title}>
-                        {count} matière{s} filtrée{s}
+                        <T.NFilteredSubjects n={count}/>
                     </Typography>
                 </ListSubheader>
             )}>

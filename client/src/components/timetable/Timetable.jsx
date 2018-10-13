@@ -1,6 +1,5 @@
 import React from 'react';
 import {addDays, addHours, addMinutes, format, isSameDay, startOfDay, startOfWeek} from "date-fns";
-import frLocale from "date-fns/locale/fr";
 import {TimetableEntry} from "./TimetableEntry";
 import {TimetableEvents} from "./TimetableEvents";
 import {FocusedCourse} from "./FocusedCourse";
@@ -8,6 +7,7 @@ import Typography from "@material-ui/core/Typography/Typography";
 import Divider from "@material-ui/core/Divider/Divider";
 import withStyles from "@material-ui/core/styles/withStyles";
 import NoSsr from "@material-ui/core/NoSsr/NoSsr";
+import {TranslateDate} from "../Translation";
 
 function Separators({days}) {
     return Array.from({length: 12}, (x, i) => (
@@ -29,12 +29,14 @@ function Days({length, date}) {
     return Array.from({length}, (x, i) => {
         let curDate = addDays(date, i);
         let today = isSameDay(curDate, Date.now());
-        let formatted = format(curDate, 'eee d MMM', {locale: frLocale});
         return (
-            <Typography align="center" color={today ? 'primary' : 'textSecondary'} key={formatted}
-                        style={{gridColumn: i + 2, gridRow: '1 / span 1'}}>
-                {formatted.toUpperCase()}
-            </Typography>
+            <TranslateDate>{locale => (
+                <Typography align="center"
+                            color={today ? 'primary' : 'textSecondary'} key={i.toString()}
+                            style={{gridColumn: i + 2, gridRow: '1 / span 1'}}>
+                    {format(curDate, 'eee d MMM', {locale}).toUpperCase()}
+                </Typography>
+            )}</TranslateDate>
         )
     });
 }

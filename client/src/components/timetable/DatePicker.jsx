@@ -1,6 +1,5 @@
 import React from "react";
 import Calendar from 'material-ui-pickers/DatePicker/components/Calendar';
-import frLocale from 'date-fns/locale/fr';
 import {format, isSameDay, isWeekend, isMonday, isFriday, isSameISOWeek, setHours} from 'date-fns';
 import DateFnsUtils from "material-ui-pickers/utils/date-fns-utils";
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
@@ -11,6 +10,7 @@ import {Link} from "react-router-dom";
 import withStyles from "@material-ui/core/styles/withStyles";
 import Button from "@material-ui/core/Button/Button";
 import MuiPickersUtilsProvider from "material-ui-pickers/utils/MuiPickersUtilsProvider";
+import {T, TranslateDate} from "../Translation";
 
 const TODAY = setHours(Date.now(), 12);
 
@@ -102,24 +102,26 @@ export default class extends React.Component {
         let {week, date, makeLink, onChange, classes} = this.props;
         return (
             <div className={classes.picker}>
-                <MuiPickersUtilsProvider utils={DateFnsUtils} locale={frLocale}>
-                    <Calendar date={date}
-                              rightArrowIcon={<KeyboardArrowRight/>}
-                              leftArrowIcon={<KeyboardArrowLeft/>}
-                              onChange={onChange || (() => null)}
-                              renderDay={(date, selectedDate, dayInCurrentMonth) =>
-                                  <Day date={date}
-                                       week={week}
-                                       link={makeLink(date)}
-                                       selectedDate={selectedDate}
-                                       dayInCurrentMonth={dayInCurrentMonth}/>}/>
-                </MuiPickersUtilsProvider>
+                <TranslateDate>{locale => (
+                    <MuiPickersUtilsProvider utils={DateFnsUtils} locale={locale}>
+                        <Calendar date={date}
+                                  rightArrowIcon={<KeyboardArrowRight/>}
+                                  leftArrowIcon={<KeyboardArrowLeft/>}
+                                  onChange={onChange || (() => null)}
+                                  renderDay={(date, selectedDate, dayInCurrentMonth) =>
+                                      <Day date={date}
+                                           week={week}
+                                           link={makeLink(date)}
+                                           selectedDate={selectedDate}
+                                           dayInCurrentMonth={dayInCurrentMonth}/>}/>
+                    </MuiPickersUtilsProvider>
+                )}</TranslateDate>
                 <Button variant="outlined"
                         // disabled={week && isSameISOWeek(date, TODAY) || isSameDay(date, TODAY)}
                         component={Link}
                         to={makeLink(Date.now())}
                         onClick={onChange}>
-                    {week ? "Cette semaine" : "Aujourd'hui"}
+                    {week ? <T.ThisWeek/> : <T.Today/>}
                 </Button>
             </div>
         );

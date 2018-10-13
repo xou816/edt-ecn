@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {hydrate} from 'react-dom';
 import {Provider} from 'react-redux';
-
+import {CookiesProvider} from 'react-cookie';
 import {App} from "./components/App";
 import {MediaProvider} from "./components/Media";
 import {createClientStore} from "./app/store";
@@ -15,7 +15,9 @@ const clientApp = (
         <Provider store={createClientStore()}>
             <MuiThemeProvider theme={theme}>
                 <BrowserRouter>
-                    <App/>
+                    <CookiesProvider>
+                        <App/>
+                    </CookiesProvider>
                 </BrowserRouter>
             </MuiThemeProvider>
         </Provider>

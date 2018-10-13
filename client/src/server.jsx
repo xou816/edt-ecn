@@ -16,6 +16,8 @@ import {MediaProvider} from "./components/Media";
 import {StaticRouter} from "react-router";
 import {theme} from "./app/theme";
 import CleanCss from 'clean-css';
+import {CookiesProvider} from 'react-cookie';
+import Cookies from "universal-cookie/cjs/Cookies";
 
 const cleanCss = new CleanCss({returnPromise: true});
 
@@ -88,7 +90,9 @@ app.use((req, res) => {
                 <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
                     <MuiThemeProvider theme={theme} sheetsManager={new Map()}>
                         <StaticRouter location={req.url} context={context}>
-                            <App/>
+                            <CookiesProvider cookies={new Cookies(req.headers.cookie)}>
+                                <App/>
+                            </CookiesProvider>
                         </StaticRouter>
                     </MuiThemeProvider>
                 </JssProvider>

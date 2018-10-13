@@ -14,6 +14,7 @@ import Typography from "@material-ui/core/Typography/Typography";
 import TextField from "@material-ui/core/TextField/TextField";
 import Paper from "@material-ui/core/Paper/Paper";
 import Button from "@material-ui/core/Button/Button";
+import {T} from "../Translation";
 
 @withStyles(theme => ({
     paper: {
@@ -53,7 +54,7 @@ export default class extends React.Component {
         const endAdornment = (
             <InputAdornment position="end">
                 <IconButton onClick={() => this.copy()}>
-                    <Tooltip title="Cliquer pour copier"><Copy/></Tooltip>
+                    <Tooltip title={<T.ClickToCopy/>}><Copy/></Tooltip>
                 </IconButton>
             </InputAdornment>
         );
@@ -63,21 +64,20 @@ export default class extends React.Component {
                     <IconButton component={Link} to={'/' + this.calendar} color="inherit">
                         <Back/>
                     </IconButton>
-                    <Typography color="inherit" variant="subtitle1">Exporter le calendrier</Typography>
+                    <Typography color="inherit" variant="subtitle1"><T.ExportCalendar/></Typography>
                 </Nav>
                 <PageContent className={classes.main} orientation="column">
                     <TextField variant="filled"
-                               label="Calendrier ICS"
+                               label={<T.IcsCalendar/>}
                                fullWidth
                                value={this.link}
                                InputProps={{endAdornment}}/>
                     <Paper elevation={1} className={classes.paper}>
                         <Typography variant="title" gutterBottom>
-                            Instructions (Google Agenda)
+                            <T.Instructions/>
                         </Typography>
                         <Typography variant="subtitle1" gutterBottom>
-                            Cliquez sur le "+" au dessus de vos agendas, et choisissez "À partir de
-                            l'URL". Copiez alors l'URL ci-dessus.
+                            <T.DetailedInstructions/>
                         </Typography>
                         <Button size="small" href="https://calendar.google.com/calendar/r">Google Agenda <OpenInNew fontSize="small"/></Button>
                     </Paper>

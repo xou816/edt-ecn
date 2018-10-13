@@ -6,6 +6,7 @@ import ListItemText from "@material-ui/core/ListItemText/ListItemText";
 import Collapse from "@material-ui/core/Collapse/Collapse";
 import List from "@material-ui/core/List/List";
 import Checkbox from "@material-ui/core/Checkbox/Checkbox";
+import {T} from "./Translation";
 
 export function NestedList({unfold, title, shown, nested, getId, toggle, checkbox, checked, getPrimary, getSecondary}) {
     const count = nested.reduce((count, el) => count + (checked(getId(el)) ? 1 : 0), 0);
@@ -15,7 +16,7 @@ export function NestedList({unfold, title, shown, nested, getId, toggle, checkbo
     return (
         <React.Fragment>
             <ListItem onClick={unfold} button>
-                <ListItemText primary={title} secondary={count > 0 ? `Sélection : ${count}` : null}/>
+                <ListItemText primary={title} secondary={count > 0 ? <T.Selection n={count}/> : null}/>
                 {shown ? <ExpandLess color="secondary"/> : <ExpandMore color="secondary"/>}
             </ListItem>
             <Collapse in={shown}>

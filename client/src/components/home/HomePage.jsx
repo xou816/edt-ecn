@@ -12,12 +12,14 @@ import Snackbar from "@material-ui/core/Snackbar/Snackbar";
 import withStyles from "@material-ui/core/styles/withStyles";
 import Paper from "@material-ui/core/Paper/Paper";
 import IconButton from "@material-ui/core/IconButton/IconButton";
+import {T} from '../Translation';
+import Chip from "@material-ui/core/Chip/Chip";
 
 function FilterMessage({show, doFilter}) {
     return (
         <Portal>
             <Snackbar open={show}
-                      message={"Filtrer les matières pour la sélection"}
+                      message={<T.FilterForSelection/>}
                       action={<IconButton onClick={doFilter} color={"secondary"}><Filter/></IconButton>}/>
         </Portal>
     );
@@ -32,7 +34,8 @@ const ConditionalFilterMessage = connect(state => ({show: state.app.meta.length 
     rightContainer: {
         padding: 2 * theme.spacing.unit,
         flex: 3,
-        overflow: 'auto'
+        overflow: 'auto',
+        textAlign: 'center'
     },
     spread: {
         flexGrow: 1
@@ -48,12 +51,15 @@ const ConditionalFilterMessage = connect(state => ({show: state.app.meta.length 
         }
     },
     ecn: {
-        margin: `${4 * theme.spacing.unit}px auto`,
+        margin: `${2 * theme.spacing.unit}px auto`,
         maxWidth: '20%',
         display: 'block',
         [theme.breakpoints.down(797)]: {
             maxWidth: '60%'
         }
+    },
+    switchLanguage: {
+        margin: `${2 * theme.spacing.unit}px auto`
     }
 }))
 export class HomePage extends React.Component {
@@ -70,7 +76,7 @@ export class HomePage extends React.Component {
     }
 
     render() {
-        let {classes} = this.props;
+        let {classes, switchLanguage} = this.props;
         return (
             <Page>
                 <HomeNav/>
@@ -79,6 +85,7 @@ export class HomePage extends React.Component {
                         <PageContent className={classes.main}>
                             <div className={classes.rightContainer}>
                                 <Logo className={classes.ecn}/>
+                                <Chip className={classes.switchLanguage} onClick={switchLanguage} label={<T.SwitchLanguage/>}/>
                                 <Paper className={classes.paper}>
                                     <CalendarSelect/>
                                 </Paper>

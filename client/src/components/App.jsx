@@ -3,8 +3,26 @@ import {Redirect, Route, Switch} from "react-router";
 import {TimetablePage} from "./timetable/TimetablePage";
 import {HomePage} from "./home/HomePage";
 import IcsPage from "./ics/IcsPage";
+import withCookies from "react-cookie/cjs/withCookies";
+import {Translate} from "./Translation";
 
+@withCookies
 export class App extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            language: props.cookies.get('language') || 'fr'
+        };
+    }
+
+    switchLanguage() {
+        return () => {
+            const language = this.state.language === 'fr' ? 'en' : 'fr';
+            this.setState({language});
+            this.props.cookies.set('language', language, {path: '/'});
+        }
+    }
 
     componentDidMount() {
         const jssStyles = document.getElementById('jss-server-side');
@@ -15,15 +33,17 @@ export class App extends React.Component {
 
     render() {
         return (
-            <Switch>
-                <Route exact path={'/:calendar/ics'}
-                       render={(props) => <IcsPage {...props}/>}/>
-                <Route exact path={'/'}
-                       render={(props) => <HomePage {...props}/>}/>
-                <Route exact path={'/:calendar/:date'}
-                       render={(props) => <TimetablePage {...props}/>}/>
-                <Redirect exact from={'/:calendar'} to={'/:calendar/today'}/>
-            </Switch>
+            <Translate value={this.state.language}>
+                <Switch>
+                    <Route exact path={'/:calendar/ics'}
+                           render={(props) => <IcsPage {...props}/>}/>
+                    <Route exact path={'/'}
+                           render={(props) => <HomePage switchLanguage={this.switchLanguage()} {...props}/>}/>
+                    <Route exact path={'/:calendar/:date'}
+                           render={(props) => <TimetablePage {...props}/>}/>
+                    <Redirect exact from={'/:calendar'} to={'/:calendar/today'}/>
+                </Switch>
+            </Translate>
         );
     }
 }

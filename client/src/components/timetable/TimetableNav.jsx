@@ -3,7 +3,6 @@ import MenuIcon from '@material-ui/icons/Menu';
 import LinkIcon from '@material-ui/icons/Link';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
-import frLocale from 'date-fns/locale/fr';
 import {addWeeks, format, subWeeks} from 'date-fns';
 import {Nav} from "../Nav";
 import {Link} from "react-router-dom";
@@ -13,12 +12,15 @@ import withStyles from "@material-ui/core/styles/withStyles";
 import IconButton from "@material-ui/core/IconButton/IconButton";
 import Menu from "@material-ui/core/Menu/Menu";
 import Button from "@material-ui/core/Button/Button";
+import {TranslateDate, T} from "../Translation";
 
 function DateDisplay({week, date, onClick}) {
-    let formatted = week ?
-        'Semaine ' + format(date, 'I', {locale: frLocale}) :
-        format(date, 'd MMMM', {locale: frLocale});
-    return <Button onClick={onClick} color="inherit" variant="flat">{formatted}</Button>;
+    return <TranslateDate>{locale => {
+        let formatted = week ?
+            <T.WeekN n={format(date, 'I', {locale})} /> :
+            format(date, 'd MMMM', {locale});
+        return <Button onClick={onClick} color="inherit" variant="text">{formatted}</Button>;
+    }}</TranslateDate>;
 }
 
 @withStyles(theme => ({
