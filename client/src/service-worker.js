@@ -3,7 +3,7 @@ importScripts('https://storage.googleapis.com/workbox-cdn/releases/3.6.1/workbox
 if (workbox) {
 
     workbox.precaching.precacheAndRoute((self.__precacheManifest || []).concat([
-        {url: '/public/manifest.json', revision: '4caa6d39ef80670e7fd9b75d8b0eb662'}
+        {url: '/public/manifest.json', revision: '14598fc245de825401ac4c49ec2afe16'}
     ]));
 
     workbox.routing.registerRoute(

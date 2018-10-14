@@ -39,7 +39,7 @@ function renderPage(html, css, js, state) {
 	        <meta charset="UTF-8">
 			<meta name="viewport" content="width=device-width" />
 			<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500">
-			<meta name="theme-color" content="#FF005B">
+			<meta name="theme-color" content="#3F51B5">
             <link rel="manifest" href="/public/manifest.json">
             <link rel="shortcut icon" href="/public/favicon.ico">
 			<title>Emploi du temps</title>

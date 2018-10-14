@@ -8,7 +8,7 @@ import {createClientStore} from "./app/store";
 import {BrowserRouter} from "react-router-dom";
 import {theme} from './app/theme';
 import MuiThemeProvider from "@material-ui/core/styles/MuiThemeProvider";
-import * as serviceWorker from './app/serviceWorker';
+import {register} from './serviceWorker';
 
 const clientApp = (
     <MediaProvider value={null}>
@@ -24,5 +24,5 @@ const clientApp = (
     </MediaProvider>
 );
 
-serviceWorker.register();
+register();
 hydrate(clientApp, document.getElementById('react_root'));
