@@ -10,10 +10,11 @@ import Logo from "../Logo";
 import Portal from "@material-ui/core/Portal/Portal";
 import Snackbar from "@material-ui/core/Snackbar/Snackbar";
 import withStyles from "@material-ui/core/styles/withStyles";
-import Paper from "@material-ui/core/Paper/Paper";
 import IconButton from "@material-ui/core/IconButton/IconButton";
 import {T} from '../Translation';
 import Chip from "@material-ui/core/Chip/Chip";
+import RecentCalendars from "./RecentCalendars";
+import classnames from 'classnames';
 
 function FilterMessage({show, doFilter}) {
     return (
@@ -44,11 +45,15 @@ const ConditionalFilterMessage = connect(state => ({show: state.app.meta.length 
         margin: `0 0 ${2 * theme.spacing.unit}px 0`
     },
     paper: {
-        margin: `0 auto 5em auto`,
+        textAlign: 'left',
+        margin: `${2 * theme.spacing.unit}px auto`,
         maxWidth: '60%',
         [theme.breakpoints.down(1024)]: {
             maxWidth: '100%'
         }
+    },
+    paperLast: {
+        margin: `${2 * theme.spacing.unit}px auto 5em auto`,
     },
     ecn: {
         margin: `${2 * theme.spacing.unit}px auto`,
@@ -86,9 +91,8 @@ export class HomePage extends React.Component {
                             <div className={classes.rightContainer}>
                                 <Logo className={classes.ecn}/>
                                 <Chip className={classes.switchLanguage} onClick={switchLanguage} label={<T.SwitchLanguage/>}/>
-                                <Paper className={classes.paper}>
-                                    <CalendarSelect/>
-                                </Paper>
+                                <RecentCalendars className={classes.paper}/>
+                                <CalendarSelect className={classnames(classes.paper, classes.paperLast)}/>
                             </div>
                             <HomeDrawer open={this.state.open}
                                         onClose={this.toggleSidebar(false)}

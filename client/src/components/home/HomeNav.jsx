@@ -23,7 +23,7 @@ export default class extends React.Component {
 
     apply() {
         let {history, apply} = this.props;
-        apply().then(calendar => history.push('/'+calendar));
+        apply().then(calendar => calendar != null && history.push('/'+calendar));
     }
 
     render() {

@@ -41,3 +41,11 @@ export function includesSubject(metas) {
 export function countSubjects(metas) {
     return metas.reduce((sum, meta) => sum + (meta.filter || []).length, 0);
 }
+
+export function safeMeta(metas) {
+    return metas.map(meta => ({
+        ...meta,
+        filter: meta.valid ? meta.filter: [],
+        valid: true
+    }));
+}

@@ -6,6 +6,7 @@ import {includesCalendar} from "../../app/meta";
 import withStyles from "@material-ui/core/styles/withStyles";
 import List from "@material-ui/core/List/List";
 import {Translation} from '../Translation';
+import Paper from "@material-ui/core/Paper/Paper";
 
 const fake = classes => Array.from({length: 5}, (x, i) => ({
     key: `skeleton_${i}`,
@@ -90,10 +91,10 @@ export class CalendarSelect extends React.Component {
     }
 
     render() {
-        let {list, toggle, checked, classes} = this.props;
+        let {list, toggle, checked, classes, className} = this.props;
         let mapped = Object.keys(list).length ? Object.keys(list).map(prefix => ({
             key: `prefix_${prefix}`,
-            title: <Translation for={'Calendar' + prefix} />,
+            title: <Translation for={'Calendar' + prefix}/>,
             nested: list[prefix],
             shown: this.state.unfold === prefix,
             checked,
@@ -103,9 +104,11 @@ export class CalendarSelect extends React.Component {
             getPrimary: calendar => calendar.display
         })) : fake(classes);
         return (
-            <List component="nav">
-                {mapped.map(({key, ...props}) => <NestedList key={key} {...props} />)}
-            </List>
+            <Paper className={className}>
+                <List component="nav">
+                    {mapped.map(({key, ...props}) => <NestedList key={key} {...props} />)}
+                </List>
+            </Paper>
         );
     }
 }

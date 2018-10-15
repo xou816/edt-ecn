@@ -1,5 +1,6 @@
 import {parseIso} from './event';
 import 'cross-fetch/polyfill';
+import {safeMeta} from "./meta";
 
 const API = `${process.env.PUBLIC}/api`;
 
@@ -15,6 +16,20 @@ export function getCalendarList() {
     }
 }
 
+export function getRecent() {
+    return dispatch => {
+        caches.open('calendars')
+            .then(cache => cache.keys()
+                .then(keys => Promise.all(keys.map(req => cache.match(req)))))
+            .then(keys => Promise.all(keys.map(res => res.clone().json())))
+            .then(history => history.map(calendar => ({
+                    id: calendar.id,
+                    meta: calendar.meta
+            })))
+            .then(history => dispatch({type: 'SET_HISTORY', history: history.reverse()}));
+    }
+}
+
 export function getCalendar(calendar) {
     return dispatch => {
         if (calendar != null) {
@@ -22,14 +37,14 @@ export function getCalendar(calendar) {
             return fetch(`${API}/calendar/custom/${calendar}`)
                 .then(res => res.status >= 400 ? Promise.reject('error') : res.json())
                 .then(calendar => {
-                    dispatch({type: 'SET_META', meta: calendar.version === 'version_one' ? calendar.meta : []});
+                    dispatch({type: 'SET_META', meta: calendar.version === 'version_one' ? safeMeta(calendar.meta) : []});
                     return calendar.events;
                 })
                 .then(events => events.map(e => ({...e, start: parseIso(e.start), end: parseIso(e.end)})))
                 .then(events => dispatch({type: 'SET_EVENTS', events}))
                 .catch(err => {
                     dispatch({type: 'SET_META', meta: []});
-                    dispatch(showError('Calendrier inexistant!'));
+                    dispatch(showError('CouldNotLoadCalendar'));
                 })
                 .then(_ => dispatch({type: 'LOAD_END'}));
         } else {

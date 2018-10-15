@@ -27,7 +27,9 @@ export default {
         DetailedInstructions: 'Cliquez sur le "+" au dessus de vos agendas, et choisissez "À partir de l\'URL". Copiez alors l\'URL ci-dessus.',
         ExportCalendar: 'Exporter le calendrier',
         ClickToCopy: 'Cliquer pour copier',
-        SwitchLanguage: 'Switch to English'
+        SwitchLanguage: 'Switch to English',
+        RecentlyViewed: 'Consultés récemment (accessibles hors-ligne)',
+        CouldNotLoadCalendar: "Impossible d'afficher ce calendrier"
     },
     en: {
         CalendarOD: 'Specialisation',
@@ -55,6 +57,8 @@ export default {
         DetailedInstructions: 'Click on the "+" symbol above your agendas, choose "From URL", and paste the above link.',
         ExportCalendar: 'Export this calendar',
         ClickToCopy: 'Click to copy',
-        SwitchLanguage: 'Passer en français'
+        SwitchLanguage: 'Passer en français',
+        RecentlyViewed: 'Recently viewed (available for offline access)',
+        CouldNotLoadCalendar: 'Could not load calendar'
     }
 };

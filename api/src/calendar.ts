@@ -30,7 +30,7 @@ export type CalendarEvent = {
     pretty: string
 };
 
-export type CalendarType = 'module' | 'group' | 'room';
+export type CalendarType = 'module' | 'group' | 'room' | 'all';
 
 enum Version {
     LATEST = 'version_one',
@@ -47,6 +47,7 @@ export type Meta = {
     valid: boolean
 };
 export type Calendar = {
+    id?: string,
     events: Events,
     meta: Meta[],
     version: Version
@@ -90,13 +91,14 @@ export function listCalendarsFromSource(source: string|null, type: CalendarType 
                     type: type
                 };
             })
-            .filter(node => node.type === type && node.name != null)
+            .filter(node => type === 'all' || (node.type === type && node.name != null))
             .map(node => {
                 let [name, display] = node.name!.text().split(',');
                 return {
                     id: node.id,
                     name: name.trim(),
-                    display: (display || name).trim()
+                    display: (display || name).trim(),
+                    type: type
                 };
             }));
 }
@@ -287,20 +289,21 @@ function getSingleCustomCalendar(id: string): Promise<Calendar> {
         });
 }
 
-export function getCustomCalendar(id: string): Promise<Calendar> {
-    return id.split('+').reduce((p: Promise<Calendar & { blacklist: string[] }>, id: string) => {
+export function getCustomCalendar(fullId: string): Promise<Calendar> {
+    return fullId.split('+').reduce((p: Promise<Calendar & { blacklist: string[] }>, id: string) => {
         return p.then(calendar => getSingleCustomCalendar(id)
             .then(newCalendar => ({
                 ...newCalendar,
                 events: newCalendar.events.filter(e => calendar.blacklist.indexOf(e.id) === -1)
             }))
             .then(newCalendar => ({
+                id: fullId,
                 meta: calendar.meta.concat(newCalendar.meta),
                 version: newCalendar.version,
                 events: calendar.events.concat(newCalendar.events),
                 blacklist: calendar.blacklist.concat(newCalendar.events.map(e => e.id))
             })));
-    }, Promise.resolve({meta: [], events: [], blacklist: [], version: Version.UNKNOWN}))
+    }, Promise.resolve({id: '', meta: [], events: [], blacklist: [], version: Version.UNKNOWN}))
         .then(res => {
             delete res.blacklist;
             return res;

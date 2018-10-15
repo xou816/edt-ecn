@@ -6,6 +6,7 @@ import Snackbar from "@material-ui/core/Snackbar/Snackbar";
 import Fade from "@material-ui/core/Fade/Fade";
 import LinearProgress from "@material-ui/core/LinearProgress/LinearProgress";
 import CssBaseline from "@material-ui/core/CssBaseline/CssBaseline";
+import {Translation} from "./Translation";
 
 const withStyle = withStyles(theme => ({
     root: {
@@ -28,7 +29,7 @@ const withStyle = withStyles(theme => ({
 }));
 
 const ErrorMessage = connect(state => ({error: state.app.error}))(({error}) => (
-    <Snackbar open={error !== null} message={error} autoHideDuration={3000}/>)
+    <Snackbar open={error !== null} message={<Translation for={error}/>} autoHideDuration={3000}/>)
 );
 
 const Loader = connect(state => ({loading: state.app.loading}))(({loading}) => (

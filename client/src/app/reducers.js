@@ -7,7 +7,8 @@ export const initialState = {
     subjects: {},
     focus: null,
     meta: [],
-    error: null
+    error: null,
+    history: []
 };
 
 export function appReducer(state, action) {
@@ -40,6 +41,8 @@ export function appReducer(state, action) {
             return {...state, focus: null};
         case 'ERROR':
             return {...state, error: action.message};
+        case 'SET_HISTORY':
+            return {...state, history: action.history};
         default:
             return {...initialState, ...state};
     }
