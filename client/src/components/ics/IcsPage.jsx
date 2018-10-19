@@ -73,7 +73,7 @@ export default class extends React.Component {
                                value={this.link}
                                InputProps={{endAdornment}}/>
                     <Paper elevation={1} className={classes.paper}>
-                        <Typography variant="title" gutterBottom>
+                        <Typography variant="h6" gutterBottom>
                             <T.Instructions/>
                         </Typography>
                         <Typography variant="subtitle1" gutterBottom>

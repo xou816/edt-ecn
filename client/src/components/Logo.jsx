@@ -1,8 +1,8 @@
 import React from "react";
-import {theme} from "../app/theme";
+import withTheme from "@material-ui/core/styles/withTheme";
 
-export default props => (
-  <svg viewBox="0 0 127.562 64.281" {...props}>
+const Logo = ({className, theme}) => (
+  <svg viewBox="0 0 127.562 64.281" className={className}>
     <defs>
       <clipPath id="a" clipPathUnits="userSpaceOnUse">
         <path d="M0 566.93h566.93V0H0z" />
@@ -32,3 +32,6 @@ export default props => (
   </svg>
 );
 
+const LogoWithTheme = withTheme()(Logo);
+
+export default LogoWithTheme;

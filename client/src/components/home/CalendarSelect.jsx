@@ -20,13 +20,18 @@ const fake = classes => Array.from({length: 5}, (x, i) => ({
     getPrimary: () => null,
 }));
 
-const PREFIXES = ['OD', 'EI', 'AP', 'BTP', 'M1ECN', 'M1', 'M2', 'MECA', 'OP', 'PROMO', 'OTHER'];
+const PREFIXES = ['EI', 'OD', 'OP', 'M1ECN', 'AP', 'MECA', 'BTP', 'M1', 'M2', 'OTHER'];
 
 function indexList(list) {
-    return list.reduce((acc, calendar) => {
-        let prefix = PREFIXES.find(prefix => calendar.name.startsWith(prefix)) || 'OTHER';
-        return {...acc, [prefix]: (acc[prefix] || []).concat([calendar])};
-    }, {});
+    return list
+        .map(calendar => ({...calendar,
+            prefix: PREFIXES.find(prefix => calendar.name.startsWith(prefix)) || 'OTHER'}))
+        .sort((a, b) => {
+            return PREFIXES.indexOf(a.prefix) > PREFIXES.indexOf(b.prefix) ? 1 : -1;
+        })
+        .reduce((acc, calendar) => {
+            return {...acc, [calendar.prefix]: (acc[calendar.prefix] || []).concat([calendar])};
+        }, {});
 }
 
 const mapState = state => ({
@@ -77,7 +82,7 @@ export class CalendarSelect extends React.Component {
         };
     }
 
-    componentWillMount() {
+    componentDidMount() {
         let {getList, list} = this.props;
         if (Object.keys(list).length === 0) {
             getList();

@@ -37,7 +37,7 @@ module.exports = {
             fileName: 'asset-manifest.json',
         }),
         new CopyWebpackPlugin([{
-            from: 'public/**/*',
+            from: path.resolve(__dirname, '../public/**/*'),
             to: path.resolve(__dirname, '../build/public', '[path]', '..', '[name].[ext]'),
             toType: 'template'
         }]),

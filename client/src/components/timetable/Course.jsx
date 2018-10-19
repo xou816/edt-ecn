@@ -8,6 +8,7 @@ import withStyles from "@material-ui/core/styles/withStyles";
 import CardContent from "@material-ui/core/CardContent/CardContent";
 import Card from "@material-ui/core/Card/Card";
 import Chip from "@material-ui/core/Chip/Chip";
+import {T} from "../Translation";
 
 function CourseSummary({event, long, classes}) {
     let subject = event.subject === 'unknown' ? event.category.trim() === '' ?
@@ -46,9 +47,11 @@ function CourseDetails({event, long, classes}) {
         <React.Fragment>
             {!long ? null : (
                 <React.Fragment>
-                    <Typography component="p" color="inherit">{event.description}</Typography>
                     <Typography component="p" color="inherit">
-                        Intervenant : {event.organizer || 'non spécifié'}
+                        <T.EventDescription/>{event.description}
+                    </Typography>
+                    <Typography component="p" color="inherit">
+                        <T.EventOrganizer/>{event.organizer || <T.EventUnknownOrganizer/>}
                     </Typography>
                     <Time className={classes.icon}/>
                     <Typography className={classes.icon} component="span" color="inherit">

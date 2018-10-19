@@ -12,8 +12,7 @@ import Drawer from "@material-ui/core/Drawer/Drawer";
 import NoSsr from "@material-ui/core/NoSsr/NoSsr";
 
 @timetableAware
-@connect(state => ({count: state.app.events.length}),
-    dispatch => ({getCalendar: calendar => dispatch(getCalendar(calendar))}))
+@connect(null, dispatch => ({getCalendar: calendar => dispatch(getCalendar(calendar))}))
 @withStyles(theme => ({
     drawer: {
         position: 'relative',
@@ -37,11 +36,9 @@ export class TimetablePage extends React.Component {
         return () => this.setState({open});
     }
 
-    componentWillMount() {
-        let {getCalendar, count, calendar} = this.props;
-        if (count === 0) {
-            getCalendar(calendar);
-        }
+    componentDidMount() {
+        let {getCalendar, calendar} = this.props;
+        getCalendar(calendar);
     }
 
     render() {

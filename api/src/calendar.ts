@@ -69,16 +69,15 @@ const calendarUrl = (id: string) => {
         `http://website.ec-nantes.fr/sites/edtemps/${_id}.xml`;
 };
 
-export function listOnlineCalendars(): Promise<CalendarId[]> {
-    return listCalendarsFromSource(null)
-        .then(calendars => listCalendarsFromSource('ufr')
+export function listOnlineCalendars(type: CalendarType): Promise<CalendarId[]> {
+    return listCalendarsFromSource(null, type)
+        .then(calendars => listCalendarsFromSource('ufr', type)
             .then(ufrCalendars => ufrCalendars
                 .filter((calendar: CalendarId) => calendar.name.startsWith('M1ECN'))
-                .map((calendar: CalendarId) => ({...calendar, id: 'ufr:' + calendar.id}))
                 .concat(calendars)));
 }
 
-export function listCalendarsFromSource(source: string|null, type: CalendarType = 'group'): Promise<CalendarId[]> {
+export function listCalendarsFromSource(source: string|null, type: CalendarType): Promise<CalendarId[]> {
     return fetch(calendarList(source))
         .then(res => res.text())
         .then(body => parseXmlString(body))
@@ -86,7 +85,7 @@ export function listCalendarsFromSource(source: string|null, type: CalendarType 
             .map(node => {
                 let type = node.attr('type').value() as CalendarType;
                 return {
-                    id: type[0] + node.attr('id').value(),
+                    id: (source ? source + ':' : '') + type[0] + node.attr('id').value(),
                     name: node.get('name'),
                     type: type
                 };
@@ -98,13 +97,13 @@ export function listCalendarsFromSource(source: string|null, type: CalendarType 
                     id: node.id,
                     name: name.trim(),
                     display: (display || name).trim(),
-                    type: type
+                    type: node.type
                 };
             }));
 }
 
 export function getIdFromName(name: string): Promise<string | null> {
-    return listOnlineCalendars()
+    return listOnlineCalendars('group')
         .then(calendars => calendars
             .find(cal => cal.name.toLowerCase() === name.toLowerCase()))
         .then(cal => cal == null ? null : cal.id);

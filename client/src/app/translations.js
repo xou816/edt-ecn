@@ -5,7 +5,7 @@ export default {
         CalendarOD: 'Option disciplinaire',
         CalendarEI: 'Cycle ingénieur',
         CalendarAP: 'Cycle ingénieur apprenti',
-        CalendarBTP: 'BTP',
+        CalendarBTP: 'Filière BTP',
         CalendarM1ECN: 'Université de Nantes',
         CalendarM1: 'Master 1',
         CalendarM2: 'Master 2',
@@ -29,7 +29,10 @@ export default {
         ClickToCopy: 'Cliquer pour copier',
         SwitchLanguage: 'Switch to English',
         RecentlyViewed: 'Consultés récemment (accessibles hors-ligne)',
-        CouldNotLoadCalendar: "Impossible d'afficher ce calendrier"
+        CouldNotLoadCalendar: "Impossible d'afficher ce calendrier",
+        EventDescription: 'Description : ',
+        EventOrganizer: 'Intervenant : ',
+        EventUnknownOrganizer: 'non spécifié'
     },
     en: {
         CalendarOD: 'Specialisation',
@@ -59,6 +62,9 @@ export default {
         ClickToCopy: 'Click to copy',
         SwitchLanguage: 'Passer en français',
         RecentlyViewed: 'Recently viewed (available for offline access)',
-        CouldNotLoadCalendar: 'Could not load calendar'
+        CouldNotLoadCalendar: 'Could not load calendar',
+        EventDescription: 'Details: ',
+        EventOrganizer: 'Organizer: ',
+        EventUnknownOrganizer: 'unknown'
     }
 };

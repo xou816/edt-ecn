@@ -1,5 +1,4 @@
 import React from 'react';
-import Zoom from "@material-ui/core/Zoom/Zoom";
 import withStyles from "@material-ui/core/styles/withStyles";
 
 const INCREMENT = 1000 * 60 * 15;
@@ -19,7 +18,7 @@ export class TimetableEntry extends React.Component {
 
     start() {
         let event = this.props.event;
-        return Math.floor(((event.start.valueOf() - this.props.offset) % DAY_MS) / INCREMENT) + 1;
+        return Math.floor(((event.start.valueOf() - this.props.offset.valueOf()) % DAY_MS) / INCREMENT) + 1;
     }
 
     span() {
@@ -29,28 +28,28 @@ export class TimetableEntry extends React.Component {
 
     day() {
         let event = this.props.event;
-        return Math.floor((event.start.valueOf() - this.props.offset) / DAY_MS) + 1;
+        return Math.floor((event.start.valueOf() - this.props.offset.valueOf()) / DAY_MS) + 1;
     }
 
     gridRow() {
+        let {marker} = this.props;
         let start = this.start();
         let span = this.span();
-        return {gridRow: `${start + 1} / span ${span}`};
+        return {gridRow: `${start + (marker ? 0 : 1)} / span ${span}`};
     }
 
     gridColumn() {
+        let {marker} = this.props;
         let day = this.day();
-        return {gridColumn: (day + 1).toString()};
+        return {gridColumn: (day + (marker ? 0 : 1)).toString()};
     }
 
     render() {
         let {classes, onClick, children} = this.props;
         return (
-            <Zoom in={true}>
-                <div onClick={onClick} style={{...this.gridRow(), ...this.gridColumn()}} className={classes.root}>
-                    {children}
-                </div>
-            </Zoom>
+            <div onClick={onClick} style={{...this.gridRow(), ...this.gridColumn()}} className={classes.root}>
+                {children}
+            </div>
         );
     }
 }

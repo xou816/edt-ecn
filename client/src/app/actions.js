@@ -10,39 +10,55 @@ export function getCalendarList() {
         return fetch(`${API}/calendar/list`)
             .then(res => res.status >= 400 ? Promise.reject('error') : res.json())
             .then(list => dispatch({type: 'SET_LIST', list}))
-            .catch(err => {
-            })
+            .catch(err => {})
             .then(_ => dispatch({type: 'LOAD_END'}));
     }
 }
 
+function pushCacheEntry(list, calendar) {
+    if (list.length === 0) return;
+    const cachedCalendars = JSON.parse(localStorage.getItem('cachedCalendars') || '{}');
+    const getName = id => (list.find(desc => desc.id === id) || {name: id}).name;
+    const name = calendar.meta.map(meta => getName(meta.id)).join(' + ');
+    localStorage.setItem('cachedCalendars', JSON.stringify({...cachedCalendars, [calendar.id]: name}));
+}
+
 export function getRecent() {
+    const cachedCalendars = JSON.parse(localStorage.getItem('cachedCalendars') || '{}');
     return dispatch => {
         caches.open('calendars')
             .then(cache => cache.keys()
                 .then(keys => Promise.all(keys.map(req => cache.match(req)))))
             .then(keys => Promise.all(keys.map(res => res.clone().json())))
-            .then(history => history.map(calendar => ({
+            .then(history => history.map(calendar => calendar.id != null ? {
                     id: calendar.id,
-                    meta: calendar.meta
-            })))
-            .then(history => dispatch({type: 'SET_HISTORY', history: history.reverse()}));
+                    name: cachedCalendars[calendar.id]
+            } : null).filter(entry => entry !== null))
+            .then(history => {
+                history.reverse();
+                const newCache = history.reduce((dict, entry) => ({...dict, [entry.id]: entry.name}), {});
+                localStorage.setItem('cachedCalendars', JSON.stringify(newCache));
+                dispatch({type: 'SET_HISTORY', history});
+            });
     }
 }
 
 export function getCalendar(calendar) {
-    return dispatch => {
+    return (dispatch, getState) => {
+        const list = getState().app.list;
         if (calendar != null) {
             dispatch({type: 'LOAD_START'});
             return fetch(`${API}/calendar/custom/${calendar}`)
                 .then(res => res.status >= 400 ? Promise.reject('error') : res.json())
                 .then(calendar => {
+                    pushCacheEntry(list, calendar);
                     dispatch({type: 'SET_META', meta: calendar.version === 'version_one' ? safeMeta(calendar.meta) : []});
                     return calendar.events;
                 })
                 .then(events => events.map(e => ({...e, start: parseIso(e.start), end: parseIso(e.end)})))
                 .then(events => dispatch({type: 'SET_EVENTS', events}))
                 .catch(err => {
+                    console.log(err);
                     dispatch({type: 'SET_META', meta: []});
                     dispatch(showError('CouldNotLoadCalendar'));
                 })
@@ -72,8 +88,7 @@ export function getSubjects() {
                     return {...indexed, [cur.calendar]: (indexed[cur.calendar] || []).concat([cur])};
                 }, {}))
                 .then(subjects => dispatch({type: 'SET_SUBJECTS', subjects}))
-                .catch(err => {
-                })
+                .catch(err => {})
                 .then(_ => dispatch({type: 'LOAD_END'}));
         } else {
             return Promise.resolve();

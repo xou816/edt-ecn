@@ -31,7 +31,18 @@ export default function apiRouter(router: Router): Router {
 
     router.get('/calendar/list', (req, res) => {
         res.setHeader('Content-Type', 'application/json');
-        calendar.listOnlineCalendars()
+        calendar.listOnlineCalendars('group')
+            .then(JSON.stringify)
+            .then((json) => res.send(json))
+            .catch((error) => {
+                res.status(500);
+                res.send({error});
+            });
+    });
+
+    router.get('/calendar/fulllist', (req, res) => {
+        res.setHeader('Content-Type', 'application/json');
+        calendar.listOnlineCalendars('all')
             .then(JSON.stringify)
             .then((json) => res.send(json))
             .catch((error) => {

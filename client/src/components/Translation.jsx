@@ -7,12 +7,12 @@ const LOCALES = {
     'fr': frLocale,
     'en': enLocale
 };
-const DEFAULT_LANG = 'en';
+const DEFAULT_LANG = 'fr';
 
 const {Provider, Consumer} = React.createContext(DEFAULT_LANG);
 
 const Translation = props => <Consumer>{lang => {
-    let raw = translations[lang][props['for']] || translations[DEFAULT_LANG][props['for']];
+    let raw = translations[lang][props['for']] || '';
     return React.createElement(typeof raw === 'string' ? () => raw : raw, props);
 }}</Consumer>;
 

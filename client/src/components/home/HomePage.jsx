@@ -6,7 +6,6 @@ import Filter from '@material-ui/icons/FilterList';
 import {Media} from "../Media";
 import {connect} from 'react-redux';
 import HomeNav from "./HomeNav";
-import Logo from "../Logo";
 import Portal from "@material-ui/core/Portal/Portal";
 import Snackbar from "@material-ui/core/Snackbar/Snackbar";
 import withStyles from "@material-ui/core/styles/withStyles";
@@ -15,6 +14,7 @@ import {T} from '../Translation';
 import Chip from "@material-ui/core/Chip/Chip";
 import RecentCalendars from "./RecentCalendars";
 import classnames from 'classnames';
+import Logo from "../Logo";
 
 function FilterMessage({show, doFilter}) {
     return (
@@ -90,7 +90,8 @@ export class HomePage extends React.Component {
                         <PageContent className={classes.main}>
                             <div className={classes.rightContainer}>
                                 <Logo className={classes.ecn}/>
-                                <Chip className={classes.switchLanguage} onClick={switchLanguage} label={<T.SwitchLanguage/>}/>
+                                <Chip className={classes.switchLanguage} onClick={switchLanguage}
+                                      label={<T.SwitchLanguage/>}/>
                                 <RecentCalendars className={classes.paper}/>
                                 <CalendarSelect className={classnames(classes.paper, classes.paperLast)}/>
                             </div>

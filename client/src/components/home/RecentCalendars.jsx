@@ -12,28 +12,8 @@ import Typography from "@material-ui/core/Typography/Typography";
 import withStyles from "@material-ui/core/styles/withStyles";
 import {T} from "../Translation";
 
-function makeEntries(history, list) {
-    if (list.length === 0 || history.length === 0) {
-        return [];
-    }
-    const index = list.reduce((index, calendar) => ({
-        ...index,
-        [calendar.id]: calendar.name
-    }), {});
-    const makeName = entry => entry.meta
-        .reduce((acc, meta) => {
-            return acc.concat(index[meta.id] || meta.id);
-        }, [])
-        .join(' + ');
-    return history
-        .reduce((entries, entry) => entries.concat(entry.meta == null ? [] : [{
-            name: makeName(entry),
-            id: entry.id
-        }]), []);
-}
-
 @connect(state => ({
-    recent: makeEntries(state.app.history, state.app.list)
+    recent: state.app.history
 }), dispatch => ({
     getRecent: () => dispatch(getRecent())
 }))
@@ -51,7 +31,6 @@ export default class extends React.Component {
 
     render() {
         let {recent, classes, className} = this.props;
-        // recent = [{id: 'g305', name: 'AP_2'}];
         return recent.length > 0 ? (
             <Paper className={className}>
                 <Typography className={classes.title} variant="subtitle2"><T.RecentlyViewed/></Typography>

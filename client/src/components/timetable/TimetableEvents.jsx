@@ -39,7 +39,7 @@ function mapEvents(events, offset) {
     }, {});
     return groups.map(group => {
         let eventGroup = group.map(id => indexed[id]);
-        return <CourseWrapper key={`${group.reduce((s, id) => s + id, offset)}`} events={eventGroup}
+        return <CourseWrapper key={`${group.reduce((s, id) => s + id, offset.valueOf())}`} events={eventGroup}
                               offset={offset}/>
     });
 }

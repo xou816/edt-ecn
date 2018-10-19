@@ -1,5 +1,5 @@
 import React from 'react';
-import {addDays, addHours, addMinutes, format, isSameDay, startOfDay, startOfWeek} from "date-fns";
+import {addDays, addHours, addMinutes, format, getHours, isSameDay, startOfDay, startOfWeek} from "date-fns";
 import {TimetableEntry} from "./TimetableEntry";
 import {TimetableEvents} from "./TimetableEvents";
 import {FocusedCourse} from "./FocusedCourse";
@@ -30,7 +30,7 @@ function Days({length, date}) {
         let curDate = addDays(date, i);
         let today = isSameDay(curDate, Date.now());
         return (
-            <TranslateDate>{locale => (
+            <TranslateDate key={i}>{locale => (
                 <Typography align="center"
                             color={today ? 'primary' : 'textSecondary'} key={i.toString()}
                             style={{gridColumn: i + 2, gridRow: '1 / span 1'}}>
@@ -41,15 +41,22 @@ function Days({length, date}) {
     });
 }
 
-function Marker({days, offset, classes}) {
+function Marker({offset, dayOffset, classes}) {
     let now = Date.now();
-    return now >= offset && now < addDays(offset, days) ? (
+    return now >= dayOffset && now < addHours(dayOffset, 12) ? (
         <TimetableEntry event={{start: now, end: addMinutes(now, 15)}} offset={offset}>
             <Divider className={classes.now}/>
         </TimetableEntry>
     ) : <div/>;
 }
 
+function Today({dayOffset, offset, classes}) {
+    return (
+        <TimetableEntry event={{start: dayOffset, end: addHours(dayOffset, 11)}} offset={offset}>
+            <div className={classes.bg}/>
+        </TimetableEntry>
+    );
+}
 
 @withStyles(theme => ({
     root: {
@@ -81,6 +88,13 @@ function Marker({days, offset, classes}) {
     },
     hour: {
         marginTop: '-.5em'
+    },
+    bg: {
+        background: theme.palette.grey[200],
+        opacity: 0.5,
+        display: 'block',
+        height: '100%',
+        width: '100%',
     }
 }))
 export class Timetable extends React.Component {
@@ -90,21 +104,23 @@ export class Timetable extends React.Component {
         return days > 1 ? startOfWeek(date, {weekStartsOn: 1}) : startOfDay(date);
     }
 
-    get offset() {
-        let now = new Date();
-        let offset = now.getTimezoneOffset() / -60;
-        return addHours(this.date, 8 + offset - 2).valueOf();
+    offset(date) {
+        const offset = date.getTimezoneOffset() / -60;
+        return addHours(startOfDay(date), 8 + offset - 2);
     }
 
     render() {
-        let {classes, days, active} = this.props;
+        let {classes, days, active, currDate} = this.props;
+        const offset = this.offset(this.date);
+        const dayOffset = this.offset(currDate);
         return (
             <div className={classes.root}>
+                {days > 1 && <Today dayOffset={dayOffset} offset={offset} classes={classes}/>}
                 <Hours classes={classes}/>
-                <Separators days={days}/>
                 <Days length={days} date={this.date}/>
-                <TimetableEvents offset={this.offset} days={days}/>
-                <NoSsr><Marker days={days} offset={this.offset} classes={classes}/></NoSsr>
+                <Separators days={days}/>
+                <TimetableEvents offset={offset} days={days}/>
+                <NoSsr><Marker dayOffset={dayOffset} offset={offset} classes={classes}/></NoSsr>
                 <FocusedCourse allowFocus={active}/>
             </div>
         );

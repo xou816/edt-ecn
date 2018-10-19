@@ -28,11 +28,11 @@ export default class extends React.Component {
     }
 
     slideRenderer() {
-        let {weekView, atPosition} = this.props;
+        let {weekView, atPosition, date} = this.props;
         return ({key, index}) => {
             const diff = Math.abs(index - this.index);
             return diff < 3 ?
-                <Timetable active={diff === 0} days={weekView ? 5 : 1} date={atPosition(index)} key={key} /> :
+                <Timetable active={diff === 0} days={weekView ? 5 : 1} currDate={date} date={atPosition(index)} key={key} /> :
                 <div key={key}/>;
         };
     }
