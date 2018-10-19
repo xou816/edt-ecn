@@ -1,7 +1,7 @@
 import React from "react";
 import {FilterSubject} from "./FilterSubject";
 import {connect} from 'react-redux';
-import {theme} from "../../app/theme";
+import {palette} from "../../app/theme";
 import createMuiTheme from "@material-ui/core/styles/createMuiTheme";
 import withStyles from "@material-ui/core/styles/withStyles";
 import Drawer from "@material-ui/core/Drawer/Drawer";
@@ -13,8 +13,11 @@ import MuiThemeProvider from "@material-ui/core/styles/MuiThemeProvider";
 import {T} from '../Translation';
 
 const darkTheme = createMuiTheme({
-    ...theme,
+    typography: {
+        useNextVariants: true
+    },
     palette: {
+        ...palette,
         type: 'dark'
     }
 });
