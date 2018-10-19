@@ -115,7 +115,7 @@ export class Timetable extends React.Component {
         const dayOffset = this.offset(currDate);
         return (
             <div className={classes.root}>
-                {days > 1 && <Today dayOffset={dayOffset} offset={offset} classes={classes}/>}
+                <NoSsr>{days > 1 && <Today dayOffset={dayOffset} offset={offset} classes={classes}/>}</NoSsr>
                 <Hours classes={classes}/>
                 <Days length={days} date={this.date}/>
                 <Separators days={days}/>
