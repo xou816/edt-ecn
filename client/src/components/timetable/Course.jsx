@@ -62,7 +62,6 @@ function CourseDetails({event, long, classes}) {
             {event.location.length === 0 ? null :
                 <div className={classes.par}>
                     {event.location
-                        .split(',')
                         .map(l => <Chip className={classes.chip} key={l} label={long ? l : shorten(l, 10)}/>)}
                 </div>}
         </React.Fragment>

@@ -2,6 +2,7 @@ import * as calendar from '../calendar';
 import {join} from 'path';
 import {tz} from 'moment-timezone';
 import {Router} from 'express';
+import {CelcatCalendarType} from "../calendars/celcat";
 
 export default function apiRouter(router: Router): Router {
 
@@ -40,41 +41,14 @@ export default function apiRouter(router: Router): Router {
             });
     });
 
-    router.get('/calendar/fulllist', (req, res) => {
+    router.get('/calendar/list/:type', (req, res) => {
         res.setHeader('Content-Type', 'application/json');
-        calendar.listOnlineCalendars('all')
+        calendar.listOnlineCalendars(req.params.type as CelcatCalendarType)
             .then(JSON.stringify)
             .then((json) => res.send(json))
             .catch((error) => {
                 res.status(500);
                 res.send({error});
-            });
-    });
-
-    router.get('/calendar/:name.ics', (req, res) => {
-        res.setHeader('Content-Type', 'text/calendar');
-        calendar.getIdFromName(req.params.name)
-            .then(id => id == null ? Promise.reject('Events not found') : Promise.resolve(id))
-            .then(calendar.getOnlineCalendar)
-            .then(cal => cal.events)
-            .then(calendar.calendarToIcs)
-            .then(ics => res.send(ics))
-            .catch(error => {
-                res.status(404);
-                res.send('404 Not found');
-            });
-    });
-
-    router.get('/calendar/:name', (req, res) => {
-        res.setHeader('Content-Type', 'application/json');
-        calendar.getIdFromName(req.params.name)
-            .then(id => id == null ? Promise.reject('Events not found') : Promise.resolve(id))
-            .then(calendar.getOnlineCalendar)
-            .then(JSON.stringify)
-            .then(json => res.send(json))
-            .catch(error => {
-                res.status(404);
-                res.send({error: '404 Not found'});
             });
     });
 
@@ -114,20 +88,6 @@ export default function apiRouter(router: Router): Router {
             });
     });
 
-    router.get('/calendar/:name/subjects', (req, res) => {
-        res.setHeader('Content-Type', 'application/json');
-        calendar.getIdFromName(req.params.name)
-            .then(id => id == null ? Promise.reject('Events not found') : Promise.resolve(id))
-            .then(calendar.getOnlineCalendar)
-            .then(calendar.getSubjects)
-            .then(JSON.stringify)
-            .then(json => res.send(json))
-            .catch(error => {
-                res.status(404);
-                res.send({error: '404 Not found'});
-            });
-    });
-
     router.get('/calendar/custom/:id/subjects', (req, res) => {
         res.setHeader('Content-Type', 'application/json');
         calendar.getCustomCalendar(req.params.id)
@@ -150,7 +110,7 @@ export default function apiRouter(router: Router): Router {
             .then(events => events
                 .filter(e => e.start && e.end && e.start >= from && e.end <= to))
             .then(events => events.length === 0);
-        let matches = calendar.listCalendarsFromSource(null, 'room')
+        let matches = calendar.listOnlineCalendars( 'room')
             .then(cals => cals.reduce((promise: Promise<string[]>, cal) => {
                 return promise
                     .then(res => res.length >= count ? res : keepRoom(cal.id)

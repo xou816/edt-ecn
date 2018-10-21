@@ -16,8 +16,6 @@ app.use(session({
 }));
 
 app.use('/api', apiRouter(express.Router()));
-// app.get('/beta', (req, res) => res.redirect('/'));
-// app.use('/', reactRouter(express.Router()));
 
 let port = parseInt(process.env.PORT || '3000', 10) + 1;
 app.listen(port);

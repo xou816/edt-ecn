@@ -52,7 +52,7 @@ export function getCalendar(calendar) {
                 .then(res => res.status >= 400 ? Promise.reject('error') : res.json())
                 .then(calendar => {
                     pushCacheEntry(list, calendar);
-                    dispatch({type: 'SET_META', meta: calendar.version === 'version_one' ? safeMeta(calendar.meta) : []});
+                    dispatch({type: 'SET_META', meta: safeMeta(calendar.meta)});
                     return calendar.events;
                 })
                 .then(events => events.map(e => ({...e, start: parseIso(e.start), end: parseIso(e.end)})))
