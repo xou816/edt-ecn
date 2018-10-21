@@ -1,8 +1,8 @@
 import * as calendar from '../calendar';
-import {join} from 'path';
 import {tz} from 'moment-timezone';
 import {Router} from 'express';
 import {CelcatCalendarType} from "../calendars/celcat";
+import {getCalId} from "../alias";
 
 export default function apiRouter(router: Router): Router {
 
@@ -10,24 +10,6 @@ export default function apiRouter(router: Router): Router {
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
         next();
-    });
-
-    router.get('/', (req, res) => {
-        let paths = [
-            '/calendar/list',
-            '/calendar/:name',
-            '/calendar/:name.ics',
-            '/calendar/:name/subjects',
-            '/calendar/custom/:id',
-            '/calendar/custom/:id.ics',
-            '/calendar/custom/:id/subjects',
-            '/calendar/alias/:alias',
-            '/calendar/alias/:alias.ics',
-            '/calendar/alias/:alias/subjects',
-        ].map(route => join(req.protocol + '://' + req.get('host') + req.originalUrl, route));
-        res.setHeader('Content-Type', 'application/json');
-        res.status(200);
-        res.send(JSON.stringify(paths));
     });
 
     router.get('/calendar/list', (req, res) => {
@@ -97,6 +79,18 @@ export default function apiRouter(router: Router): Router {
             .catch(error => {
                 res.status(500);
                 res.send({error});
+            });
+    });
+
+    router.get('/calendar/personal/:id', (req, res) => {
+        res.setHeader('Content-Type', 'application/json');
+        getCalId(req.params.id)
+            .then(calendar.getCustomCalendar)
+            .then(JSON.stringify)
+            .then(json => res.send(json))
+            .catch(error => {
+                res.status(404);
+                res.send({error: 'Alias does not exist'});
             });
     });
 

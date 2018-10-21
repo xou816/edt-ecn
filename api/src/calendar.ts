@@ -137,13 +137,15 @@ export function calendarToIcs(events: Events): string {
         prodId: {company: 'ec-nantes.fr', product: 'edt'},
     });
     events.forEach(event => {
-        cal.createEvent({
-            start: event.start ? event.start.tz('UTC').toDate() : null,
-            end: event.end ? event.end.tz('UTC').toDate() : null,
-            summary: event.pretty,
-            description: event.description,
-            location: event.location.join(', ')
-        });
+        if (event.start && event.end) {
+            cal.createEvent({
+                start: event.start.tz('UTC').toDate(),
+                end: event.end.tz('UTC').toDate(),
+                summary: event.pretty,
+                description: event.description,
+                location: event.location.join(', ')
+            });
+        }
     });
     return cal.toString();
 }

@@ -70,4 +70,4 @@ export function setAliasNoPass(alias: string, value: string): Promise<boolean> {
                 return resolve(res);
             });
     });
-};
+}

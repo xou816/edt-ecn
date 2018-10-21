@@ -33,9 +33,10 @@ export abstract class CelcatCalendar {
             .then(body => parseXmlString(body))
             .then(doc => doc.find('/finder/resource')
                 .map(node => {
-                    let type = node.attr('type').value() as CelcatCalendarType;
+                    let get = nodeGetAttr(node);
+                    let type = get('type', 'all') as CelcatCalendarType;
                     return {
-                        id: this.prefix() + type[0] + node.attr('id').value(),
+                        id: this.prefix() + type[0] + get('id'),
                         name: node.get('name'),
                         type: type
                     };
@@ -60,7 +61,7 @@ export abstract class CelcatCalendar {
             .then(body => parseXmlString(body))
             .then(doc => {
                 let desc: CelcatWeekDesc = doc.find('/timetable/span').map((node: Element) => ({
-                    date: node.attr('date').value(),
+                    date: nodeGetAttr(node)('date'),
                     week: node.get('alleventweeks')!.text()
                 }));
                 return doc.find('//event')
@@ -101,14 +102,15 @@ export abstract class CelcatCalendar {
     private mapNodeToEvent(node: Element, calendar: string, weeks: CelcatWeekDesc): CalendarEvent {
 
         const get = nodeGetText(node);
-        let id = node.attr('id').value();
-        let colour = '#' + node.attr('colour').value();
+        const attr = nodeGetAttr(node);
+        let id = attr('id');
+        let colour = '#' + attr('colour', 'CCCCCC');
         let description = get('notes');
         let organizer = get('resources/staff/item');
         let category = get('category');
         let subject = get('resources/module/item', UNKNOWN_SUBJECT);
         let location: string[] = node.find('resources/room/item')
-            .map(n => n.text());
+            .map(n => (n as Element).text());
         let day = parseInt(get('day'), 10);
         let week = get('rawweeks');
         let start = this.dateFromCourseTime(week, day, get('starttime'), weeks);
@@ -133,4 +135,9 @@ export abstract class CelcatCalendar {
 type GetText = (xpath: string, fallback?: string) => string;
 function nodeGetText(node: Element): GetText {
     return (xpath, fallback = '') => (node.get(xpath) || {text: () => fallback}).text();
+}
+
+type GetAttr = (attr: string, fallback?: string) => string;
+function nodeGetAttr(node: Element): GetAttr {
+    return (attr, fallback = '') => (node.attr(attr) || {value: () => fallback}).value();
 }
