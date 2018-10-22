@@ -133,7 +133,6 @@ export function calendarToIcs(events: Events): string {
     let cal = ical({
         domain: 'ec-nantes.fr',
         name: 'EDT',
-        timezone: 'Europe/Paris',
         prodId: {company: 'ec-nantes.fr', product: 'edt'},
     });
     events.forEach(event => {

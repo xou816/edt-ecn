@@ -9,7 +9,7 @@ import {Provider} from 'react-redux';
 import {App} from './components/App';
 import {renderToString} from 'react-dom/server';
 import {createServerStore} from "./app/store";
-import {SheetsRegistry, JssProvider} from 'react-jss';
+import {JssProvider, SheetsRegistry} from 'react-jss';
 import {createGenerateClassName, MuiThemeProvider} from '@material-ui/core/styles';
 import {UAParser} from 'ua-parser-js';
 import {MediaProvider} from "./components/Media";
@@ -70,6 +70,15 @@ function storeReady(store, timeout) {
 const app = Express();
 
 app.use(compression());
+
+app.use((req, res, next) => {
+    if (process.env.IS_HEROKU === 'true' && req.header('x-forwarded-proto') !== 'https') {
+        return res.redirect(`https://${req.header('host')}${req.url}`);
+    } else {
+        return next();
+    }
+});
+
 app.use('/public', Express.static(path.resolve(__dirname, '../build/public')));
 app.use('/api', proxy(`localhost:${parseInt(process.env.PORT || '3000', 10) + 1}`, {
     proxyReqPathResolver: req => path.join('/api', parse(req.url).path)
