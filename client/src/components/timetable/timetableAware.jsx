@@ -69,7 +69,6 @@ export default function (Component) {
             {([isPhone]) => {
                 let weekView = !isPhone;
                 let date = parseDate(match.params.date);
-                console.log(date);
                 return <Component {...others}
                                   navigateTo={navigateTo(history)}
                                   date={date}

@@ -31,7 +31,7 @@ export function getRecent() {
             .then(cache => cache.keys()
                 .then(keys => Promise.all(keys.map(req => cache.match(req)))))
             .then(keys => Promise.all(keys.map(res => res.clone().json())))
-            .then(history => history.map(calendar => calendar.id != null ? {
+            .then(history => history.map(calendar => calendar.id != null && cachedCalendars[calendar.id] != null ? {
                     id: calendar.id,
                     name: cachedCalendars[calendar.id]
             } : null).filter(entry => entry !== null))
@@ -60,7 +60,6 @@ export function getCalendar(calendar) {
                 .then(events => events.map(e => ({...e, start: parseIso(e.start), end: parseIso(e.end)})))
                 .then(events => dispatch({type: 'SET_EVENTS', events}))
                 .catch(err => {
-                    console.log(err);
                     dispatch({type: 'SET_META', meta: []});
                     dispatch(showError('CouldNotLoadCalendar'));
                 })

@@ -14,7 +14,7 @@ import {T} from '../Translation';
 import Chip from "@material-ui/core/Chip/Chip";
 import RecentCalendars from "./RecentCalendars";
 import classnames from 'classnames';
-import {Ghost, Logo} from "../Logo";
+import {Event, Logo} from "../Logo";
 
 function FilterMessage({show, doFilter}) {
     return (
@@ -30,32 +30,24 @@ const ConditionalFilterMessage = connect(state => ({show: state.app.meta.length 
 
 @connect(state => ({loading: state.app.loading}))
 @withStyles(theme => ({
-    loading: {
-        fill: theme.palette.grey[500],
-        transition: 'all .5s ease',
-    },
-    primary: {
-        fill: theme.palette.primary.main,
-        transition: 'all .5s ease',
-    },
-    secondary: {
-        fill: theme.palette.secondary.main,
-        transition: 'all .5s ease',
-    },
     root: {
         margin: `${2 * theme.spacing.unit}px auto`,
-        maxWidth: '20%',
+        maxWidth: '15%',
         display: 'block',
+        transition: 'all .5s ease',
+        opacity: 0.2,
         [theme.breakpoints.down(797)]: {
-            maxWidth: '50%'
+            maxWidth: '40%'
         }
+    },
+    loaded: {
+        opacity: 1
     }
 }))
 class LoadingLogo extends React.PureComponent {
     render() {
         let {loading, classes} = this.props;
-        let getClass = key => loading ? classes.loading : classes[key];
-        return <Ghost classes={{root: classes.root, primary: getClass('primary'), secondary: getClass('secondary')}}/>;
+        return <Event className={classnames({[classes.root]: true, [classes.loaded]: !loading})}/>;
     }
 }
 
