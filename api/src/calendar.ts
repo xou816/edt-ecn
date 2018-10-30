@@ -77,7 +77,8 @@ function getSingleCustomCalendar(id: string): Promise<Calendar> {
                     id: calendarId,
                     filter: subjects.map(s => s.id).filter(s => !filter.test(s)),
                     valid: !warn
-                }]
+                }],
+                extra: cal.extra
             }
         });
 }
@@ -93,9 +94,10 @@ export function getCustomCalendar(fullId: string): Promise<Calendar> {
                 id: fullId,
                 meta: calendar.meta.concat(newCalendar.meta),
                 events: calendar.events.concat(newCalendar.events),
-                blacklist: calendar.blacklist.concat(newCalendar.events.map(e => e.id))
+                blacklist: calendar.blacklist.concat(newCalendar.events.map(e => e.id)),
+                extra: {...calendar.extra, ...newCalendar.extra}
             })));
-    }, Promise.resolve({id: '', meta: [], events: [], blacklist: []}))
+    }, Promise.resolve({id: '', meta: [], events: [], blacklist: [], extra: {}}))
         .then(res => {
             delete res.blacklist;
             return res;

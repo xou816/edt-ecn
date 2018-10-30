@@ -14,7 +14,7 @@ import {withRouter} from 'react-router';
 import {Media} from "../Media";
 
 const TODAY = setHours(Date.now(), 12);
-const FORMAT = 'RRRRMMdd';
+const FORMAT = 'uMMdd';
 
 function dateFormat(date) {
     return isSameDay(date, TODAY) ?
@@ -69,6 +69,7 @@ export default function (Component) {
             {([isPhone]) => {
                 let weekView = !isPhone;
                 let date = parseDate(match.params.date);
+                console.log(date);
                 return <Component {...others}
                                   navigateTo={navigateTo(history)}
                                   date={date}

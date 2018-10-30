@@ -56,6 +56,10 @@ export class CentraleCalendar extends CelcatCalendar {
         return true;
     }
 
+    timezone() {
+        return 'Europe/Paris';
+    }
+
 }
 
 export default new CentraleCalendar();

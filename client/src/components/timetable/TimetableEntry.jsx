@@ -2,6 +2,7 @@ import React from 'react';
 import withStyles from "@material-ui/core/styles/withStyles";
 
 const INCREMENT = 1000 * 60 * 15;
+const MAX = 4 * 11;
 const DAY_MS = 1000 * 60 * 60 * 24;
 
 @withStyles(theme => ({
@@ -17,31 +18,34 @@ const DAY_MS = 1000 * 60 * 60 * 24;
 export class TimetableEntry extends React.Component {
 
     start() {
-        let event = this.props.event;
-        return Math.floor(((event.start.valueOf() - this.props.offset.valueOf()) % DAY_MS) / INCREMENT) + 1;
+        let {offset, event} = this.props;
+        return Math.floor(((event.start.valueOf() - offset.valueOf()) % DAY_MS) / INCREMENT) + 1;
     }
 
     span() {
-        let event = this.props.event;
+        let {event} = this.props;
         return Math.floor((event.end.valueOf() - event.start.valueOf()) / INCREMENT);
     }
 
     day() {
-        let event = this.props.event;
-        return Math.floor((event.start.valueOf() - this.props.offset.valueOf()) / DAY_MS) + 1;
+        let {offset, event} = this.props;
+        return Math.floor((event.start.valueOf() - offset.valueOf()) / DAY_MS) + 1;
+    }
+
+    invalid() {
+        // console.warn(this.props.event.pretty + ' hidden');
+        return {display: 'none'};
     }
 
     gridRow() {
-        let {marker} = this.props;
-        let start = this.start();
+        let start = (this.start() + 1).toString();
         let span = this.span();
-        return {gridRow: `${start + (marker ? 0 : 1)} / span ${span}`};
+        return start <= MAX ? {gridRow: `${start} / span ${span}`} : this.invalid();
     }
 
     gridColumn() {
-        let {marker} = this.props;
-        let day = this.day();
-        return {gridColumn: (day + (marker ? 0 : 1)).toString()};
+        let gridColumn = (this.day() + 1).toString();
+        return gridColumn < 7 ? {gridColumn} : this.invalid();
     }
 
     render() {

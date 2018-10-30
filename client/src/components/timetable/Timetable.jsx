@@ -8,6 +8,7 @@ import Divider from "@material-ui/core/Divider/Divider";
 import withStyles from "@material-ui/core/styles/withStyles";
 import NoSsr from "@material-ui/core/NoSsr/NoSsr";
 import {TranslateDate} from "../Translation";
+import {connect} from "react-redux";
 
 function Separators({days}) {
     return Array.from({length: 12}, (x, i) => (
@@ -15,11 +16,11 @@ function Separators({days}) {
     ));
 }
 
-function Hours({classes}) {
+function Hours({classes, refHour}) {
     return Array.from({length: 12}, (x, i) => (
         <Typography className={classes.hour} align="center" color="textSecondary" key={`hour_${i}`}
                     style={{gridRow: `${4 * i + 2} / span 1`, gridColumn: `1 / span 1`}}>
-            {`${8 + i}:00`}
+            {`${refHour + i}:00`}
         </Typography>
     ));
 }
@@ -43,7 +44,7 @@ function Days({length, date}) {
 
 function Marker({offset, dayOffset, classes}) {
     let now = Date.now();
-    return now >= dayOffset && now < addHours(dayOffset, 12) ? (
+    return isSameDay(offset, dayOffset) && now >= dayOffset && now < addHours(dayOffset, 12) ? (
         <TimetableEntry event={{start: now, end: addMinutes(now, 15)}} offset={offset}>
             <Divider className={classes.now}/>
         </TimetableEntry>
@@ -58,11 +59,12 @@ function Today({dayOffset, offset, classes}) {
     );
 }
 
+@connect(state => ({refHour: state.app.ref}))
 @withStyles(theme => ({
     root: {
         display: 'grid',
         gridAutoFlow: 'column',
-        gridTemplateColumns: '3em repeat(5, 1fr) 1em',
+        gridTemplateColumns: '3em repeat(5, 1fr)',
         gridTemplateRows: '1em repeat(45, .7em)',
         gridGap: '.3em .3em',
         padding: '1em 0',
@@ -70,8 +72,9 @@ function Today({dayOffset, offset, classes}) {
         height: '100%',
         overflowY: 'auto',
         overflowX: 'hidden',
+        marginRight: '1em',
         [theme.breakpoints.down(767)]: {
-            gridTemplateColumns: '3em 1fr 1em',
+            gridTemplateColumns: '3em 1fr',
             gridTemplateRows: '1em repeat(45, .6em)',
             gridGap: '.3em 0'
         }
@@ -105,18 +108,17 @@ export class Timetable extends React.Component {
     }
 
     offset(date) {
-        const offset = date.getTimezoneOffset() / -60;
-        return addHours(startOfDay(date), 8 + offset - 2);
+        return addHours(startOfDay(date), this.props.refHour);
     }
 
     render() {
-        let {classes, days, active, currDate} = this.props;
+        let {classes, days, active, currDate, refHour} = this.props;
         const offset = this.offset(this.date);
         const dayOffset = this.offset(currDate);
         return (
             <div className={classes.root}>
                 <NoSsr>{days > 1 && <Today dayOffset={dayOffset} offset={offset} classes={classes}/>}</NoSsr>
-                <Hours classes={classes}/>
+                <Hours classes={classes} refHour={refHour}/>
                 <Days length={days} date={this.date}/>
                 <Separators days={days}/>
                 <TimetableEvents offset={offset} days={days}/>

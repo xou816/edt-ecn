@@ -42,7 +42,7 @@ export default function apiRouter(router: Router): Router {
             })
             .catch(error => {
                 res.status(500);
-                res.send({error: '505 Internal Server Error'});
+                res.send({error: '500 Internal Server Error'});
             });
     });
 

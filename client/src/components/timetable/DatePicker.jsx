@@ -9,7 +9,7 @@ import {fade} from '@material-ui/core/styles/colorManipulator';
 import {Link} from "react-router-dom";
 import withStyles from "@material-ui/core/styles/withStyles";
 import Button from "@material-ui/core/Button/Button";
-import MuiPickersUtilsProvider from "material-ui-pickers/utils/MuiPickersUtilsProvider";
+import MuiPickersUtilsProvider from "material-ui-pickers/MuiPickersUtilsProvider";
 import {T, TranslateDate} from "../Translation";
 
 const TODAY = setHours(Date.now(), 12);
@@ -121,7 +121,7 @@ export default class extends React.Component {
                         component={Link}
                         to={makeLink(Date.now())}
                         onClick={onChange}>
-                    {week ? <T.ThisWeek/> : <T.Today/>}
+                    <T.Today/>
                 </Button>
             </div>
         );

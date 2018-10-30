@@ -2,7 +2,6 @@ import React from "react";
 import {Page, PageContent} from "../Page";
 import {Nav} from "../Nav";
 import copy from "copy-to-clipboard";
-import {Link} from "react-router-dom";
 import Copy from "@material-ui/icons/FileCopy";
 import OpenInNew from "@material-ui/icons/OpenInNew";
 import Back from "@material-ui/icons/ArrowBack";
@@ -15,7 +14,9 @@ import TextField from "@material-ui/core/TextField/TextField";
 import Paper from "@material-ui/core/Paper/Paper";
 import Button from "@material-ui/core/Button/Button";
 import {T} from "../Translation";
+import {withRouter} from "react-router";
 
+@withRouter
 @withStyles(theme => ({
     paper: {
         width: 'auto',
@@ -50,7 +51,7 @@ export default class extends React.Component {
     }
 
     render() {
-        let {classes} = this.props;
+        let {classes, history} = this.props;
         const endAdornment = (
             <InputAdornment position="end">
                 <IconButton onClick={() => this.copy()}>
@@ -61,7 +62,7 @@ export default class extends React.Component {
         return (
             <Page>
                 <Nav>
-                    <IconButton component={Link} to={'/' + this.calendar} color="inherit">
+                    <IconButton onClick={() => history.goBack()} color="inherit">
                         <Back/>
                     </IconButton>
                     <Typography color="inherit" variant="subtitle1"><T.ExportCalendar/></Typography>

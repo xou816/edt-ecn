@@ -22,6 +22,7 @@ export abstract class CelcatCalendar {
     abstract mapCalendarName(name: string): {name: string, display: string};
     abstract mapEvent(event: CelcatEvent): CalendarEvent;
     abstract filterCalendars(calendar: CalendarId): boolean;
+    abstract timezone(): string;
 
     hasCalendar(id: string): boolean {
         return id.startsWith(this.prefix());
@@ -70,11 +71,12 @@ export abstract class CelcatCalendar {
             })
             .then(events => ({
                 events,
-                meta: [{id, valid: true}]
+                meta: [{id, valid: true}],
+                extra: {ref: tz('2020-01-01 08:00', this.timezone())}
             }))
             .catch(err => {
                 console.trace(err);
-                return {events: [], meta: []};
+                return {events: [], meta: [], extra: {}};
             });
     }
 
@@ -91,7 +93,7 @@ export abstract class CelcatCalendar {
     private dateFromCourseTime(week: string, day: number, hour: string, weeks: CelcatWeekDesc): Moment|null {
         let match = weeks.find(weekDesc => weekDesc.week === week);
         if (match) {
-            let parsed = tz(`${match.date} ${hour}`, 'DD/MM/YYYY hh:mm', 'Europe/Paris');
+            let parsed = tz(`${match.date} ${hour}`, 'DD/MM/YYYY hh:mm', this.timezone());
             return parsed.add(day, 'days');
         } else {
             return null;

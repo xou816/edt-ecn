@@ -32,7 +32,8 @@ export type Meta = {
 export type Calendar = {
     id?: string,
     events: Events,
-    meta: Meta[]
+    meta: Meta[],
+    extra: {}
 }
 
 export type Subjects = { id: number, name: string, full_name: string | null, calendar: string, [k: string]: any }[];

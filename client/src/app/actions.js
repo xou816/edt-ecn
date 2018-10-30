@@ -1,6 +1,7 @@
 import {parseIso} from './event';
 import 'cross-fetch/polyfill';
 import {safeMeta} from "./meta";
+import {getHours} from 'date-fns';
 
 const API = `${process.env.PUBLIC}/api`;
 
@@ -52,6 +53,7 @@ export function getCalendar(calendar) {
                 .then(res => res.status >= 400 ? Promise.reject('error') : res.json())
                 .then(calendar => {
                     pushCacheEntry(list, calendar);
+                    dispatch({type: 'SET_REF', ref: getHours(parseIso(calendar.extra.ref)) || 8});
                     dispatch({type: 'SET_META', meta: safeMeta(calendar.meta)});
                     return calendar.events;
                 })

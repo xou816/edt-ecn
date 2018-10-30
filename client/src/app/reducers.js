@@ -3,6 +3,7 @@ import {resetSubjects, toggleCalendar, toggleSubject} from "./meta";
 export const initialState = {
     list: [],
     events: [],
+    ref: 0,
     loading: false,
     subjects: {},
     focus: null,
@@ -13,6 +14,8 @@ export const initialState = {
 
 export function appReducer(state, action) {
     switch (action.type) {
+        case 'SET_REF':
+            return {...state, ref: action.ref};
         case 'SET_EVENTS':
             return {...state, events: action.events};
         case 'SET_LIST':

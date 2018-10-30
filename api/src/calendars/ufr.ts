@@ -57,6 +57,10 @@ export class UFRCalendar extends CelcatCalendar {
         return calendar.name.startsWith('M1ECN');
     }
 
+    timezone() {
+        return 'Europe/Paris';
+    }
+
 }
 
 export default new UFRCalendar();

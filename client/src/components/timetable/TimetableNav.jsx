@@ -16,9 +16,7 @@ import {TranslateDate, T} from "../Translation";
 
 function DateDisplay({week, date, onClick}) {
     return <TranslateDate>{locale => {
-        let formatted = week ?
-            <T.WeekN n={format(date, 'I', {locale})} /> :
-            format(date, 'd MMMM', {locale});
+        let formatted = <T.WeekN n={format(date, 'I', {locale})} />;
         return <Button onClick={onClick} color="inherit" variant="text">{formatted}</Button>;
     }}</TranslateDate>;
 }
