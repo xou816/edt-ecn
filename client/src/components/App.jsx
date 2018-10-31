@@ -2,9 +2,10 @@ import React from 'react';
 import {Redirect, Route, Switch} from "react-router";
 import {TimetablePage} from "./timetable/TimetablePage";
 import {HomePage} from "./home/HomePage";
-import IcsPage from "./ics/IcsPage";
+import IcsPage from "./other/IcsPage";
 import withCookies from "react-cookie/cjs/withCookies";
 import {Translate} from "./Translation";
+import AboutPage from "./other/AboutPage";
 
 @withCookies
 export class App extends React.Component {
@@ -39,6 +40,8 @@ export class App extends React.Component {
                            render={(props) => <IcsPage {...props}/>}/>
                     <Route exact path={'/'}
                            render={(props) => <HomePage switchLanguage={this.switchLanguage()} {...props}/>}/>
+                    <Route exact path={'/about'}
+                           render={(props) => <AboutPage {...props}/>}/>
                     <Route exact path={'/:calendar/:date'}
                            render={(props) => <TimetablePage {...props}/>}/>
                     <Redirect exact from={'/:calendar'} to={'/:calendar/today'}/>

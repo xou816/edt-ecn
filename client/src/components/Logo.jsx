@@ -65,5 +65,50 @@ const RawEvent = ({className, theme}) => (
   </svg>
 );
 
+const RawAppIcon = ({className, theme}) => (
+    <svg viewBox="5 5 38 38" className={className}>
+        <defs>
+            <linearGradient x1={16.125} y1={9.825} x2={62.652} y2={68.951} gradientUnits="userSpaceOnUse" id="a">
+                <stop offset={0} stopOpacity={0.08} />
+                <stop offset={1} stopOpacity={0} />
+            </linearGradient>
+        </defs>
+        <g fill="none" strokeWidth="none" strokeMiterlimit={10} fontFamily="none" fontWeight="none" fontSize="none" textAnchor="none" style={{ mixBlendMode: "normal" }}>
+            <path
+                d="M7 43a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h34a2 2 0 0 1 2 2v34a2 2 0 0 1-2 2z"
+                fill="#f5f5f5"
+            />
+            <path
+                d="M16.125 38.175V9.825h15.75L43 20.95V41a2 2 0 0 1-2 2H20.95z"
+                fill="url(#a)"
+            />
+            <path d="M31.875 16.125v15.75h-3.15v-12.6h-3.15v12.6h-3.15v-15.75zm-12.6-3.15v22.05h12.6v3.15h-15.75V9.825h15.75v3.15z" />
+            <path
+                d="M22.425 16.125v15.75h3.15v-12.6h3.15v12.6h3.15v-15.75z"
+                fill={theme.palette.secondary.main}
+                strokeWidth={1}
+            />
+            <path
+                d="M31.875 12.975v-3.15h-15.75v28.35h15.75v-3.15h-12.6v-22.05z"
+                fill={theme.palette.primary.main}
+                strokeWidth={1}
+            />
+            <path d="M2 24C2 11.85 11.85 2 24 2s22 9.85 22 22-9.85 22-22 22S2 36.15 2 24z" />
+            <path d="M2 2h44v22H2z" />
+            <path d="M2 24V2h44v22z" />
+            <path d="M2 24V2h44v22z" />
+            <path d="M2 24V2h44v22z" />
+            <path
+                d="M5 7a2 2 0 0 1 2-2h34a2 2 0 0 1 2 2v17H5z"
+                fillOpacity={0.1}
+                fill="#000"
+            />
+            <path d="M2 24V2h44v22z" />
+        </g>
+    </svg>
+);
+
+
 export const Logo = withTheme()(RawLogo);
 export const Event = withTheme()(RawEvent);
+export const AppIcon = withTheme()(RawAppIcon);

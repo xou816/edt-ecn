@@ -32,7 +32,10 @@ export default {
         CouldNotLoadCalendar: "Impossible d'afficher ce calendrier",
         EventDescription: 'Description : ',
         EventOrganizer: 'Intervenant : ',
-        EventUnknownOrganizer: 'non spécifié'
+        EventUnknownOrganizer: 'non spécifié',
+        About: 'À propos',
+        AppName: ({version}) => `EDT ECN ${version}`,
+        ViewSource: 'Source sur Github'
     },
     en: {
         CalendarOD: 'Specialisation',
@@ -65,6 +68,9 @@ export default {
         CouldNotLoadCalendar: 'Could not load calendar',
         EventDescription: 'Details: ',
         EventOrganizer: 'Organizer: ',
-        EventUnknownOrganizer: 'unknown'
+        EventUnknownOrganizer: 'unknown',
+        About: 'About',
+        AppName: ({version}) => `EDT ECN ${version}`,
+        ViewSource: 'Source on Github'
     }
 };
