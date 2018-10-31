@@ -15,6 +15,8 @@ import Chip from "@material-ui/core/Chip/Chip";
 import RecentCalendars from "./RecentCalendars";
 import classnames from 'classnames';
 import {Logo} from "../Logo";
+import Button from "@material-ui/core/Button/Button";
+import {Link} from "react-router-dom";
 
 function FilterMessage({show, doFilter}) {
     return (
@@ -83,7 +85,7 @@ class LoadingLogo extends React.PureComponent {
             maxWidth: '100%'
         }
     },
-    paperLast: {
+    last: {
         margin: `${2 * theme.spacing.unit}px auto 5em auto`,
     },
     switchLanguage: {
@@ -116,7 +118,10 @@ export class HomePage extends React.Component {
                                 <Chip className={classes.switchLanguage} onClick={switchLanguage}
                                       label={<T.SwitchLanguage/>}/>
                                 <RecentCalendars className={classes.paper}/>
-                                <CalendarSelect className={classnames(classes.paper, classes.paperLast)}/>
+                                <CalendarSelect className={classnames(classes.paper)}/>
+                                <div className={classes.last}>
+                                    <Button component={Link} to="/about"><T.About/></Button>
+                                </div>
                             </div>
                             <HomeDrawer open={this.state.open}
                                         onClose={this.toggleSidebar(false)}
