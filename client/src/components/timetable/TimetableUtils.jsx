@@ -4,7 +4,7 @@ import Divider from "@material-ui/core/Divider/Divider";
 import React from "react";
 import {TranslateDate} from "../../../build/components/Translation";
 import Typography from "@material-ui/core/Typography/Typography";
-import connect from "react-redux/es/connect/connect";
+import {connect} from "react-redux";
 import withStyles from "@material-ui/core/styles/withStyles";
 import classnames from 'classnames';
 

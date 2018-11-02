@@ -10,12 +10,14 @@ import AppBar from "@material-ui/core/AppBar/AppBar";
 import {Link} from "react-router-dom";
 import {AppIcon} from "../Logo";
 import Button from "@material-ui/core/Button/Button";
+import OpenInNew from "@material-ui/core/SvgIcon/SvgIcon";
+import Paper from "@material-ui/core/Paper/Paper";
 
 @withStyles(theme => ({
     paper: {
         width: 'auto',
         padding: 3 * theme.spacing.unit,
-        margin: `${2 * theme.spacing.unit}px 0`,
+        margin: `${4 * theme.spacing.unit}px 0`,
     },
     marginTop: {
         marginTop: 4 * theme.spacing.unit
@@ -30,7 +32,7 @@ import Button from "@material-ui/core/Button/Button";
         }
     },
     icon: {
-        maxWidth: '15%',
+        maxWidth: '20%',
         [theme.breakpoints.down(797)]: {
             maxWidth: '40%'
         },
@@ -56,6 +58,14 @@ export default class extends React.Component {
                         <p><T.AppName version="1.1"/><br />Alexandre Trendel</p>
                         <Button variant="outlined" size="small" component="a" href="https://github.com/xou816/edt-ecn"><T.ViewSource/></Button>
                     </Typography>
+                    <Paper elevation={1} className={classes.paper}>
+                        <Typography variant="h6" gutterBottom>
+                            <T.HowItWorks/>
+                        </Typography>
+                        <Typography variant="subtitle1" gutterBottom>
+                            <T.HowItWorksDetails/>
+                        </Typography>
+                    </Paper>
                 </PageContent>
             </Page>
         );
