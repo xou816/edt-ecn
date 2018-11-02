@@ -1,7 +1,6 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import {addDays, compareAsc} from "date-fns";
-import {CourseWrapper} from "./CourseWrapper";
 
 function setIntersection(a, b) {
     return a.some(ae => b.indexOf(ae) > -1) || b.some(be => a.indexOf(be) > -1);
@@ -32,16 +31,15 @@ function collectGroups(events) {
     }, []);
 }
 
-function mapEvents(events, offset) {
+function mapEvents(events, callback) {
     let groups = collectGroups(events);
     let indexed = events.reduce((dict, event) => {
         return {...dict, [event.id]: event};
     }, {});
-    return groups.map(group => {
+    return callback(groups.map(group => {
         let eventGroup = group.map(id => indexed[id]);
-        return <CourseWrapper key={`${group.reduce((s, id) => s + id, offset.valueOf())}`} events={eventGroup}
-                              offset={offset}/>
-    });
+        return [group[0], eventGroup];
+    }));
 }
 
 function isVisible(offset, days) {
@@ -49,14 +47,10 @@ function isVisible(offset, days) {
 }
 
 
-@connect((state, {offset, days}) => ({
+const withEvents = connect((state, {offset, days}) => ({
     events: state.app.events.filter(isVisible(offset, days)),
-}))
-export class TimetableEvents extends React.Component {
+}), null);
 
-    render() {
-        let {events, offset} = this.props;
-        return mapEvents(events, offset);
-    }
-
-}
+export const TimetableEvents = withEvents(({events, children, ...props}) => {
+    return mapEvents(events, children)
+});

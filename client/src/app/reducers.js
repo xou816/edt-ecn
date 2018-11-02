@@ -3,7 +3,7 @@ import {resetSubjects, toggleCalendar, toggleSubject} from "./meta";
 export const initialState = {
     list: [],
     events: [],
-    ref: 0,
+    ref: 8,
     loading: false,
     subjects: {},
     focus: null,

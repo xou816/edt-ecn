@@ -1,65 +1,12 @@
 import React from 'react';
-import {addDays, addHours, addMinutes, format, getHours, isSameDay, startOfDay, startOfWeek} from "date-fns";
-import {TimetableEntry} from "./TimetableEntry";
+import {addHours, startOfDay, startOfWeek, differenceInMinutes, isSameWeek, isSameDay} from "date-fns";
 import {TimetableEvents} from "./TimetableEvents";
-import {FocusedCourse} from "./FocusedCourse";
-import Typography from "@material-ui/core/Typography/Typography";
-import Divider from "@material-ui/core/Divider/Divider";
 import withStyles from "@material-ui/core/styles/withStyles";
 import NoSsr from "@material-ui/core/NoSsr/NoSsr";
-import {TranslateDate} from "../Translation";
-import {connect} from "react-redux";
+import {Days, Hour, Hours, IsVisibleOn, Marker, OffsetProvider, Separators, Today, withRefHour} from "./TimetableUtils";
+import {CourseWrapper} from "./CourseWrapper";
+import {FocusedCourse} from "./FocusedCourse";
 
-function Separators({days}) {
-    return Array.from({length: 12}, (x, i) => (
-        <Divider key={`sep_${i}`} style={{gridRow: `${4 * i + 2} / span 4`, gridColumn: `2 / span ${days}`}}/>
-    ));
-}
-
-function Hours({classes, refHour}) {
-    return Array.from({length: 12}, (x, i) => (
-        <Typography className={classes.hour} align="center" color="textSecondary" key={`hour_${i}`}
-                    style={{gridRow: `${4 * i + 2} / span 1`, gridColumn: `1 / span 1`}}>
-            {`${refHour + i}:00`}
-        </Typography>
-    ));
-}
-
-
-function Days({length, date}) {
-    return Array.from({length}, (x, i) => {
-        let curDate = addDays(date, i);
-        let today = isSameDay(curDate, Date.now());
-        return (
-            <TranslateDate key={i}>{locale => (
-                <Typography align="center"
-                            color={today ? 'primary' : 'textSecondary'} key={i.toString()}
-                            style={{gridColumn: i + 2, gridRow: '1 / span 1'}}>
-                    {format(curDate, 'eee d MMM', {locale}).toUpperCase()}
-                </Typography>
-            )}</TranslateDate>
-        )
-    });
-}
-
-function Marker({offset, dayOffset, classes}) {
-    let now = Date.now();
-    return isSameDay(offset, dayOffset) && now >= dayOffset && now < addHours(dayOffset, 12) ? (
-        <TimetableEntry event={{start: now, end: addMinutes(now, 15)}} offset={offset}>
-            <Divider className={classes.now}/>
-        </TimetableEntry>
-    ) : <div/>;
-}
-
-function Today({dayOffset, offset, classes}) {
-    return (
-        <TimetableEntry event={{start: dayOffset, end: addHours(dayOffset, 11)}} offset={offset}>
-            <div className={classes.bg}/>
-        </TimetableEntry>
-    );
-}
-
-@connect(state => ({refHour: state.app.ref}))
 @withStyles(theme => ({
     root: {
         display: 'grid',
@@ -79,52 +26,72 @@ function Today({dayOffset, offset, classes}) {
             gridGap: '.3em 0'
         }
     },
-    now: {
-        width: '100%',
-        backgroundColor: theme.palette.secondary.main,
-        height: '2px'
-    },
     btn: {
         padding: '0 .5em',
         minWidth: 0,
         minHeight: 0
     },
-    hour: {
-        marginTop: '-.5em'
-    },
-    bg: {
-        background: theme.palette.grey[200],
-        opacity: 0.5,
-        display: 'block',
-        height: '100%',
-        width: '100%',
-    }
 }))
-export class Timetable extends React.Component {
+@withRefHour
+export class Timetable extends React.PureComponent {
 
     get date() {
         let {date, days} = this.props;
         return days > 1 ? startOfWeek(date, {weekStartsOn: 1}) : startOfDay(date);
     }
 
-    offset(date) {
+    startOf(date) {
         return addHours(startOfDay(date), this.props.refHour);
     }
 
+    getHours(offset, events) {
+        const hoursFromEvents = events
+            .reduce((result, [key, eventGroup]) => result.concat([eventGroup[0].start, eventGroup[0].end]), [])
+            .filter(time => isSameDay(time, offset) && time >= offset && time <= addHours(time, 11));
+        const conflicts = (a, list) => list.find(b => {
+            return Math.abs(differenceInMinutes(a, b)) <= 30;
+        }) != null;
+        return Array.from({length: 12}, (x, i) => addHours(offset, i))
+            .filter(hour => !conflicts(hour, hoursFromEvents))
+            .map(hour => [hour, false])
+            .concat(hoursFromEvents.map(hour => [hour, true]));
+    }
+
     render() {
-        let {classes, days, active, currDate, refHour} = this.props;
-        const offset = this.offset(this.date);
-        const dayOffset = this.offset(currDate);
+        let {classes, days, active, currDate} = this.props;
+
+        const offset = this.startOf(this.date);
+        const IsVisible = IsVisibleOn(this.date);
+        const currDateOffset = this.startOf(currDate);
+
         return (
-            <div className={classes.root}>
-                <NoSsr>{days > 1 && <Today dayOffset={dayOffset} offset={offset} classes={classes}/>}</NoSsr>
-                <Hours classes={classes} refHour={refHour}/>
-                <Days length={days} date={this.date}/>
-                <Separators days={days}/>
-                <TimetableEvents offset={offset} days={days}/>
-                <NoSsr><Marker dayOffset={dayOffset} offset={offset} classes={classes}/></NoSsr>
-                <FocusedCourse allowFocus={active}/>
-            </div>
+            <OffsetProvider value={offset}>
+                <TimetableEvents days={days} offset={offset}>
+                    {events => (<div className={classes.root}>
+
+                        <NoSsr>
+                            {days > 1 && <Today date={currDateOffset}/>}
+                        </NoSsr>
+
+                        <Days length={days} date={this.date}/>
+                        <Separators days={days}/>
+
+                        {active ?
+                            this.getHours(currDateOffset, events).map(([hour, important]) => <Hour important={important} key={hour.valueOf()} hour={hour}/>) :
+                            <Hours day={this.date}/>
+                        }
+
+                        {events.map(([key, eventGroup]) => <CourseWrapper key={key} events={eventGroup}/>)}
+
+                        <NoSsr>
+                            <IsVisible date={Date.now()}><Marker/></IsVisible>
+                        </NoSsr>
+
+                        <FocusedCourse allowFocus={active}/>
+
+                    </div>)}
+                </TimetableEvents>
+            </OffsetProvider>
         );
     }
 
