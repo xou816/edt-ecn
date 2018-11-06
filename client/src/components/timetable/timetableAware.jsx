@@ -11,7 +11,7 @@ import {
     setHours
 } from "date-fns";
 import {withRouter} from 'react-router';
-import {Media} from "../Media";
+import {connect} from "react-redux";
 
 const TODAY = setHours(Date.now(), 12);
 const FORMAT = 'uMMdd';
@@ -63,23 +63,20 @@ function position(weekView) {
         differenceInCalendarDays(date, TODAY);
 }
 
-export default function (Component) {
-    return withRouter(({history, match, ...others}) => (
-        <Media queries={[{maxWidth: '797px'}]} serverMatchDevices={['mobile']}>
-            {([isPhone]) => {
-                let weekView = !isPhone;
-                let date = parseDate(match.params.date);
-                return <Component {...others}
-                                  navigateTo={navigateTo(history)}
-                                  date={date}
-                                  weekView={weekView}
-                                  next={next(weekView)}
-                                  prev={prev(weekView)}
-                                  position={position(weekView)}
-                                  atPosition={atPosition(weekView)}
-                                  calendar={match.params.calendar}
-                                  makeLink={makeLink(match)}/>
-            }}
-        </Media>
-    ));
+const withWeekView = connect(({browser}) => ({weekView: browser.greaterThan.small}));
+
+export default function(Component) {
+    return withRouter(withWeekView(({history, match, weekView, ...others}) => {
+        let date = parseDate(match.params.date);
+        return <Component {...others}
+                          navigateTo={navigateTo(history)}
+                          date={date}
+                          weekView={weekView}
+                          next={next(weekView)}
+                          prev={prev(weekView)}
+                          position={position(weekView)}
+                          atPosition={atPosition(weekView)}
+                          calendar={match.params.calendar}
+                          makeLink={makeLink(match)}/>;
+    }));
 }

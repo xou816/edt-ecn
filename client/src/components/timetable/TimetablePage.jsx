@@ -3,7 +3,6 @@ import {TimetableNav} from "./TimetableNav";
 import {connect} from "react-redux";
 import {getCalendar} from "../../app/actions";
 import {Page, PageContent} from "../Page";
-import {Media} from "../Media";
 import DatePicker from "./DatePicker";
 import timetableAware from "./timetableAware";
 import SwipeableTimetable from "./SwipeableTimetable";
@@ -12,7 +11,8 @@ import Drawer from "@material-ui/core/Drawer/Drawer";
 import NoSsr from "@material-ui/core/NoSsr/NoSsr";
 
 @timetableAware
-@connect(null, dispatch => ({getCalendar: calendar => dispatch(getCalendar(calendar))}))
+@connect(({browser}) => ({isLarge: browser.greaterThan.medium}),
+    dispatch => ({getCalendar: calendar => dispatch(getCalendar(calendar))}))
 @withStyles(theme => ({
     drawer: {
         position: 'relative',
@@ -42,27 +42,22 @@ export class TimetablePage extends React.Component {
     }
 
     render() {
-        let {calendar, date, classes, makeLink, weekView} = this.props;
+        let {classes, isLarge} = this.props;
         return (
-            <Media queries={[{maxWidth: '797px'}, {maxWidth: '1024px', minWidth: '767px'}]}
-                   serverMatchDevices={['mobile', 'tablet']}>
-                {([isPhone, isTablet]) => (<Page>
-                    <TimetableNav date={date}
-                                  calendar={calendar}
-                                  open={this.state.open && (isTablet || isPhone)}
-                                  makeLink={makeLink}
-                                  onOpenPicker={this.toggleDatePicker(isTablet || isPhone)}
-                                  onClosePicker={this.toggleDatePicker(false)}/>
-                    <PageContent>
-                        <NoSsr>{!(isPhone || isTablet) &&
-                            <Drawer variant="permanent" classes={{paper: classes.drawer}}>
-                                <DatePicker week={weekView} date={date} makeLink={makeLink}/>
-                            </Drawer>}
-                        </NoSsr>
-                        <SwipeableTimetable/>
-                    </PageContent>
-                </Page>)}
-            </Media>
+            <Page>
+                <TimetableNav open={this.state.open && !isLarge}
+                              onOpenPicker={this.toggleDatePicker(!isLarge)}
+                              onClosePicker={this.toggleDatePicker(false)}/>
+                <PageContent>
+                    <NoSsr>
+                        {isLarge &&
+                        <Drawer variant="permanent" classes={{paper: classes.drawer}}>
+                            <DatePicker/>
+                        </Drawer>}
+                    </NoSsr>
+                    <SwipeableTimetable/>
+                </PageContent>
+            </Page>
         );
     }
 }

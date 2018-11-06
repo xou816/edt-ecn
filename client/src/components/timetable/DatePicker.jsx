@@ -11,8 +11,7 @@ import withStyles from "@material-ui/core/styles/withStyles";
 import Button from "@material-ui/core/Button/Button";
 import MuiPickersUtilsProvider from "material-ui-pickers/MuiPickersUtilsProvider";
 import {T, TranslateDate} from "../Translation";
-
-const TODAY = setHours(Date.now(), 12);
+import timetableAware from "./timetableAware";
 
 @withStyles(theme => ({
     day: {
@@ -91,6 +90,7 @@ class Day extends React.Component {
     }
 }
 
+@timetableAware
 @withStyles(theme => ({
     picker: {
         margin: `0 ${theme.spacing.unit}px`,
@@ -99,7 +99,7 @@ class Day extends React.Component {
 }))
 export default class extends React.Component {
     render() {
-        let {week, date, makeLink, onChange, classes} = this.props;
+        let {weekView, date, makeLink, onChange, classes} = this.props;
         return (
             <div className={classes.picker}>
                 <TranslateDate>{locale => (
@@ -110,14 +110,13 @@ export default class extends React.Component {
                                   onChange={onChange || (() => null)}
                                   renderDay={(date, selectedDate, dayInCurrentMonth) =>
                                       <Day date={date}
-                                           week={week}
+                                           week={weekView}
                                            link={makeLink(date)}
                                            selectedDate={selectedDate}
                                            dayInCurrentMonth={dayInCurrentMonth}/>}/>
                     </MuiPickersUtilsProvider>
                 )}</TranslateDate>
                 <Button variant="outlined"
-                        // disabled={week && isSameISOWeek(date, TODAY) || isSameDay(date, TODAY)}
                         component={Link}
                         to={makeLink(Date.now())}
                         onClick={onChange}>

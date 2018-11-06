@@ -22,7 +22,7 @@ const darkTheme = createMuiTheme({
     }
 });
 
-@connect(state => ({count: state.app.meta.length}))
+@connect(({app, browser}) => ({count: app.meta.length, permanent: browser.greaterThan.small}))
 @withStyles(theme => ({
     drawer: {
         position: 'relative',

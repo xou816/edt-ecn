@@ -24,7 +24,8 @@ const withStyle = withStyles(theme => ({
     main: {
         display: 'flex',
         flex: 1,
-        overflow: 'hidden'
+        overflowX: 'hidden',
+        overflowY: 'auto'
     }
 }));
 

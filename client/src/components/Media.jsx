@@ -1,23 +1,23 @@
 import React from 'react';
-import M from 'react-media';
+import {connect} from "react-redux";
+import Button from "@material-ui/core/Button/Button";
 
-const {Provider, Consumer} = React.createContext('mobile');
+const withBrowser = connect(({browser}) => ({browser}));
 
-function RecursiveMedia({device, serverMatchDevices, queries, children, ...others}) {
-    let factory = queries.reduce((prevChild, query, index) => {
-        const defaultMatches = serverMatchDevices[index] === device;
-        const childFunc = data => matches => prevChild([matches, ...data]);
-        return data => React.createElement(M, {...others, query, defaultMatches}, childFunc(data));
-    }, children);
-    return factory([]);
-}
-
-function Media(props) {
+export const ResponsiveButton = withBrowser(({browser, largeText, children, ...other}) => {
+    const large = browser.greaterThan.small;
+    delete other['dispatch'];
     return (
-        <Consumer>
-            {device => <RecursiveMedia {...props} device={device}/>}
-        </Consumer>
+        <Button {...other} size={large ? 'large' : 'small'}>
+            {<React.Fragment>
+                {children}
+                {large && '\xa0\xa0'}
+                {large && largeText}
+            </React.Fragment>}
+        </Button>
     );
-}
+});
 
-export {Provider as MediaProvider, Media};
+export const HideOnMobile = withBrowser(({browser, children}) => {
+   return browser.greaterThan.small ? children : null;
+});

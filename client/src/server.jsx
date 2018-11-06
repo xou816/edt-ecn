@@ -12,7 +12,6 @@ import {createServerStore} from "./app/store";
 import {JssProvider, SheetsRegistry} from 'react-jss';
 import {createGenerateClassName, MuiThemeProvider} from '@material-ui/core/styles';
 import {UAParser} from 'ua-parser-js';
-import {MediaProvider} from "./components/Media";
 import {StaticRouter} from "react-router";
 import {theme} from "./app/theme";
 import CleanCss from 'clean-css';
@@ -54,6 +53,18 @@ function renderPage(html, css, js, state) {
 		</html>`;
 }
 
+function mapDeviceToMedia(device) {
+    console.log(device);
+    switch (device) {
+        case 'mobile':
+            return 'small';
+        case 'tablet':
+            return 'small';
+        default:
+            return 'large';
+    }
+}
+
 function storeReady(store, timeout) {
     setTimeout(() => store.dispatch({type: '__WAKE_SUBSCRIBER__'}), 10); // needed if no dispatch occurs when rendering
     setTimeout(() => store.dispatch({type: 'LOAD_END'}), timeout);
@@ -91,22 +102,20 @@ app.use((req, res) => {
     const context = {};
     const generateClassName = createGenerateClassName();
     const sheetsRegistry = new SheetsRegistry();
-    const store = createServerStore();
     const deviceType = UAParser(req.header('user-agent')).device.type;
+    const store = createServerStore(mapDeviceToMedia(deviceType));
     const html = renderToString(
-        <MediaProvider value={deviceType}>
-            <Provider store={store}>
-                <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
-                    <MuiThemeProvider theme={theme} sheetsManager={new Map()}>
-                        <StaticRouter location={req.url} context={context}>
-                            <CookiesProvider cookies={new Cookies(req.headers.cookie)}>
-                                <App/>
-                            </CookiesProvider>
-                        </StaticRouter>
-                    </MuiThemeProvider>
-                </JssProvider>
-            </Provider>
-        </MediaProvider>
+        <Provider store={store}>
+            <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
+                <MuiThemeProvider theme={theme} sheetsManager={new Map()}>
+                    <StaticRouter location={req.url} context={context}>
+                        <CookiesProvider cookies={new Cookies(req.headers.cookie)}>
+                            <App/>
+                        </CookiesProvider>
+                    </StaticRouter>
+                </MuiThemeProvider>
+            </JssProvider>
+        </Provider>
     );
     cleanCss.minify(sheetsRegistry.toString())
         .then(css => css.styles)

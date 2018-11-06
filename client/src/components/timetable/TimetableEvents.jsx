@@ -1,5 +1,6 @@
 import React from 'react';
 import {connect} from 'react-redux';
+import {createSelector} from 'reselect';
 import {addDays, compareAsc} from "date-fns";
 
 function setIntersection(a, b) {
@@ -31,26 +32,37 @@ function collectGroups(events) {
     }, []);
 }
 
-function mapEvents(events, callback) {
+function mapEvents(events) {
     let groups = collectGroups(events);
     let indexed = events.reduce((dict, event) => {
         return {...dict, [event.id]: event};
     }, {});
-    return callback(groups.map(group => {
+    return groups.map(group => {
         let eventGroup = group.map(id => indexed[id]);
         return [group[0], eventGroup];
-    }));
+    });
 }
 
-function isVisible(offset, days) {
-    return event => event.start >= offset && event.start < addDays(offset, days);
+function getSelectors() {
+    return [state => state.app.events, (_, props) => props.offset, (_, props) => props.days];
+}
+
+function filterEvents(events, offset, days) {
+    return events.filter(event => event.start.valueOf() >= offset && event.start.valueOf() < addDays(offset, days));
+}
+
+function makeSelector() {
+    return createSelector(getSelectors(), (a, b, c) => mapEvents(filterEvents(a, b, c)));
 }
 
 
-const withEvents = connect((state, {offset, days}) => ({
-    events: state.app.events.filter(isVisible(offset, days)),
-}), null);
+const withEvents = connect(() => {
+    const getEvents = makeSelector();
+    return (state, props) => ({
+        events: getEvents(state, props)
+    });
+});
 
-export const TimetableEvents = withEvents(({events, children, ...props}) => {
-    return mapEvents(events, children)
+export const TimetableEvents = withEvents(({events, children}) => {
+    return children(events);
 });

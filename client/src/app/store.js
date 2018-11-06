@@ -2,6 +2,12 @@ import thunk from "redux-thunk";
 import {appReducer} from "./reducers";
 import {applyMiddleware, combineReducers, compose, createStore} from "redux";
 import {parseIso} from './event';
+import {
+    createResponsiveStateReducer,
+    createResponsiveStoreEnhancer,
+    responsiveStateReducer,
+    responsiveStoreEnhancer
+} from "redux-responsive";
 
 export function createClientStore() {
 
@@ -19,13 +25,16 @@ export function createClientStore() {
 
     const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
     return createStore(combineReducers({
-        app: appReducer
-    }), initialState, composeEnhancers(applyMiddleware(thunk)));
+        app: appReducer,
+        browser: responsiveStateReducer,
+    }), initialState, composeEnhancers(responsiveStoreEnhancer, applyMiddleware(thunk)));
 }
 
-export function createServerStore() {
-
+export function createServerStore(mediaType) {
+    const browser = createResponsiveStateReducer(null, {initialMediaType: mediaType});
+    const enhancer = createResponsiveStoreEnhancer({calculateInitialState: false});
     return createStore(combineReducers({
         app: appReducer,
-    }), applyMiddleware(thunk));
+        browser
+    }), compose(enhancer, applyMiddleware(thunk)));
 } 

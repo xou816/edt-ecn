@@ -89,14 +89,15 @@ export const Marker = styled(({classes}) => {
     );
 });
 
-export const Today = styled(({date, classes}) => {
+export const CurrentDay = withRefHour(styled(({date, classes, refHour}) => {
+    date = addHours(startOfDay(date), refHour);
     const [start, end] = [date, addHours(date, 11)];
     return (
         <TimetableEntry event={{start, end}}>
             <div className={classes.bg}/>
         </TimetableEntry>
     );
-});
+}));
 
 const {Provider, Consumer} = React.createContext(0);
 export {Provider as OffsetProvider, Consumer as OffsetConsumer};

@@ -3,7 +3,6 @@ import {CalendarSelect} from "./CalendarSelect";
 import HomeDrawer from "./HomeDrawer";
 import {Page, PageContent} from "../Page";
 import Filter from '@material-ui/icons/FilterList';
-import {Media} from "../Media";
 import {connect} from 'react-redux';
 import HomeNav from "./HomeNav";
 import Portal from "@material-ui/core/Portal/Portal";
@@ -18,17 +17,21 @@ import {Logo} from "../Logo";
 import Button from "@material-ui/core/Button/Button";
 import {Link} from "react-router-dom";
 
-function FilterMessage({show, doFilter}) {
-    return (
-        <Portal>
-            <Snackbar open={show}
-                      message={<T.FilterForSelection/>}
-                      action={<IconButton onClick={doFilter} color={"secondary"}><Filter/></IconButton>}/>
-        </Portal>
-    );
+@connect(({app, browser}, {visible}) => ({
+    open: app.meta.length > 0 && !browser.greaterThan.small && visible
+}))
+class FilterMessage extends React.PureComponent {
+    render() {
+        let {open, doFilter} = this.props;
+        return (
+            <Portal>
+                <Snackbar open={open}
+                          message={<T.FilterForSelection/>}
+                          action={<IconButton onClick={doFilter} color={"secondary"}><Filter/></IconButton>}/>
+            </Portal>
+        );
+    }
 }
-
-const ConditionalFilterMessage = connect(state => ({show: state.app.meta.length > 0}))(FilterMessage);
 
 @connect(state => ({loading: state.app.loading}))
 @withStyles(theme => ({
@@ -110,27 +113,20 @@ export class HomePage extends React.Component {
         return (
             <Page>
                 <HomeNav/>
-                <Media queries={[{maxWidth: '797px'}]} serverMatchDevices={['mobile']}>
-                    {([isPhone]) => (
-                        <PageContent className={classes.main}>
-                            <div className={classes.rightContainer}>
-                                <LoadingLogo/>
-                                <Chip className={classes.switchLanguage} onClick={switchLanguage}
-                                      label={<T.SwitchLanguage/>}/>
-                                <RecentCalendars className={classes.paper}/>
-                                <CalendarSelect className={classnames(classes.paper)}/>
-                                <div className={classes.last}>
-                                    <Button component={Link} to="/about"><T.About/></Button>
-                                </div>
-                            </div>
-                            <HomeDrawer open={this.state.open}
-                                        onClose={this.toggleSidebar(false)}
-                                        permanent={!isPhone}/>
-                            {!isPhone || this.state.open ? null :
-                                <ConditionalFilterMessage doFilter={this.toggleSidebar(true)}/>}
-                        </PageContent>
-                    )}
-                </Media>
+                <PageContent className={classes.main}>
+                    <div className={classes.rightContainer}>
+                        <LoadingLogo/>
+                        <Chip className={classes.switchLanguage} onClick={switchLanguage}
+                              label={<T.SwitchLanguage/>}/>
+                        <RecentCalendars className={classes.paper}/>
+                        <CalendarSelect className={classes.paper}/>
+                        <div className={classes.last}>
+                            <Button component={Link} to="/about"><T.About/></Button>
+                        </div>
+                    </div>
+                    <HomeDrawer open={this.state.open} onClose={this.toggleSidebar(false)}/>
+                    <FilterMessage doFilter={this.toggleSidebar(true)} visible={!this.state.open}/>
+                </PageContent>
             </Page>
         );
     }
