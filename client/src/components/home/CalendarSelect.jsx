@@ -7,10 +7,47 @@ import withStyles from "@material-ui/core/styles/withStyles";
 import List from "@material-ui/core/List/List";
 import {Translation} from '../Translation';
 import Paper from "@material-ui/core/Paper/Paper";
+import {emphasize} from '@material-ui/core/styles/colorManipulator';
 
-const fake = classes => Array.from({length: 5}, (x, i) => ({
+const Skeleton = withStyles(theme => {
+    const dark = theme.palette.type === 'dark';
+    const color1 = dark ? theme.palette.background.default : theme.palette.grey[200];
+    const color2 = dark ? emphasize(theme.palette.background.default, 0.15) : theme.palette.grey[100];
+    return {
+        skeleton: {
+            margin: 0,
+            display: 'block',
+            height: '1.5rem',
+            background: color1,
+            position: 'relative',
+            overflow: 'hidden',
+            '&:after': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                background: `linear-gradient(90deg, ${color1}, ${color2}, ${color1})`,
+                animation: 'progress 1s ease-in-out infinite'
+            }
+        },
+        '@keyframes progress': {
+            '0%': {
+                transform: 'translate3d(-100%, 0, 0)'
+            },
+            '100%': {
+                transform: 'translate3d(100%, 0, 0)'
+            },
+        }
+    }
+})(({classes}) => {
+    return <div className={classes.skeleton}/>;
+});
+
+const FAKE_DATA = Array.from({length: 5}, (x, i) => ({
     key: `skeleton_${i}`,
-    title: <div className={classes.skeleton}/>,
+    title: <Skeleton/>,
     nested: [],
     shown: false,
     checked: false,
@@ -24,8 +61,10 @@ const PREFIXES = ['EI', 'OD', 'OP', 'M1ECN', 'AP', 'MECA', 'BTP', 'M1', 'M2', 'O
 
 function indexList(list) {
     return list
-        .map(calendar => ({...calendar,
-            prefix: PREFIXES.find(prefix => calendar.name.startsWith(prefix)) || 'OTHER'}))
+        .map(calendar => ({
+            ...calendar,
+            prefix: PREFIXES.find(prefix => calendar.name.startsWith(prefix)) || 'OTHER'
+        }))
         .sort((a, b) => {
             return PREFIXES.indexOf(a.prefix) > PREFIXES.indexOf(b.prefix) ? 1 : -1;
         })
@@ -45,34 +84,6 @@ const mapDispatch = dispatch => ({
 });
 
 @connect(mapState, mapDispatch)
-@withStyles(theme => ({
-    skeleton: {
-        margin: 0,
-        display: 'block',
-        height: '1.5rem',
-        background: theme.palette.grey[200],
-        position: 'relative',
-        overflow: 'hidden',
-        '&:after': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            background: `linear-gradient(90deg, ${theme.palette.grey[200]}, ${theme.palette.grey[100]}, ${theme.palette.grey[200]})`,
-            animation: 'progress 1s ease-in-out infinite'
-        }
-    },
-    '@keyframes progress': {
-        '0%': {
-            transform: 'translate3d(-100%, 0, 0)'
-        },
-        '100%': {
-            transform: 'translate3d(100%, 0, 0)'
-        },
-    }
-}))
 export class CalendarSelect extends React.Component {
 
     constructor(props) {
@@ -96,7 +107,7 @@ export class CalendarSelect extends React.Component {
     }
 
     render() {
-        let {list, toggle, checked, classes, className} = this.props;
+        let {list, toggle, checked, className} = this.props;
         let mapped = Object.keys(list).length ? Object.keys(list).map(prefix => ({
             key: `prefix_${prefix}`,
             title: <Translation for={'Calendar' + prefix}/>,
@@ -107,7 +118,7 @@ export class CalendarSelect extends React.Component {
             unfold: () => this.togglePrefix(prefix),
             getId: calendar => calendar.id,
             getPrimary: calendar => calendar.display
-        })) : fake(classes);
+        })) : FAKE_DATA;
         return (
             <Paper className={className}>
                 <List component="nav">

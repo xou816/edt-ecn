@@ -25,8 +25,8 @@ const styled = withStyles(theme => ({
         color: theme.palette.text.secondary
     },
     bg: {
-        background: theme.palette.grey[200],
-        opacity: 0.5,
+        background: theme.palette.text.secondary,
+        opacity: 0.1,
         display: 'block',
         height: '100%',
         width: '100%',
@@ -71,7 +71,7 @@ export function Days({length, date}) {
         return (
             <TranslateDate key={i}>{locale => (
                 <Typography align="center"
-                            color={today ? 'primary' : 'textSecondary'} key={i.toString()}
+                            color={today ? 'secondary' : 'textSecondary'} key={i.toString()}
                             style={{gridColumn: i + 2, gridRow: '1 / span 1'}}>
                     {format(curDate, 'eee d MMM', {locale}).toUpperCase()}
                 </Typography>

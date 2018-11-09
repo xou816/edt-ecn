@@ -65,9 +65,6 @@ class LoadingLogo extends React.PureComponent {
 }
 
 @withStyles(theme => ({
-    main: {
-        background: theme.palette.grey[100]
-    },
     rightContainer: {
         padding: 2 * theme.spacing.unit,
         flex: 3,
