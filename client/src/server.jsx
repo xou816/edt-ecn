@@ -112,11 +112,13 @@ app.use('/public', Express.static(path.resolve(__dirname, '../build/public')));
 app.use('/api', proxy(`localhost:${parseInt(process.env.PORT || '3000', 10) + 1}`, {
     proxyReqPathResolver: req => path.join('/api', parse(req.url).path),
     userResDecorator: (res, resData, req) => {
-        const parsed = JSON.parse(resData);
         let valid = undefined;
-        if (parsed.meta) {
-            valid = parsed.meta.reduce((r, m) => r && m.valid, true);
-        }
+        try {
+            const parsed = JSON.parse(resData);
+            if (parsed.meta) {
+                valid = parsed.meta.reduce((r, m) => r && m.valid, true);
+            }
+        } catch (e) {}
         log(req, {proxied: true, valid});
         return resData;
     }
