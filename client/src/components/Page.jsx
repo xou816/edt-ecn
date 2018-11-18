@@ -30,7 +30,7 @@ const withStyle = withStyles(theme => ({
 }));
 
 const ErrorMessage = connect(state => ({error: state.app.error}))(({error}) => (
-    <Snackbar open={error !== null} message={<Translation for={error}/>} autoHideDuration={3000}/>)
+    <Snackbar open={error !== null} message={<Translation for={error || 'GenericError'}/>} autoHideDuration={3000}/>)
 );
 
 const Loader = connect(state => ({loading: state.app.loading}))(({loading}) => (

@@ -112,21 +112,14 @@ app.use('/public', Express.static(path.resolve(__dirname, '../build/public')));
 app.use('/api', proxy(`localhost:${parseInt(process.env.PORT || '3000', 10) + 1}`, {
     proxyReqPathResolver: req => path.join('/api', parse(req.url).path),
     userResDecorator: (res, resData, req) => {
-        let valid = undefined;
-        try {
-            const parsed = JSON.parse(resData);
-            if (parsed.meta) {
-                valid = parsed.meta.reduce((r, m) => r && m.valid, true);
-            }
-        } catch (e) {}
-        log(req, {proxied: true, valid});
+        log(req, {proxied: true});
         return resData;
     }
 }));
 
 // needs to be served at the root
 app.get('/service-worker.js', (req, res) => {
-    log(req, {});
+    log(req, {proxied: true});
     res.sendFile(path.resolve(__dirname, '../build/public/service-worker.js'));
 });
 
@@ -155,7 +148,7 @@ app.use((req, res) => {
         .then(data => Promise.resolve(store.getState()).then(state => ({...data, state})))
         .then(({css, js, state}) => renderPage(html, css, js, state))
         .then(result => res.send(result));
-    log(req, {deviceType});
+    log(req, {deviceType, proxied: false});
 });
 
 app.listen(process.env.PORT || 3000);

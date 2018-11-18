@@ -85,7 +85,7 @@ export class FilterSubject extends React.Component {
                         unfold={() => this.toggleCalendar(calendar)}
                         toggle={(subject) => toggleSubject(calendar, subject)}
                         checked={(subject) => checked(calendar, subject)}
-                        getId={subject => subject.id}
+                        getId={subject => subject.hash}
                         getPrimary={subject => subject.name}
                         getSecondary={subject => subject.full_name}
                         checkbox={{

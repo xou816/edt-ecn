@@ -44,12 +44,17 @@ export function getRecent() {
     }
 }
 
+function startsWithOneOf(str, list) {
+    return list.reduce((res, curr) => res || str.startsWith(curr), false);
+}
+
 export function getCalendar(calendar) {
     return (dispatch, getState) => {
         const list = getState().app.list;
         if (calendar != null) {
             dispatch({type: 'LOAD_START'});
-            return fetch(`${API}/calendar/custom/${calendar}`)
+            const service = startsWithOneOf(calendar, ['m', 'u', 'g', 'r']) ? '/calendar/custom/' : '/alias/';
+            return fetch(`${API}${service}${calendar}`)
                 .then(res => res.status >= 400 ? Promise.reject('error') : res.json())
                 .then(calendar => {
                     pushCacheEntry(list, calendar);
@@ -106,7 +111,7 @@ export function applySelection() {
         } else if (meta.length > 0) {
             dispatch({type: 'LOAD_START'});
             dispatch({type: 'SET_EVENTS', events: []});
-            return fetch(`${API}/calendar/custom`, {
+            return fetch(`${API}/alias`, {
                 method: 'POST',
                 body: JSON.stringify(meta),
                 headers: {'Content-Type': 'application/json'}

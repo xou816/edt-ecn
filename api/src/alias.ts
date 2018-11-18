@@ -18,11 +18,12 @@ const redis = createRedisClient();
 
 const hashPin = (alias: string, pin: string): string => createHash('sha1').update(alias + pin).digest('hex');
 
-function getAlias(alias: string): Promise<{ hash: string }> {
+export function getAlias(alias: string): Promise<{ hash?: string, value: string }> {
     return new Promise((resolve, reject) => {
         redis.hgetall(alias, (err, res) => {
             if (err) reject(err);
-            resolve(res as { hash: string });
+            if (res === null) reject();
+            resolve(res as { hash: string, value: string });
         });
     });
 }
@@ -32,15 +33,6 @@ export function aliasExists(alias: string): Promise<boolean> {
         redis.exists(alias, (err, res) => {
             if (err) reject(err);
             resolve(res > 0);
-        });
-    });
-}
-
-export function getCalId(alias: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-        redis.hget(alias, 'value', (err, res) => {
-            if (err || res === null) reject(err);
-            resolve(res);
         });
     });
 }
@@ -56,8 +48,7 @@ export function setAlias(alias: string, pin: string, value: string): Promise<boo
             });
     });
     return getAlias(alias)
-        .then(doc => doc !== null && hash === doc.hash || doc === null ?
-            Promise.resolve() : Promise.reject('Hash mismatch'))
+        .then(doc => hash === doc.hash)
         .then(_ => setAliasPromise);
 }
 
@@ -67,7 +58,7 @@ export function setAliasNoPass(alias: string, value: string): Promise<boolean> {
             {value: value},
             (err, res) => {
                 if (err) reject(err);
-                return resolve(res);
+                return resolve(true);
             });
     });
 }

@@ -2,17 +2,10 @@ import * as calendar from '../calendar';
 import {tz} from 'moment-timezone';
 import {Router} from 'express';
 import {CelcatCalendarType} from "../calendars/celcat";
-import {getCalId} from "../alias";
 
 export default function apiRouter(router: Router): Router {
 
-    router.use((req, res, next) => {
-        res.setHeader('Access-Control-Allow-Origin', '*');
-        res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-        next();
-    });
-
-    router.get('/calendar/list', (req, res) => {
+    router.get('/list', (req, res) => {
         res.setHeader('Content-Type', 'application/json');
         calendar.listOnlineCalendars('group')
             .then(JSON.stringify)
@@ -23,7 +16,7 @@ export default function apiRouter(router: Router): Router {
             });
     });
 
-    router.get('/calendar/list/:type', (req, res) => {
+    router.get('/list/:type', (req, res) => {
         res.setHeader('Content-Type', 'application/json');
         calendar.listOnlineCalendars(req.params.type as CelcatCalendarType)
             .then(JSON.stringify)
@@ -34,7 +27,7 @@ export default function apiRouter(router: Router): Router {
             });
     });
 
-    router.post('/calendar/custom', (req, res) => {
+    router.post('/custom', (req, res) => {
         res.setHeader('Content-Type', 'application/json');
         calendar.createFilterFromMeta(req.body)
             .then((result: string) => {
@@ -46,7 +39,7 @@ export default function apiRouter(router: Router): Router {
             });
     });
 
-    router.get('/calendar/custom/:id.ics', (req, res) => {
+    router.get('/custom/:id.ics', (req, res) => {
         res.setHeader('Content-Type', 'text/calendar');
         calendar.getCustomCalendar(req.params.id)
             .then(cal => cal.events)
@@ -59,7 +52,7 @@ export default function apiRouter(router: Router): Router {
             });
     });
 
-    router.get('/calendar/custom/:id', (req, res) => {
+    router.get('/custom/:id', (req, res) => {
         res.setHeader('Content-Type', 'application/json');
         calendar.getCustomCalendar(req.params.id)
             .then(JSON.stringify)
@@ -70,7 +63,7 @@ export default function apiRouter(router: Router): Router {
             });
     });
 
-    router.get('/calendar/custom/:id/subjects', (req, res) => {
+    router.get('/custom/:id/subjects', (req, res) => {
         res.setHeader('Content-Type', 'application/json');
         calendar.getCustomCalendar(req.params.id)
             .then(calendar.getSubjects)
@@ -79,18 +72,6 @@ export default function apiRouter(router: Router): Router {
             .catch(error => {
                 res.status(500);
                 res.send({error});
-            });
-    });
-
-    router.get('/calendar/personal/:id', (req, res) => {
-        res.setHeader('Content-Type', 'application/json');
-        getCalId(req.params.id)
-            .then(calendar.getCustomCalendar)
-            .then(JSON.stringify)
-            .then(json => res.send(json))
-            .catch(error => {
-                res.status(404);
-                res.send({error: 'Alias does not exist'});
             });
     });
 

@@ -30,6 +30,7 @@
     "express": "^4.16.4",
     "express-session": "^1.15.6",
     "ical-generator": "^1.2.2",
+    "json-stable-stringify": "^1.0.1",
     "ldapjs": "^1.0.2",
     "libxmljs": "^0.19.5",
     "moment-timezone": "^0.5.21",

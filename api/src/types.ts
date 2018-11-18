@@ -29,10 +29,21 @@ export type Meta = {
     valid: boolean
 };
 
+export type NewMeta = {
+    id: string,
+    filter?: string[]
+};
+
 export type Calendar = {
     id?: string,
     events: Events,
     meta: Meta[],
+    extra: {}
+}
+
+export type NewCalendar = {
+    events: Events,
+    meta: NewMeta[],
     extra: {}
 }
 

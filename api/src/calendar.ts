@@ -3,7 +3,17 @@ import {createHash} from 'crypto';
 import {Filter} from './filter';
 import centrale from './calendars/centrale';
 import ufr from './calendars/ufr';
-import {Calendar, CalendarEvent, CalendarId, Events, Meta, Subjects, UNKNOWN_SUBJECT} from "./types";
+import {
+    Calendar,
+    CalendarEvent,
+    CalendarId,
+    Events,
+    Meta,
+    NewCalendar,
+    NewMeta,
+    Subjects,
+    UNKNOWN_SUBJECT
+} from "./types";
 import {CelcatCalendarType} from "./calendars/celcat";
 
 const CALENDARS = [ufr, centrale];
@@ -17,10 +27,18 @@ export function listOnlineCalendars(type: CelcatCalendarType): Promise<CalendarI
 
 const VALID_CAT = ['CM', 'TD', 'TP', 'DS'];
 
-function getSubjectFromEvent(event: CalendarEvent): { name: string, full_name: string | null } {
+function hashSubject(subject: string) {
+    return createHash('sha1')
+        .update(subject.toUpperCase())
+        .digest('hex')
+        .substring(0, 10);
+}
+
+function getSubjectFromEvent(event: CalendarEvent): { name: string, full_name: string | null, hash: string } {
     return {
         name: event.subject.toUpperCase(),
-        full_name: event.full_subject
+        full_name: event.full_subject,
+        hash: hashSubject(event.subject)
     };
 }
 
@@ -55,8 +73,11 @@ export function getOnlineCalendar(id: string): Promise<Calendar> {
     return CALENDARS.find(celcat => celcat.hasCalendar(id))!.getCalendar(id);
 }
 
+// DEPRECATED
+// These functions use a filtering system where all information about filters to apply is contained in the id
+
 function getSingleCustomCalendar(id: string): Promise<Calendar> {
-    let [calendarId, filterEnc, checksum, version] = id.split(/[\-_]/);
+    let [calendarId, filterEnc, checksum] = id.split(/[\-_]/);
     if (filterEnc == null) {
         return getOnlineCalendar(calendarId);
     }
@@ -109,7 +130,7 @@ function makeChecksum(subjects: Subjects, length: number): string {
     return createHash('sha1').update(str).digest('hex').substr(0, 6);
 }
 
-function checkSubjects(filter: Filter, subjects: Subjects, checksum: string): boolean {
+export function checkSubjects(filter: Filter, subjects: Subjects, checksum: string): boolean {
     const length = filter.length();
     return checksum !== makeChecksum(subjects, length);
 }
@@ -129,6 +150,24 @@ export function createFilterFromMeta(metas: Meta[]): Promise<string> {
                 .then((f: string) => filters.concat([f]))),
         Promise.resolve([]))
         .then((filters: string[]) => filters.join('+'));
+}
+
+// New functions
+
+export async function getCalendarFromMeta(metas: NewMeta[]) {
+    return metas.reduce(async (acc: Promise<NewCalendar>, meta: NewMeta) => {
+        const calendar = await acc;
+        const current = await getOnlineCalendar(meta.id);
+        const filter = meta.filter || [];
+        const events = current.events
+            .filter(e => filter.find(s => s === hashSubject(e.subject)) == null &&
+                calendar.events.find(ev => ev.id === e.id) == null);
+        return {
+            ...calendar,
+            extra: {...calendar.extra, ...current.extra},
+            events: calendar.events.concat(events)
+        }
+    }, Promise.resolve({meta: metas, events: [], extra: {}}));
 }
 
 export function calendarToIcs(events: Events): string {
