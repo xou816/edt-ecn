@@ -10,7 +10,7 @@ export default {
         CalendarM1: 'Master 1',
         CalendarM2: 'Master 2',
         CalendarMECA: 'Filière mécanique',
-        CalendarOP: 'Option profesionnelle',
+        CalendarOP: 'Option professionnelle',
         CalendarPROMO: 'Promo EI1',
         CalendarOTHER: 'Autres',
         SelectCalendars: 'Sélectionner des calendriers',
