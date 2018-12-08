@@ -1,0 +1,23 @@
+FROM node:11-stretch
+
+RUN mkdir -p /var/app/api /var/app/client
+WORKDIR /var/app
+COPY package.json /var/app
+RUN npm i
+
+# install api deps
+WORKDIR /var/app/api
+COPY api/package.json /var/app/api
+RUN npm i
+
+# install client deps
+WORKDIR /var/app/client
+COPY client/package.json /var/app/client
+RUN npm i
+
+# copy built source
+COPY api/build /var/app/api/build
+COPY client/build /var/app/client/build
+
+WORKDIR /var/app
+CMD ["npm", "start"]

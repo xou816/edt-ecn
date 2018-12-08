@@ -1,7 +1,7 @@
 import {parse} from 'date-fns';
 
 export function parseIso(d) {
-    return parse(d, "RRRR-MM-dd'T'HH:mm:ss.SSSXXX", Date.now());
+    return parse(d, "u-MM-dd'T'HH:mm:ss.SSSXXX", Date.now());
 }
 
 function charcode(string) {

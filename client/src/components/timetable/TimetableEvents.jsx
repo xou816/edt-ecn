@@ -1,7 +1,7 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import {createSelector} from 'reselect';
-import {addDays, compareAsc} from "date-fns";
+import {addDays, compareAsc, isAfter, isBefore} from "date-fns";
 
 function setIntersection(a, b) {
     return a.some(ae => b.indexOf(ae) > -1) || b.some(be => a.indexOf(be) > -1);
@@ -48,7 +48,7 @@ function getSelectors() {
 }
 
 function filterEvents(events, offset, days) {
-    return events.filter(event => event.start.valueOf() >= offset && event.start.valueOf() < addDays(offset, days));
+    return events.filter(event => isAfter(event.start, offset) && isBefore(event.start, addDays(offset, days)));
 }
 
 function makeSelector() {

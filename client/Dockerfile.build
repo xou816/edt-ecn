@@ -1,0 +1,11 @@
+FROM node:11-stretch
+
+RUN mkdir -p /var/app/build /var/app/src
+VOLUME /var/app/build
+VOLUME /var/app/src
+WORKDIR /var/app
+COPY package.json /var/app
+RUN npm i --build-from-source
+COPY .babelrc /var/app
+COPY config /var/app/config
+CMD ["npm", "run", "build"]

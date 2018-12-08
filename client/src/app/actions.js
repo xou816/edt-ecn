@@ -102,12 +102,16 @@ export function getSubjects() {
     }
 }
 
+function isSimpleMeta(meta) {
+    return meta.reduce((isSimple, entry) => isSimple && (entry.filter || []).length === 0, true);
+}
+
 export function applySelection() {
     return (dispatch, getState) => {
         let meta = getState().app.meta;
-        if (meta.length === 1 && (meta[0].filter || []).length === 0) {
+        if (isSimpleMeta(meta)) {
             dispatch({type: 'SET_EVENTS', events: []});
-            return Promise.resolve(meta[0].id);
+            return Promise.resolve(meta.map(entry => entry.id).join('+'));
         } else if (meta.length > 0) {
             dispatch({type: 'LOAD_START'});
             dispatch({type: 'SET_EVENTS', events: []});

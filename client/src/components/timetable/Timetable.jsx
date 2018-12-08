@@ -68,7 +68,7 @@ export class Timetable extends React.PureComponent {
 
                     <Separators days={days}/>
 
-                    <TimetableEvents days={days} offset={date.valueOf()}>
+                    <TimetableEvents days={days} offset={date}>
                         {events => <React.Fragment><Hours events={events} actualDate={this.actualDate}/><Courses events={events} /></React.Fragment>}
                     </TimetableEvents>
 
