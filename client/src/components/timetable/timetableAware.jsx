@@ -7,6 +7,7 @@ import {
     differenceInCalendarISOWeeks,
     format,
     isSameDay,
+    isValid,
     parse,
     setHours
 } from "date-fns";
@@ -37,7 +38,9 @@ function makeLink(match) {
 }
 
 function navigateTo(history) {
-    return date => history.push(dateFormat(date));
+    return date => {
+        isValid(date) && history.push(dateFormat(date));
+    }
 }
 
 function atPosition(weekView) {
@@ -67,6 +70,8 @@ const withWeekView = connect(({browser}) => ({weekView: browser.greaterThan.smal
 
 export default function(Component) {
     return withRouter(withWeekView(({history, match, weekView, ...others}) => {
+        // TMP!!!!!
+        weekView = true;
         let date = parseDate(match.params.date);
         return <Component {...others}
                           navigateTo={navigateTo(history)}

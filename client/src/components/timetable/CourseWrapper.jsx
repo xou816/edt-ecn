@@ -74,7 +74,7 @@ export class CourseWrapper extends React.Component {
         return (
             <React.Fragment>
                 <TimetableEntry event={curr} offset={offset} onClick={() => focusEvent(curr.id)}>
-                    <Zoom in={true}><div className={classes.large}><Course {...curr} /></div></Zoom>
+                    <Zoom in={true}><div className={classes.large}><Course size="small" maximize {...curr} /></div></Zoom>
                 </TimetableEntry>
                 {this.multipage(
                     <TimetableEntry event={curr} offset={offset} onClick={() => focusEvent(curr.id)}>

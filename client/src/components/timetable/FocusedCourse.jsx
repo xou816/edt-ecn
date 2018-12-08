@@ -21,7 +21,7 @@ export class FocusedCourse extends React.Component {
         const open = focus !== null && allowFocus;
         return open && (
             <Dialog fullWidth open={true} onClose={() => blur()}>
-                <Course long {...this.event} />
+                <Course maximize size="large" {...this.event} />
             </Dialog>
         );
     }

@@ -9,6 +9,7 @@ import SwipeableTimetable from "./SwipeableTimetable";
 import withStyles from "@material-ui/core/styles/withStyles";
 import Drawer from "@material-ui/core/Drawer/Drawer";
 import NoSsr from "@material-ui/core/NoSsr/NoSsr";
+import EventList from "./EventList";
 
 @timetableAware
 @connect(({browser}) => ({isLarge: browser.greaterThan.medium}),
@@ -55,7 +56,7 @@ export class TimetablePage extends React.Component {
                             <DatePicker/>
                         </Drawer>}
                     </NoSsr>
-                    <SwipeableTimetable/>
+                    <EventList/>
                 </PageContent>
             </Page>
         );
