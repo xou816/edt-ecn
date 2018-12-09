@@ -8,4 +8,5 @@ COPY package.json /var/app
 RUN npm i --build-from-source
 COPY .babelrc /var/app
 COPY config /var/app/config
+COPY public /var/app/public
 CMD ["npm", "run", "build"]
