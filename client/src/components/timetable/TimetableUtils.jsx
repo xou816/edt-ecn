@@ -2,11 +2,11 @@ import {TimetableEntry} from "./TimetableEntry";
 import {addDays, addHours, addMinutes, format, isSameDay, startOfDay} from "date-fns";
 import Divider from "@material-ui/core/Divider/Divider";
 import React from "react";
-import {TranslateDate} from "../../../build/components/Translation";
 import Typography from "@material-ui/core/Typography/Typography";
 import {connect} from "react-redux";
 import withStyles from "@material-ui/core/styles/withStyles";
 import classnames from 'classnames';
+import {TranslateDate} from "../Translation";
 
 const styled = withStyles(theme => ({
     now: {

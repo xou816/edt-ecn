@@ -44,7 +44,7 @@ export function setAlias(alias: string, pin: string, value: string): Promise<boo
             {hash: hash, value: value},
             (err, res) => {
                 if (err) reject(err);
-                resolve(res);
+                resolve(true);
             });
     });
     return getAlias(alias)

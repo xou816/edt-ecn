@@ -20,7 +20,7 @@ import {FocusedCourse} from "./FocusedCourse";
         overflowY: 'auto',
         overflowX: 'hidden',
         marginRight: '1em',
-        [theme.breakpoints.down(767)]: {
+        [theme.breakpoints.down(769)]: {
             gridTemplateColumns: '3em 1fr',
             gridTemplateRows: '1em repeat(45, .6em)',
             gridGap: '.3em 0'
@@ -55,7 +55,7 @@ export class Timetable extends React.PureComponent {
         let {classes, days, active, currDate} = this.props;
 
         const date = this.date;
-        const IsVisible = IsVisibleOn(date);
+        const IsVisible = IsVisibleOn(currDate);
 
         return (
             <OffsetProvider value={date}>

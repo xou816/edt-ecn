@@ -3,9 +3,9 @@ import {Course} from "./Course";
 import {TimetableEntry} from "./TimetableEntry";
 import {focusEvent} from "../../app/actions";
 import {connect} from "react-redux";
-import Button from "@material-ui/core/Button/Button";
 import withStyles from "@material-ui/core/styles/withStyles";
-import Zoom from "@material-ui/core/Zoom/Zoom";
+import Zoom from "@material-ui/core/Zoom";
+import Fab from "@material-ui/core/Fab";
 
 @connect(null, dispatch => ({
     focusEvent: id => dispatch(focusEvent(id))
@@ -78,14 +78,14 @@ export class CourseWrapper extends React.Component {
                 </TimetableEntry>
                 {this.multipage(
                     <TimetableEntry event={curr} offset={offset} onClick={() => focusEvent(curr.id)}>
-                        <Button mini className={`${classes.btn} ${classes.btnLeft}`}
-                                onClick={e => this.prevPage(e)} variant="fab" color="primary" aria-label="prev">
+                        <Fab size="small" className={`${classes.btn} ${classes.btnLeft}`}
+                                onClick={e => this.prevPage(e)} color="primary" aria-label="prev">
                             &laquo;
-                        </Button>
-                        <Button mini className={`${classes.btn} ${classes.btnRight}`}
-                                onClick={e => this.nextPage(e)} variant="fab" color="primary" aria-label="next">
+                        </Fab>
+                        <Fab size="small" className={`${classes.btn} ${classes.btnRight}`}
+                                onClick={e => this.nextPage(e)} color="primary" aria-label="next">
                             &raquo;
-                        </Button>
+                        </Fab>
                     </TimetableEntry>
                 )}
             </React.Fragment>

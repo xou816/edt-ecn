@@ -1,5 +1,6 @@
-FROM node:11-stretch
+FROM node:11-alpine
 
+RUN apk add build-base python
 RUN mkdir -p /var/app/build /var/app/src
 VOLUME /var/app/build
 VOLUME /var/app/src

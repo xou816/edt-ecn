@@ -39,7 +39,7 @@ class FilterMessage extends React.PureComponent {
         margin: `${2 * theme.spacing.unit}px auto`,
         maxWidth: '20%',
         display: 'block',
-        [theme.breakpoints.down(797)]: {
+        [theme.breakpoints.down(769)]: {
             maxWidth: '60%'
         }
     },
@@ -81,7 +81,7 @@ class LoadingLogo extends React.PureComponent {
         textAlign: 'left',
         margin: `${2 * theme.spacing.unit}px auto`,
         maxWidth: '60%',
-        [theme.breakpoints.down(1024)]: {
+        [theme.breakpoints.down(993)]: {
             maxWidth: '100%'
         }
     },

@@ -15,6 +15,7 @@ import Paper from "@material-ui/core/Paper/Paper";
 import Button from "@material-ui/core/Button/Button";
 import {T} from "../Translation";
 import {withRouter} from "react-router";
+import {linkToCalendar} from "../../app/event";
 
 @withRouter
 @withStyles(theme => ({
@@ -30,7 +31,7 @@ import {withRouter} from "react-router";
         margin: `0 auto`,
         padding: 2 * theme.spacing.unit,
         width: '60%',
-        [theme.breakpoints.down(1024)]: {
+        [theme.breakpoints.down(993)]: {
             width: `100%`,
             margin: 0,
         }
@@ -43,7 +44,7 @@ export default class extends React.Component {
     }
 
     get link() {
-        return `${process.env.PUBLIC}/api/calendar/custom/${this.calendar}.ics`;
+        return linkToCalendar(this.calendar) + '.ics';
     }
 
     copy() {

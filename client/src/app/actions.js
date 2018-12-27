@@ -1,4 +1,4 @@
-import {parseIso} from './event';
+import {linkToCalendar, parseIso} from './event';
 import 'cross-fetch/polyfill';
 import {safeMeta} from "./meta";
 import {getHours} from 'date-fns';
@@ -44,17 +44,12 @@ export function getRecent() {
     }
 }
 
-function startsWithOneOf(str, list) {
-    return list.reduce((res, curr) => res || str.startsWith(curr), false);
-}
-
 export function getCalendar(calendar) {
     return (dispatch, getState) => {
         const list = getState().app.list;
         if (calendar != null) {
             dispatch({type: 'LOAD_START'});
-            const service = startsWithOneOf(calendar, ['m', 'u', 'g', 'r']) ? '/calendar/custom/' : '/alias/';
-            return fetch(`${API}${service}${calendar}`)
+            return fetch(linkToCalendar(calendar))
                 .then(res => res.status >= 400 ? Promise.reject('error') : res.json())
                 .then(calendar => {
                     pushCacheEntry(list, calendar);

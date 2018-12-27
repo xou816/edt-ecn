@@ -1,7 +1,7 @@
 import React from "react";
 import Calendar from 'material-ui-pickers/DatePicker/components/Calendar';
 import {format, isSameDay, isWeekend, isMonday, isFriday, isSameISOWeek, setHours} from 'date-fns';
-import DateFnsUtils from "material-ui-pickers/utils/date-fns-utils";
+import DateFnsUtils from '@date-io/date-fns';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import classnames from 'classnames';

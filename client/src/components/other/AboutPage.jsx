@@ -26,14 +26,14 @@ import Paper from "@material-ui/core/Paper/Paper";
         margin: `0 auto`,
         padding: 2 * theme.spacing.unit,
         width: '60%',
-        [theme.breakpoints.down(1024)]: {
+        [theme.breakpoints.down(993)]: {
             width: `100%`,
             margin: 0,
         }
     },
     icon: {
         maxWidth: '20%',
-        [theme.breakpoints.down(797)]: {
+        [theme.breakpoints.down(769)]: {
             maxWidth: '40%'
         },
         boxShadow: theme.shadows[2],

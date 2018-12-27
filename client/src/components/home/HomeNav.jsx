@@ -8,7 +8,6 @@ import withStyles from "@material-ui/core/styles/withStyles";
 import Slide from "@material-ui/core/Slide/Slide";
 import Checkbox from "@material-ui/core/Checkbox/Checkbox";
 import Typography from "@material-ui/core/Typography/Typography";
-import Button from "@material-ui/core/Button/Button";
 import {T} from '../Translation';
 import {ResponsiveButton} from "../Media";
 

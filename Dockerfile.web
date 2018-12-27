@@ -1,14 +1,17 @@
-FROM node:11-stretch
+FROM node:11-alpine
+
+# needed for some binaries
+RUN apk add build-base python
 
 RUN mkdir -p /var/app/api /var/app/client
 WORKDIR /var/app
 COPY package.json /var/app
-RUN npm i
+RUN npm i --production
 
 # install api deps
 WORKDIR /var/app/api
 COPY api/package.json /var/app/api
-RUN npm i
+RUN npm i --production
 
 # install client deps
 WORKDIR /var/app/client
