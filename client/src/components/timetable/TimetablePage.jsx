@@ -4,7 +4,7 @@ import {connect} from "react-redux";
 import {getCalendar} from "../../app/actions";
 import {Page, PageContent} from "../Page";
 import DatePicker from "./DatePicker";
-import timetableAware from "./timetableAware";
+import timetableAware, {View} from "./timetableAware";
 import SwipeableTimetable from "./SwipeableTimetable";
 import withStyles from "@material-ui/core/styles/withStyles";
 import Drawer from "@material-ui/core/Drawer/Drawer";
@@ -43,7 +43,7 @@ export class TimetablePage extends React.Component {
     }
 
     render() {
-        let {classes, isLarge} = this.props;
+        let {classes, isLarge, view} = this.props;
         return (
             <Page>
                 <TimetableNav open={this.state.open && !isLarge}
@@ -56,7 +56,8 @@ export class TimetablePage extends React.Component {
                             <DatePicker/>
                         </Drawer>}
                     </NoSsr>
-                    <EventList/>
+                    {((view & View.LIST) > 0) && <EventList/>}
+                    {((view & View.TIMETABLE) > 0) && <SwipeableTimetable/>}
                 </PageContent>
             </Page>
         );

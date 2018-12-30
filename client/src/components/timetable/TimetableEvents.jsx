@@ -1,7 +1,7 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import {createSelector} from 'reselect';
-import {addDays, compareAsc, isAfter, isBefore, isEqual, isSameDay} from "date-fns";
+import {compareAsc, isAfter, isBefore, isEqual, isSameDay} from "date-fns";
 
 function setIntersection(a, b) {
     return a.some(ae => b.indexOf(ae) > -1) || b.some(be => a.indexOf(be) > -1);
@@ -60,30 +60,34 @@ function groupDays(events) {
 }
 
 function getSelectors() {
-    return [state => state.app.events, (_, props) => props.offset, (_, props) => props.days];
+    return [({app}) => app.events, (_, {from}) => from, (_, {to}) => to, (_, {group}) => group];
 }
 
-function filterEvents(events, offset, days) {
-    return events.filter(event => (isEqual(event.start, offset) || isAfter(event.start, offset)) && isBefore(event.start, addDays(offset, days)));
+function filterEvents(events, from, to) {
+    return events.filter(event => (isEqual(event.start, from) || isAfter(event.start, from)) &&
+        (isEqual(event.start, to) || isBefore(event.start, to)));
 }
 
-function makeSelector(group) {
-    const map = group === 'conflict' ? groupConflicts :
-            group === 'day' ? groupDays :
-            ev => ev;
-    return createSelector(getSelectors(), (a, b, c) => map(filterEvents(a, b, c)));
+function mapEvents(events, group) {
+    switch (group) {
+        case 'conflict':
+            return groupConflicts(events);
+        case 'day':
+            return groupDays(events);
+        default:
+            return events;
+    }
 }
 
-
-const withEvents = group => connect(() => {
-    const getEvents = makeSelector(group);
+const withEvents = connect(() => {
+    const getEvents = createSelector(
+        getSelectors(),
+        (ev, from, to, group) => mapEvents(filterEvents(ev, from, to), group));
     return (state, props) => ({
         events: getEvents(state, props)
     });
 });
 
-const Raw = ({events, children}) => children(events);
-
-export function TimetableEvents({group, ...rest}) {
-    return React.createElement(withEvents(group)(Raw), rest);
-}
+export const TimetableEvents = withEvents(({events, children}) => {
+    return children(events);
+});

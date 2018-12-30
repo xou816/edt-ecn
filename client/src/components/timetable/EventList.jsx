@@ -3,13 +3,14 @@ import timetableAware from "./timetableAware";
 import withStyles from "@material-ui/core/styles/withStyles";
 import {TimetableEvents} from "./TimetableEvents";
 import Typography from "@material-ui/core/Typography/Typography";
-import RootRef from "@material-ui/core/RootRef/RootRef";
 import {Course} from "./Course";
-import {format, startOfWeek} from "date-fns";
-import {T, TranslateDate} from "../Translation";
+import {endOfMonth, format, startOfDay, startOfMonth} from "date-fns";
+import {TranslateDate} from "../Translation";
+import Fade from "@material-ui/core/Fade";
+import {focusEvent} from "../../app/actions";
+import {connect} from "react-redux";
 
-const PRELOAD = 4;
-
+@connect(({app}) => ({focus: app.focus}), dispatch => ({focusEvent: id => dispatch(focusEvent(id))}))
 @withStyles(theme => ({
     root: {
         display: 'flex'
@@ -25,9 +26,9 @@ const PRELOAD = 4;
 }))
 class DayContainer extends React.Component {
     render() {
-        let {date, group, classes} = this.props;
+        let {date, group, tag, classes, focusEvent, focus} = this.props;
         return (
-            <div className={classes.root}>
+            <ScrollSection tag={tag} className={classes.root}>
                 <TranslateDate>
                     {locale => {
                         let day = format(date, 'eee', {locale}).toUpperCase();
@@ -41,15 +42,15 @@ class DayContainer extends React.Component {
                     }}
                 </TranslateDate>
                 <div className={classes.courses}>
-                    {group.map(event => <Course size="medium" key={event.id} {...event} />)}
+                    {group.map(event => <Course onClick={() => focusEvent(event.id)}
+                                                size={focus === event.id ? 'large' : 'medium'}
+                                                elevation={focus === event.id ? 2 : 0}
+                                                key={event.id}
+                                                {...event} />)}
                 </div>
-            </div>
+            </ScrollSection>
         );
     }
-}
-
-function TypographyRef({rootRef, ...rest}) {
-    return <RootRef rootRef={rootRef}><Typography {...rest} /></RootRef>
 }
 
 @timetableAware
@@ -58,52 +59,48 @@ function TypographyRef({rootRef, ...rest}) {
         flex: '1',
         overflowY: 'auto',
         overflowX: 'hidden',
+        padding: '0 10%',
+        [theme.breakpoints.down(769)]: {
+            padding: 0
+        }
     }
 }))
 export default class extends React.Component {
 
-    normalizedDate(date) {
-        return startOfWeek(date, {weekStartsOn: 1});
+    get date() {
+        return startOfMonth(this.props.date, {weekStartsOn: 1});
     }
 
-    range(curr) {
-        return Array.from({length: 2 * PRELOAD + 1}, (x, i) => {
-            return curr + i - PRELOAD;
-        });
+    handleChange(ts) {
+        let {navigateTo} = this.props;
+        clearTimeout(this.timeout);
+        this.timeout = setTimeout(() => navigateTo(new Date(ts)), 500);
     }
 
-    handleChange(pos) {
-        let {navigateTo, atPosition} = this.props;
-        const nav = () => navigateTo(atPosition(pos));
-        if ('requestIdleCallback' in window) {
-            window.requestIdleCallback(nav);
-        } else {
-            nav();
-        }
+    matchTag(tag, tags) {
+        return tags.reduce((index, existingTag, curr) => {
+            return existingTag >= tag && index === null ? curr : index;
+        }, null);
     }
 
     render() {
-        let {classes, date, position, atPosition} = this.props;
-        const curr = position(date);
+        let {classes, date} = this.props;
+        let pos = startOfDay(date).valueOf();
         return (
-            <ScrollSpy position={curr} onChange={(pos) => this.handleChange(pos)} className={classes.root}>
-                {this.range(curr).map(pos => {
-                    const date = this.normalizedDate(atPosition(pos));
-                    return (
-                        <TimetableEvents key={date.valueOf()} days={5} offset={date.valueOf()} group="day">
-                            {groups => groups.length === 0 ? null : (
-                                <ScrollSection tag={pos}>
-                                    <Typography align="center" color="textSecondary" variant="h6">
-                                        <TranslateDate>{locale => <T.WeekN
-                                            n={format(date, 'I', {locale})}/>}</TranslateDate>
-                                    </Typography>
-                                    {groups.map(([d, g]) => <DayContainer key={d.valueOf()} date={d} group={g}/>)}
-                                </ScrollSection>
-                            )}
-                        </TimetableEvents>
-                    );
-                })}
-            </ScrollSpy>
+            <Fade in>
+                <ScrollSpy position={pos} matchTag={this.matchTag} onChange={(pos) => this.handleChange(pos)}
+                           className={classes.root}>
+                    <Typography align="center" color="textSecondary" variant="h6">
+                        <TranslateDate>{locale => format(date, 'MMMM Y', {locale})}</TranslateDate>
+                    </Typography>
+                    <TimetableEvents from={this.date.valueOf()} to={endOfMonth(this.date).valueOf()} group="day">
+                        {groups => groups.map(([date, group]) => {
+                            let tag = startOfDay(date).valueOf();
+                            return <DayContainer key={tag} tag={tag} date={date} group={group}/>;
+                        })}
+                    </TimetableEvents>
+                </ScrollSpy>
+            </Fade>
         );
     }
 }
@@ -115,12 +112,10 @@ class ScrollSection extends React.Component {
     render() {
         let {component, tag, children, refProp, ...rest} = this.props;
         return (
-            <Consumer>{({register, match, height}) => {
-                console.log(match === tag);
+            <Consumer>{({register, match}) => {
                 return React.createElement(component || 'div', {
                     ...rest,
-                    [refProp || 'ref']: ref => register(ref, tag),
-                    style: {height: match === tag ? undefined : height, overflow: 'hidden'}
+                    [refProp || 'ref']: ref => register(ref, tag)
                 }, children)
             }}</Consumer>
         );
@@ -141,26 +136,39 @@ class ScrollSpy extends React.Component {
     }
 
     attachEvent(ref, handler) {
-        let {position} = this.props;
-        if (this.ref !== null) {
-            this.ref.removeEventListener('scroll', this.handler);
-            //this.ref.removeEventListener('touchmove', this.handler);
-        }
-        if (ref !== null) {
+        if (this.ref === null && ref !== null) {
             this.ref = ref;
-            if (position != null && this.state.match !== position) {
-                //ref.scrollTop = this.getPos(position) + 1;
-            }
             this.handler = this.handleScroll(handler);
             ref.addEventListener('scroll', this.handler);
-            //ref.addEventListener('touchmove', this.handler);
+            ref.addEventListener('touchmove', this.handler);
+        }
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        let {position} = this.props;
+        if (position != null && prevProps.position !== position && this.state.match !== position) {
+            let pos = this.getPos(position);
+            if (pos > -1) {
+                this.ref.scrollTop = pos + 1;
+            }
+        }
+    }
+
+    componentWillUnmount() {
+        if (this.ref !== null) {
+            this.ref.removeEventListener('scroll', this.handler);
+            this.ref.removeEventListener('touchmove', this.handler);
         }
     }
 
     getPos(tag) {
-        let index = this.tags.indexOf(tag);
+        let {matchTag} = this.props;
+        let matcher = matchTag != null ?
+            (tag => matchTag(tag, this.tags)) :
+            (tag => this.tags.indexOf(tag));
+        let index = matcher(tag);
         return this.elements[index] == null ?
-            0 :
+            -1 :
             this.elements[index].offsetTop - this.ref.offsetTop;
     }
 
@@ -197,16 +205,15 @@ class ScrollSpy extends React.Component {
     }
 
     render() {
-        let {component, children, onChange, ...others} = this.props;
+        let {component, children, onChange, position, matchTag, ...others} = this.props;
         let props = {
             ref: ref => this.attachEvent(ref, onChange),
             ...others
         };
         return React.createElement(component || 'div', props, (
             <Provider value={{
-                register: (ref, tag) => this.saveRef(ref, tag), 
-                match: this.state.match,
-                height: this.ref && this.ref.clientHeight
+                register: (ref, tag) => this.saveRef(ref, tag),
+                match: this.state.match
             }}>
                 {children}
             </Provider>

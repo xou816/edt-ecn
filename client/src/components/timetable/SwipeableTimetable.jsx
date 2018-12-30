@@ -1,5 +1,5 @@
 import React from "react";
-import timetableAware from "./timetableAware";
+import timetableAware, {View} from "./timetableAware";
 import {virtualize} from "react-swipeable-views-utils";
 import SwipeableViews from "react-swipeable-views";
 import {Timetable} from "./Timetable";
@@ -32,18 +32,18 @@ export default class extends React.Component {
     }
 
     slideRenderer({key, index}) {
-        let {weekView, atPosition, position, date} = this.props;
+        let {view, atPosition, position, date} = this.props;
         const diff = Math.abs(index - this.index);
         date = position(date) === index ? date : atPosition(index);
         return diff < 3 ?
-            <Timetable active={diff === 0} days={weekView ? 5 : 1} currDate={diff === 0 ? date : null}
+            <Timetable active={diff === 0} days={(view & View.MOBILE) > 0 ? 1 : 5} currDate={diff === 0 ? date : null}
                        date={date} key={key}/> :
             <div key={key}/>;
     }
 
     render() {
-        let {weekView} = this.props;
-        let prerender = weekView ? 1 : 2;
+        let {view} = this.props;
+        let prerender = (view & View.MOBILE) > 0 ? 2 : 1;
         return (
             <VirtualizeSwipeableViews overscanSlideAfter={prerender}
                                       overscanSlideBefore={prerender}

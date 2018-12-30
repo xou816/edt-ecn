@@ -10,7 +10,6 @@ import AppBar from "@material-ui/core/AppBar/AppBar";
 import {Link} from "react-router-dom";
 import {AppIcon} from "../Logo";
 import Button from "@material-ui/core/Button/Button";
-import OpenInNew from "@material-ui/core/SvgIcon/SvgIcon";
 import Paper from "@material-ui/core/Paper/Paper";
 
 @withStyles(theme => ({
@@ -55,7 +54,7 @@ export default class extends React.Component {
                 <PageContent className={classes.main} orientation="column">
                     <Typography variant="subtitle1" color="textSecondary" gutterBottom align="center">
                         <AppIcon className={classes.icon}/>
-                        <p><T.AppName version="1.1"/><br />Alexandre Trendel</p>
+                        <p><T.AppName version={process.env.VERSION}/><br />Alexandre Trendel</p>
                         <Button variant="outlined" size="small" component="a" href="https://github.com/xou816/edt-ecn"><T.ViewSource/></Button>
                     </Typography>
                     <Paper elevation={1} className={classes.paper}>

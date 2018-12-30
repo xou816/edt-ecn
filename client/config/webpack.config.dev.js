@@ -32,7 +32,8 @@ module.exports = {
         new webpack.EnvironmentPlugin({
             NODE_ENV: 'development',
             PUBLIC: 'http://localhost:3001',
-            PORT: '3000'
+            PORT: '3000',
+            VERSION: 'dev'
         }),
         new CopyWebpackPlugin([{
             from: path.resolve(__dirname, '../public/**/*'),

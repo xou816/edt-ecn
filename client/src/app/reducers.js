@@ -1,4 +1,5 @@
 import {resetSubjects, toggleCalendar, toggleSubject} from "./meta";
+import {View} from "../components/timetable/timetableAware";
 
 export const initialState = {
     list: [],
@@ -9,7 +10,8 @@ export const initialState = {
     focus: null,
     meta: [],
     error: null,
-    history: []
+    history: [],
+    view: View.TIMETABLE
 };
 
 export function appReducer(state, action) {
@@ -46,6 +48,8 @@ export function appReducer(state, action) {
             return {...state, error: action.message};
         case 'SET_HISTORY':
             return {...state, history: action.history};
+        case 'SET_VIEW':
+            return {...state, view: action.view};
         default:
             return {...initialState, ...state};
     }

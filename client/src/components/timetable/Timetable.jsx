@@ -1,5 +1,5 @@
 import React from 'react';
-import {addHours, differenceInMinutes, isSameDay, startOfDay, startOfWeek} from "date-fns";
+import {addHours, differenceInMinutes, isSameDay, startOfDay, startOfISOWeek, addDays} from "date-fns";
 import {TimetableEvents} from "./TimetableEvents";
 import withStyles from "@material-ui/core/styles/withStyles";
 import NoSsr from "@material-ui/core/NoSsr/NoSsr";
@@ -35,19 +35,29 @@ import {FocusedCourse} from "./FocusedCourse";
 @withRefHour
 export class Timetable extends React.PureComponent {
 
-    normalizedDate(actual) {
-        let {date, days, refHour} = this.props;
-        return addHours(
-            !actual && days > 1 ? startOfWeek(date, {weekStartsOn: 1}) : startOfDay(date),
-            refHour);
+    fix(date) {
+        let {refHour} = this.props;
+        return addHours(date, refHour);
     }
 
     get date() {
-        return this.normalizedDate(false);
+        let {days, date} = this.props;
+        return days > 1 ?
+            this.fix(startOfISOWeek(date, {weekStartsOn: 1})) :
+            this.fix(startOfDay(date));
     }
 
-    get actualDate() {
-        return this.normalizedDate(true);
+    get selectedDate() {
+        return this.fix(startOfDay(this.props.date));
+    }
+
+    get startEndDates() {
+        let {days} = this.props;
+        let from = this.date;
+        let to = days > 1 ?
+            addDays(from, days) :
+            addHours(from, 10);
+        return {from: from.valueOf(), to: to.valueOf()};
     }
 
 
@@ -56,6 +66,7 @@ export class Timetable extends React.PureComponent {
 
         const date = this.date;
         const IsVisible = IsVisibleOn(currDate);
+        const startEndDates = this.startEndDates;
 
         return (
             <OffsetProvider value={date}>
@@ -68,8 +79,8 @@ export class Timetable extends React.PureComponent {
 
                     <Separators days={days}/>
 
-                    <TimetableEvents group="conflict" days={days} offset={date}>
-                        {events => <React.Fragment><Hours events={events} actualDate={this.actualDate}/><Courses events={events} /></React.Fragment>}
+                    <TimetableEvents group="conflict" {...startEndDates}>
+                        {events => <React.Fragment><Hours events={events} actualDate={this.selectedDate}/><Courses events={events} /></React.Fragment>}
                     </TimetableEvents>
 
                     <NoSsr>

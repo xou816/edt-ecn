@@ -28,7 +28,8 @@ module.exports = {
         new webpack.EnvironmentPlugin({
             NODE_ENV: 'production',
             PUBLIC: 'https://edt-ecn.herokuapp.com',
-            PORT: '3000'
+            PORT: '3000',
+            VERSION: 'master'
         }),
         new HtmlWebpackPlugin({
             template: path.resolve(__dirname, '../src/index.html')

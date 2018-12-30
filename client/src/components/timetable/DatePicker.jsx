@@ -66,7 +66,8 @@ import timetableAware from "./timetableAware";
 class Day extends React.Component {
 
     render() {
-        let {week, date, link, selectedDate, dayInCurrentMonth, classes} = this.props;
+        const week = false;
+        let {date, link, selectedDate, dayInCurrentMonth, classes} = this.props;
         let weekend = isWeekend(date);
         let disabled = !dayInCurrentMonth || weekend;
         let mon = isMonday(date);
@@ -99,7 +100,7 @@ class Day extends React.Component {
 }))
 export default class extends React.Component {
     render() {
-        let {weekView, date, makeLink, onChange, classes} = this.props;
+        let {view, date, makeLink, onChange, classes} = this.props;
         return (
             <div className={classes.picker}>
                 <TranslateDate>{locale => (
@@ -110,7 +111,6 @@ export default class extends React.Component {
                                   onChange={onChange || (() => null)}
                                   renderDay={(date, selectedDate, dayInCurrentMonth) =>
                                       <Day date={date}
-                                           week={weekView}
                                            link={makeLink(date)}
                                            selectedDate={selectedDate}
                                            dayInCurrentMonth={dayInCurrentMonth}/>}/>

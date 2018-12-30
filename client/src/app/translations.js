@@ -36,7 +36,7 @@ export default {
         EventOrganizer: 'Intervenant : ',
         EventUnknownOrganizer: 'non spécifié',
         About: 'À propos',
-        AppName: ({version}) => `EDT ECN`,
+        AppName: ({version}) => `EDT ECN (${version})`,
         ViewSource: 'Source sur Github',
         HowItWorks: 'Est-ce fiable ?',
         HowItWorksDetails: "Les événements sont lus directement depuis les calendriers CELCAT officiels de Centrale et de la Fac de Sciences. Il n'y a pas de cache sur les calendriers ICS : seul la fréquence de rafraîchissment de votre client (Google Agenda, Outlook...) importe. Ce site garde les calendriers dans le cache de votre navigateur une heure au plus (sauf si vous êtes hors ligne)."
@@ -76,7 +76,7 @@ export default {
         EventOrganizer: 'Organizer: ',
         EventUnknownOrganizer: 'unknown',
         About: 'About',
-        AppName: ({version}) => `EDT ECN`,
+        AppName: ({version}) => `EDT ECN (${version})`,
         ViewSource: 'Source on Github',
         HowItWorks: 'How reliable is this?',
         HowItWorksDetails: "Events are directly mapped from the official CELCAT calendars hosted by Centrale and the Faculty of Sciences. There is no caching for the ICS calendars, but your client (Google Agenda, Outlook...) has a refresh rate that must be taken into account. As for this app, it only keeps calendars in your browser's cache for an hour at most (unless offline)."

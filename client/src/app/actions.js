@@ -2,6 +2,7 @@ import {linkToCalendar, parseIso} from './event';
 import 'cross-fetch/polyfill';
 import {safeMeta} from "./meta";
 import {getHours} from 'date-fns';
+import {View} from "../components/timetable/timetableAware";
 
 const API = `${process.env.PUBLIC}/api`;
 
@@ -141,10 +142,21 @@ export function toggleSubject(calendar, subject) {
     return {type: 'TOGGLE_SUBJECT', calendar, subject};
 }
 
-export function focusEvent(id) {
-    return {type: 'FOCUS_EVENT', event: id};
+export function focusEvent(event) {
+    return {type: 'FOCUS_EVENT', event};
 }
 
 export function blurEvent() {
     return {type: 'BLUR_EVENT'};
+}
+
+export function toggleView() {
+    return (dispatch, getState) => {
+        const {view} = getState().app;
+        if ((view & View.LIST) > 0) {
+            dispatch({type: 'SET_VIEW', view: View.TIMETABLE});
+        } else {
+            dispatch({type: 'SET_VIEW', view: View.LIST});
+        }
+    }
 }

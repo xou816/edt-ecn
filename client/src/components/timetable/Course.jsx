@@ -120,9 +120,9 @@ export class Course extends React.Component {
 
 
     render() {
-        let {size, maximize, ...event} = this.props;
+        let {size, maximize, onClick, elevation, ...event} = this.props;
         return (
-            <Card className={this.className(maximize)} elevation={maximize ? 1 : 0}>
+            <Card onClick={onClick} className={this.className(maximize)} elevation={elevation == null ? 1 : elevation}>
                 <CardContent className={this.colorClass()}>
                     <CourseSummary size={size} event={event}/>
                     <CourseDetails size={size} event={event}/>

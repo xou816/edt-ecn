@@ -3,8 +3,10 @@ import {compile} from "path-to-regexp";
 import {
     addDays,
     addWeeks,
+    addMonths,
     differenceInCalendarDays,
     differenceInCalendarISOWeeks,
+    differenceInCalendarMonths,
     format,
     isSameDay,
     isValid,
@@ -13,9 +15,17 @@ import {
 } from "date-fns";
 import {withRouter} from 'react-router';
 import {connect} from "react-redux";
+import {toggleView} from "../../app/actions";
 
 const TODAY = setHours(Date.now(), 12);
 const FORMAT = 'uMMdd';
+
+export const View = {
+    LIST: 10,
+    TIMETABLE: 100,
+    MOBILE: 1,
+    DESKTOP: 0
+};
 
 function dateFormat(date) {
     return isSameDay(date, TODAY) ?
@@ -43,44 +53,58 @@ function navigateTo(history) {
     }
 }
 
-function atPosition(weekView) {
+function atPosition(view) {
     return (pos) => {
-        let newDate = weekView ?
-            addWeeks(TODAY, pos) :
-            addDays(TODAY, pos);
-        return newDate;
+        switch (view) {
+            case View.TIMETABLE | View.DESKTOP:
+                return addWeeks(TODAY, pos);
+            case View.TIMETABLE | View.MOBILE:
+                return addDays(TODAY, pos);
+            case View.LIST:
+                return addMonths(TODAY, pos);
+        }
     }
 }
 
-function next(weekView) {
-    return date => atPosition(weekView)(position(date) + 1);
+function next(view) {
+    return date => atPosition(view)(position(view)(date) + 1);
 }
 
-function prev(weekView) {
-    return date => atPosition(weekView)(position(date) - 1);
+function prev(view) {
+    return date => atPosition(view)(position(view)(date) - 1);
 }
 
-function position(weekView) {
-    return date => weekView ?
-        differenceInCalendarISOWeeks(date, TODAY) :
-        differenceInCalendarDays(date, TODAY);
+function position(view) {
+    return date => {
+        switch (view) {
+            case View.TIMETABLE | View.DESKTOP:
+                return differenceInCalendarISOWeeks(date, TODAY);
+            case View.TIMETABLE | View.MOBILE:
+                return differenceInCalendarDays(date, TODAY);
+            case View.LIST:
+                return differenceInCalendarMonths(date, TODAY);
+        }
+    };
 }
 
-const withWeekView = connect(({browser}) => ({weekView: browser.greaterThan.small}));
 
 export default function(Component) {
-    return withRouter(withWeekView(({history, match, weekView, ...others}) => {
-        // TMP!!!!!
-        weekView = true;
-        let date = parseDate(match.params.date);
+    const connector = connect(
+        ({app, browser}) => ({ view: app.view, mobile: browser.greaterThan.small ? View.DESKTOP : View.MOBILE }),
+        dispatch => ({ toggleView: () => dispatch(toggleView()) })
+    );
+    return withRouter(connector(({history, match, view, mobile, toggleView, ...others}) => {
+        const date = parseDate(match.params.date);
+        const actualView = mobile | view;
         return <Component {...others}
                           navigateTo={navigateTo(history)}
                           date={date}
-                          weekView={weekView}
-                          next={next(weekView)}
-                          prev={prev(weekView)}
-                          position={position(weekView)}
-                          atPosition={atPosition(weekView)}
+                          view={actualView}
+                          toggleView={toggleView}
+                          next={next(actualView)}
+                          prev={prev(actualView)}
+                          position={position(actualView)}
+                          atPosition={atPosition(actualView)}
                           calendar={match.params.calendar}
                           makeLink={makeLink(match)}/>;
     }));
