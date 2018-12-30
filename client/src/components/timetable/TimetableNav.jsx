@@ -15,7 +15,7 @@ import Menu from "@material-ui/core/Menu/Menu";
 import Button from "@material-ui/core/Button/Button";
 import {T, TranslateDate} from "../Translation";
 import timetableAware, {View} from "./timetableAware";
-import {ResponsiveButton} from "../Media";
+import {HideOnMobile, ResponsiveButton} from "../Media";
 
 function DateDisplay({week, date, onClick}) {
     return <TranslateDate>{locale => {
@@ -53,14 +53,14 @@ export class TimetableNav extends React.Component {
                     <MenuIcon/>
                 </IconButton>
                 <div ref={ref => this.ref = ref}>
-                    <IconButton color="inherit" component={Link}
-                                className={classes.compact}
-                                children={<KeyboardArrowLeft/>}
-                                to={makeLink(prev(date))}/>
-                    <IconButton color="inherit" component={Link}
-                                className={classes.compact}
-                                children={<KeyboardArrowRight/>}
-                                to={makeLink(next(date))}/>
+                    <HideOnMobile>
+                        <IconButton color="inherit" component={Link}
+                                    children={<KeyboardArrowLeft/>}
+                                    to={makeLink(prev(date))}/>
+                        <IconButton color="inherit" component={Link}
+                                    children={<KeyboardArrowRight/>}
+                                    to={makeLink(next(date))}/>
+                    </HideOnMobile>
                     <IconButton color="inherit" children={icon} onClick={toggleView}/>
                     <DateDisplay date={date} onClick={onOpenPicker}/>
 

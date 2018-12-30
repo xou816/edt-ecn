@@ -69,6 +69,9 @@ function filterEvents(events, from, to) {
 }
 
 function mapEvents(events, group) {
+    events = events.sort((a, b) => {
+        return isBefore(a.start, b.start) ? -1 : 1;
+    });
     switch (group) {
         case 'conflict':
             return groupConflicts(events);

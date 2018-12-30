@@ -15,11 +15,11 @@ import {FocusedCourse} from "./FocusedCourse";
         gridTemplateRows: '1em repeat(45, .7em)',
         gridGap: '.3em .3em',
         padding: '1em 0',
+        paddingRight: '1em',
         flex: '1',
         height: '100%',
         overflowY: 'auto',
         overflowX: 'hidden',
-        marginRight: '1em',
         [theme.breakpoints.down(769)]: {
             gridTemplateColumns: '3em 1fr',
             gridTemplateRows: '1em repeat(45, .6em)',
@@ -41,8 +41,8 @@ export class Timetable extends React.PureComponent {
     }
 
     get date() {
-        let {days, date} = this.props;
-        return days > 1 ?
+        let {mobile, date} = this.props;
+        return !mobile ?
             this.fix(startOfISOWeek(date, {weekStartsOn: 1})) :
             this.fix(startOfDay(date));
     }
@@ -52,17 +52,17 @@ export class Timetable extends React.PureComponent {
     }
 
     get startEndDates() {
-        let {days} = this.props;
+        let {mobile} = this.props;
         let from = this.date;
-        let to = days > 1 ?
-            addDays(from, days) :
+        let to = !mobile ?
+            addDays(from, 5) :
             addHours(from, 10);
         return {from: from.valueOf(), to: to.valueOf()};
     }
 
 
     render() {
-        let {classes, days, active, currDate} = this.props;
+        let {classes, mobile, active, currDate} = this.props;
 
         const date = this.date;
         const IsVisible = IsVisibleOn(currDate);
@@ -72,12 +72,12 @@ export class Timetable extends React.PureComponent {
             <OffsetProvider value={date}>
                 <div className={classes.root}>
                     <NoSsr>
-                        {days > 1 && currDate !== null && <CurrentDay date={currDate}/>}
+                        {!mobile && currDate !== null && <CurrentDay date={currDate}/>}
                     </NoSsr>
 
-                    <Days length={days} date={date}/>
+                    <Days length={mobile ? 1 : 5} date={date}/>
 
-                    <Separators days={days}/>
+                    <Separators days={mobile ? 1 : 5}/>
 
                     <TimetableEvents group="conflict" {...startEndDates}>
                         {events => <React.Fragment><Hours events={events} actualDate={this.selectedDate}/><Courses events={events} /></React.Fragment>}

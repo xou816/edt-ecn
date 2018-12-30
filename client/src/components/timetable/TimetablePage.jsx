@@ -56,8 +56,7 @@ export class TimetablePage extends React.Component {
                             <DatePicker/>
                         </Drawer>}
                     </NoSsr>
-                    {((view & View.LIST) > 0) && <EventList/>}
-                    {((view & View.TIMETABLE) > 0) && <SwipeableTimetable/>}
+                    <SwipeableTimetable/>
                 </PageContent>
             </Page>
         );

@@ -5,10 +5,11 @@ import {TimetableEvents} from "./TimetableEvents";
 import Typography from "@material-ui/core/Typography/Typography";
 import {Course} from "./Course";
 import {endOfMonth, format, startOfDay, startOfMonth} from "date-fns";
-import {TranslateDate} from "../Translation";
+import {TranslateDate, T} from "../Translation";
 import Fade from "@material-ui/core/Fade";
 import {focusEvent} from "../../app/actions";
 import {connect} from "react-redux";
+import {FocusedCourse} from "./FocusedCourse";
 
 @connect(({app}) => ({focus: app.focus}), dispatch => ({focusEvent: id => dispatch(focusEvent(id))}))
 @withStyles(theme => ({
@@ -43,8 +44,7 @@ class DayContainer extends React.Component {
                 </TranslateDate>
                 <div className={classes.courses}>
                     {group.map(event => <Course onClick={() => focusEvent(event.id)}
-                                                size={focus === event.id ? 'large' : 'medium'}
-                                                elevation={focus === event.id ? 2 : 0}
+                                                elevation={0}
                                                 key={event.id}
                                                 {...event} />)}
                 </div>
@@ -56,25 +56,31 @@ class DayContainer extends React.Component {
 @timetableAware
 @withStyles(theme => ({
     root: {
-        flex: '1',
+        flexGrow: '1',
+        height: '100%',
         overflowY: 'auto',
         overflowX: 'hidden',
         padding: '0 10%',
         [theme.breakpoints.down(769)]: {
             padding: 0
         }
+    },
+    headline: {
+        marginTop: '1em'
     }
 }))
 export default class extends React.Component {
 
     get date() {
-        return startOfMonth(this.props.date, {weekStartsOn: 1});
+        return startOfMonth(this.props.renderDate, {weekStartsOn: 1});
     }
 
     handleChange(ts) {
-        let {navigateTo} = this.props;
+        let {navigateTo, active} = this.props;
         clearTimeout(this.timeout);
-        this.timeout = setTimeout(() => navigateTo(new Date(ts)), 500);
+        this.timeout = setTimeout(() => {
+            if (active) navigateTo(new Date(ts))
+        }, 500);
     }
 
     matchTag(tag, tags) {
@@ -84,20 +90,27 @@ export default class extends React.Component {
     }
 
     render() {
-        let {classes, date} = this.props;
-        let pos = startOfDay(date).valueOf();
+        let {classes, renderDate, active} = this.props;
+        let pos = startOfDay(renderDate).valueOf();
+        if (!active) clearTimeout(this.timeout);
         return (
             <Fade in>
                 <ScrollSpy position={pos} matchTag={this.matchTag} onChange={(pos) => this.handleChange(pos)}
                            className={classes.root}>
-                    <Typography align="center" color="textSecondary" variant="h6">
-                        <TranslateDate>{locale => format(date, 'MMMM Y', {locale})}</TranslateDate>
+                    <FocusedCourse allowFocus={active}/>
+                    <Typography align="center" color="textSecondary" variant="h6" className={classes.headline}>
+                        <TranslateDate>{locale => format(renderDate, 'MMMM Y', {locale})}</TranslateDate>
                     </Typography>
                     <TimetableEvents from={this.date.valueOf()} to={endOfMonth(this.date).valueOf()} group="day">
-                        {groups => groups.map(([date, group]) => {
-                            let tag = startOfDay(date).valueOf();
-                            return <DayContainer key={tag} tag={tag} date={date} group={group}/>;
-                        })}
+                        {groups => groups.length > 0 ?
+                            groups.map(([date, group]) => {
+                                let tag = startOfDay(date).valueOf();
+                                return <DayContainer key={tag} tag={tag} date={date} group={group}/>;
+                            }) :
+                            <Typography align="center" color="textSecondary" variant="subtitle1">
+                                <T.NoEvents/>
+                            </Typography>
+                        }
                     </TimetableEvents>
                 </ScrollSpy>
             </Fade>

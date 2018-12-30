@@ -4,6 +4,7 @@ import {virtualize} from "react-swipeable-views-utils";
 import SwipeableViews from "react-swipeable-views";
 import {Timetable} from "./Timetable";
 import {addDays, isWeekend, startOfISOWeek} from "date-fns";
+import EventList from "./EventList";
 
 const VirtualizeSwipeableViews = virtualize(SwipeableViews);
 
@@ -34,22 +35,32 @@ export default class extends React.Component {
     slideRenderer({key, index}) {
         let {view, atPosition, position, date} = this.props;
         const diff = Math.abs(index - this.index);
+        const component = (view & View.TIMETABLE) > 0 ? Timetable : EventList;
         date = position(date) === index ? date : atPosition(index);
+        const props = {
+            active: diff === 0,
+            mobile: (view & View.MOBILE) > 0,
+            currDate: diff === 0 ? date : null,
+            date: date,
+            renderDate: date,
+            key: key
+        };
         return diff < 3 ?
-            <Timetable active={diff === 0} days={(view & View.MOBILE) > 0 ? 1 : 5} currDate={diff === 0 ? date : null}
-                       date={date} key={key}/> :
+            React.createElement(component, props) :
             <div key={key}/>;
     }
 
     render() {
         let {view} = this.props;
-        let prerender = (view & View.MOBILE) > 0 ? 2 : 1;
+        let preRender = (view & View.MOBILE & View.TIMETABLE) > 0 ? 2 : 1;
         return (
-            <VirtualizeSwipeableViews overscanSlideAfter={prerender}
-                                      overscanSlideBefore={prerender}
+            <VirtualizeSwipeableViews overscanSlideAfter={preRender}
+                                      overscanSlideBefore={preRender}
                                       onChangeIndex={this.onChangeIndex}
                                       index={this.index}
                                       style={{flexGrow: 1}}
+                                      containerStyle={{height: '100%'}}
+                                      slideStyle={{flexGrow: 1}}
                                       enableMouseEvents
                                       slideRenderer={this.slideRenderer}/>
         );
