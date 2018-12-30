@@ -55,13 +55,12 @@ function navigateTo(history) {
 
 function atPosition(view) {
     return (pos) => {
-        switch (view) {
-            case View.TIMETABLE | View.DESKTOP:
-                return addWeeks(TODAY, pos);
-            case View.TIMETABLE | View.MOBILE:
-                return addDays(TODAY, pos);
-            case View.LIST:
-                return addMonths(TODAY, pos);
+        if (view === (View.TIMETABLE | View.DESKTOP)) {
+            return addWeeks(TODAY, pos);
+        } else if (view === (View.TIMETABLE | View.MOBILE)) {
+            return addDays(TODAY, pos);
+        } else if ((view | View.LIST) > 0) {
+            return addMonths(TODAY, pos);
         }
     }
 }
@@ -76,13 +75,12 @@ function prev(view) {
 
 function position(view) {
     return date => {
-        switch (view) {
-            case View.TIMETABLE | View.DESKTOP:
-                return differenceInCalendarISOWeeks(date, TODAY);
-            case View.TIMETABLE | View.MOBILE:
-                return differenceInCalendarDays(date, TODAY);
-            case View.LIST:
-                return differenceInCalendarMonths(date, TODAY);
+        if (view === (View.TIMETABLE | View.DESKTOP)) {
+            return differenceInCalendarISOWeeks(date, TODAY);
+        } else if (view === (View.TIMETABLE | View.MOBILE)) {
+            return differenceInCalendarDays(date, TODAY);
+        } else if ((view | View.LIST) > 0) {
+            return differenceInCalendarMonths(date, TODAY);
         }
     };
 }
