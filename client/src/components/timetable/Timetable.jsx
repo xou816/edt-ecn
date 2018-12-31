@@ -41,14 +41,14 @@ export class Timetable extends React.PureComponent {
     }
 
     get date() {
-        let {mobile, date} = this.props;
+        let {mobile, renderDate} = this.props;
         return !mobile ?
-            this.fix(startOfISOWeek(date, {weekStartsOn: 1})) :
-            this.fix(startOfDay(date));
+            this.fix(startOfISOWeek(renderDate, {weekStartsOn: 1})) :
+            this.fix(startOfDay(renderDate));
     }
 
     get selectedDate() {
-        return this.fix(startOfDay(this.props.date));
+        return this.fix(startOfDay(this.props.renderDate));
     }
 
     get startEndDates() {

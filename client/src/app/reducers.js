@@ -1,5 +1,5 @@
 import {resetSubjects, toggleCalendar, toggleSubject} from "./meta";
-import {View} from "../components/timetable/timetableAware";
+import {View} from "../components/timetable/timeviewAware";
 
 export const initialState = {
     list: [],

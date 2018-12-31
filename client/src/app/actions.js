@@ -2,7 +2,7 @@ import {linkToCalendar, parseIso} from './event';
 import 'cross-fetch/polyfill';
 import {safeMeta} from "./meta";
 import {getHours} from 'date-fns';
-import {View} from "../components/timetable/timetableAware";
+import {View} from "../components/timetable/timeviewAware";
 
 const API = `${process.env.PUBLIC}/api`;
 
@@ -153,10 +153,8 @@ export function blurEvent() {
 export function toggleView() {
     return (dispatch, getState) => {
         const {view} = getState().app;
-        if ((view & View.LIST) > 0) {
-            dispatch({type: 'SET_VIEW', view: View.TIMETABLE});
-        } else {
-            dispatch({type: 'SET_VIEW', view: View.LIST});
-        }
+        const chosen = (view & View.LIST) > 0 ? View.TIMETABLE : View.LIST;
+        dispatch({type: 'SET_VIEW', view: chosen});
+        return Promise.resolve(view);
     }
 }

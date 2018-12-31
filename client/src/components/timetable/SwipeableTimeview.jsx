@@ -1,14 +1,14 @@
 import React from "react";
-import timetableAware, {View} from "./timetableAware";
 import {virtualize} from "react-swipeable-views-utils";
 import SwipeableViews from "react-swipeable-views";
 import {Timetable} from "./Timetable";
 import {addDays, isWeekend, startOfISOWeek} from "date-fns";
 import EventList from "./EventList";
+import timeviewAware, {View} from "./timeviewAware";
 
 const VirtualizeSwipeableViews = virtualize(SwipeableViews);
 
-@timetableAware
+@timeviewAware
 export default class extends React.Component {
 
     constructor(props) {
@@ -41,7 +41,6 @@ export default class extends React.Component {
             active: diff === 0,
             mobile: (view & View.MOBILE) > 0,
             currDate: diff === 0 ? date : null,
-            date: date,
             renderDate: date,
             key: key
         };
@@ -61,6 +60,8 @@ export default class extends React.Component {
                                       style={{flexGrow: 1}}
                                       containerStyle={{height: '100%'}}
                                       slideStyle={{flexGrow: 1}}
+                                      hysteresis={0.5}
+                                      threshold={Infinity}
                                       enableMouseEvents
                                       slideRenderer={this.slideRenderer}/>
         );

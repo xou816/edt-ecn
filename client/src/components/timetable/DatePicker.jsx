@@ -11,7 +11,7 @@ import withStyles from "@material-ui/core/styles/withStyles";
 import Button from "@material-ui/core/Button/Button";
 import MuiPickersUtilsProvider from "material-ui-pickers/MuiPickersUtilsProvider";
 import {T, TranslateDate} from "../Translation";
-import timetableAware from "./timetableAware";
+import timeviewAware from "./timeviewAware";
 
 @withStyles(theme => ({
     day: {
@@ -91,7 +91,7 @@ class Day extends React.Component {
     }
 }
 
-@timetableAware
+@timeviewAware
 @withStyles(theme => ({
     picker: {
         margin: `0 ${theme.spacing.unit}px`,

@@ -14,8 +14,8 @@ import IconButton from "@material-ui/core/IconButton/IconButton";
 import Menu from "@material-ui/core/Menu/Menu";
 import Button from "@material-ui/core/Button/Button";
 import {T, TranslateDate} from "../Translation";
-import timetableAware, {View} from "./timetableAware";
 import {HideOnMobile, ResponsiveButton} from "../Media";
+import timeviewAware, {View} from "./timeviewAware";
 
 function DateDisplay({week, date, onClick}) {
     return <TranslateDate>{locale => {
@@ -24,7 +24,7 @@ function DateDisplay({week, date, onClick}) {
     }}</TranslateDate>;
 }
 
-@timetableAware
+@timeviewAware
 @withStyles(theme => ({
     spread: {
         flexGrow: 1

@@ -1,5 +1,4 @@
 import React from "react";
-import timetableAware from "./timetableAware";
 import withStyles from "@material-ui/core/styles/withStyles";
 import {TimetableEvents} from "./TimetableEvents";
 import Typography from "@material-ui/core/Typography/Typography";
@@ -10,6 +9,7 @@ import Fade from "@material-ui/core/Fade";
 import {focusEvent} from "../../app/actions";
 import {connect} from "react-redux";
 import {FocusedCourse} from "./FocusedCourse";
+import timeviewAware from "./timeviewAware";
 
 @connect(({app}) => ({focus: app.focus}), dispatch => ({focusEvent: id => dispatch(focusEvent(id))}))
 @withStyles(theme => ({
@@ -27,7 +27,7 @@ import {FocusedCourse} from "./FocusedCourse";
 }))
 class DayContainer extends React.Component {
     render() {
-        let {date, group, tag, classes, focusEvent, focus} = this.props;
+        let {date, group, tag, classes, focusEvent} = this.props;
         return (
             <ScrollSection tag={tag} className={classes.root}>
                 <TranslateDate>
@@ -44,6 +44,7 @@ class DayContainer extends React.Component {
                 </TranslateDate>
                 <div className={classes.courses}>
                     {group.map(event => <Course onClick={() => focusEvent(event.id)}
+                                                size="medium"
                                                 elevation={0}
                                                 key={event.id}
                                                 {...event} />)}
@@ -53,7 +54,7 @@ class DayContainer extends React.Component {
     }
 }
 
-@timetableAware
+@timeviewAware
 @withStyles(theme => ({
     root: {
         flexGrow: '1',
