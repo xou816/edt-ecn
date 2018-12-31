@@ -2,10 +2,11 @@ import * as calendar from '../calendar';
 import {tz} from 'moment-timezone';
 import {Router} from 'express';
 import {CelcatCalendarType} from "../calendars/celcat";
+import cache, {EXPIRE_RULES} from "./cache";
 
 export default function apiRouter(router: Router): Router {
 
-    router.get('/list', (req, res) => {
+    router.get('/list', cache.route({expire: EXPIRE_RULES}), (req, res) => {
         res.setHeader('Content-Type', 'application/json');
         calendar.listOnlineCalendars('group')
             .then(JSON.stringify)
@@ -16,7 +17,7 @@ export default function apiRouter(router: Router): Router {
             });
     });
 
-    router.get('/list/:type', (req, res) => {
+    router.get('/list/:type', cache.route({expire: EXPIRE_RULES}), (req, res) => {
         res.setHeader('Content-Type', 'application/json');
         calendar.listOnlineCalendars(req.params.type as CelcatCalendarType)
             .then(JSON.stringify)
@@ -39,7 +40,7 @@ export default function apiRouter(router: Router): Router {
             });
     });
 
-    router.get('/custom/:id.ics', (req, res) => {
+    router.get('/custom/:id.ics', cache.route({expire: EXPIRE_RULES}), (req, res) => {
         res.setHeader('Content-Type', 'text/calendar');
         calendar.getCustomCalendar(req.params.id)
             .then(cal => cal.events)
@@ -52,7 +53,7 @@ export default function apiRouter(router: Router): Router {
             });
     });
 
-    router.get('/custom/:id', (req, res) => {
+    router.get('/custom/:id', cache.route({expire: EXPIRE_RULES}), (req, res) => {
         res.setHeader('Content-Type', 'application/json');
         calendar.getCustomCalendar(req.params.id)
             .then(JSON.stringify)
@@ -63,7 +64,7 @@ export default function apiRouter(router: Router): Router {
             });
     });
 
-    router.get('/custom/:id/subjects', (req, res) => {
+    router.get('/custom/:id/subjects', cache.route({expire: EXPIRE_RULES}), (req, res) => {
         res.setHeader('Content-Type', 'application/json');
         calendar.getCustomCalendar(req.params.id)
             .then(calendar.getSubjects)

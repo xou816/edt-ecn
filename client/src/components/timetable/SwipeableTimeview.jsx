@@ -51,7 +51,7 @@ export default class extends React.Component {
 
     render() {
         let {view} = this.props;
-        let preRender = (view & View.MOBILE & View.TIMETABLE) > 0 ? 2 : 1;
+        let preRender = (view & (View.MOBILE | View.TIMETABLE)) > 0 ? 2 : 1;
         return (
             <VirtualizeSwipeableViews overscanSlideAfter={preRender}
                                       overscanSlideBefore={preRender}
@@ -60,7 +60,7 @@ export default class extends React.Component {
                                       style={{flexGrow: 1}}
                                       containerStyle={{height: '100%'}}
                                       slideStyle={{flexGrow: 1}}
-                                      hysteresis={0.5}
+                                      hysteresis={0.1}
                                       threshold={Infinity}
                                       enableMouseEvents
                                       slideRenderer={this.slideRenderer}/>

@@ -49,6 +49,17 @@
         "@types/serve-static": "*"
       }
     },
+    "@types/express-redis-cache": {
+      "version": "1.1.0",
+      "resolved": "https://registry.npmjs.org/@types/express-redis-cache/-/express-redis-cache-1.1.0.tgz",
+      "integrity": "sha512-t9LUb5xd1EpdoyMIBk6IPgvWWIqRnGOpO9NS9qVyBHdhqRjEzSj4Z9hdrOUAkMFpG1mCOxjhPmS5zOuqUsNuhQ==",
+      "dev": true,
+      "requires": {
+        "@types/events": "*",
+        "@types/express": "*",
+        "@types/redis": "*"
+      }
+    },
     "@types/express-serve-static-core": {
       "version": "4.16.0",
       "resolved": "https://registry.npmjs.org/@types/express-serve-static-core/-/express-serve-static-core-4.16.0.tgz",
@@ -203,6 +214,14 @@
       "resolved": "https://registry.npmjs.org/assert-plus/-/assert-plus-1.0.0.tgz",
       "integrity": "sha1-8S4PPF13sLHN2RRpQuTpbB5N1SU="
     },
+    "async": {
+      "version": "2.6.1",
+      "resolved": "https://registry.npmjs.org/async/-/async-2.6.1.tgz",
+      "integrity": "sha512-fNEiL2+AZt6AlAw/29Cr0UDe4sRAHCpEHh54WMz+Bb7QfNcFw4h3loofyJpLeQs4Yx7yuqu/2dLgM5hKOs6HlQ==",
+      "requires": {
+        "lodash": "^4.17.10"
+      }
+    },
     "backoff": {
       "version": "2.5.0",
       "resolved": "https://registry.npmjs.org/backoff/-/backoff-2.5.0.tgz",
@@ -282,6 +301,11 @@
       "version": "1.1.0",
       "resolved": "https://registry.npmjs.org/code-point-at/-/code-point-at-1.1.0.tgz",
       "integrity": "sha1-DQcLTQQ6W+ozovGkDi7bPZpMz3c="
+    },
+    "colors": {
+      "version": "1.3.3",
+      "resolved": "https://registry.npmjs.org/colors/-/colors-1.3.3.tgz",
+      "integrity": "sha512-mmGt/1pZqYRjMxB1axhTo16/snVZ5krrKkcmMeVKxzECMMXoCgnvTPp10QgHfcbQZw8Dq2jMNG6je4JlWU0gWg=="
     },
     "compressible": {
       "version": "2.0.15",
@@ -488,6 +512,16 @@
           "resolved": "https://registry.npmjs.org/statuses/-/statuses-1.4.0.tgz",
           "integrity": "sha512-zhSCtt8v2NDrRlPQpCNtw/heZLtfUDqxBM1udqikb/Hbk52LK4nQSwr10u77iopCW5LsyHpuXS0GnEc48mLeew=="
         }
+      }
+    },
+    "express-redis-cache": {
+      "version": "1.1.3",
+      "resolved": "https://registry.npmjs.org/express-redis-cache/-/express-redis-cache-1.1.3.tgz",
+      "integrity": "sha512-7e9SwwGIv+bH0uc0Sy3KPCyYEGoGpwaBro+cLU8hVln1YbQIWoW8fOyv6/JRdaUmaBqATftdqm75OAIaBLmnjg==",
+      "requires": {
+        "async": "^2.6.1",
+        "colors": "^1.3.0",
+        "redis": "^2.4.2"
       }
     },
     "express-session": {
@@ -724,8 +758,7 @@
     "lodash": {
       "version": "4.17.10",
       "resolved": "https://registry.npmjs.org/lodash/-/lodash-4.17.10.tgz",
-      "integrity": "sha512-UejweD1pDoXu+AD825lWwp4ZGtSwgnpZxb3JDViD7StjQz+Nb/6l093lx4OQ0foGWNRoc19mWy7BzL+UAK2iVg==",
-      "dev": true
+      "integrity": "sha512-UejweD1pDoXu+AD825lWwp4ZGtSwgnpZxb3JDViD7StjQz+Nb/6l093lx4OQ0foGWNRoc19mWy7BzL+UAK2iVg=="
     },
     "lodash-es": {
       "version": "4.17.5",
