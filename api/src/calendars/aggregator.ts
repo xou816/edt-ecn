@@ -1,6 +1,7 @@
 import {CelcatCalendar, CelcatCalendarType} from './celcat';
 import {Calendar, CalendarId} from "../types";
 import {RedisClient} from 'redis';
+import {tz} from 'moment-timezone';
 
 const LIST_KEY = (type: CelcatCalendarType) => `agg:list:${type}`;
 const CALENDAR_KEY = (id: string) => `agg:calendar:${id}`;
@@ -58,17 +59,35 @@ export default class CalendarAggregator {
                 err ? reject(err) : resolve(res);
             });
         });
-        return promise
-            .then(res => res === null ? null : JSON.parse(res));
+        let res = await promise;
+        if (res === null) {
+            return res;
+        } else {
+            let parsed: Calendar<string> = JSON.parse(res);
+            let events = parsed.events.map(event => ({
+                ...event,
+                start: tz(event.start!, 'UTC'),
+                end: tz(event.end!, 'UTC')
+            }));
+            return {...parsed, events};
+        }
     }
 
     private async cacheCalendar(id: string, fresh: Calendar): Promise<Calendar> {
         let calendar = {
             ...fresh,
-            extra: {...fresh.extra, cached: Date.now().valueOf()}
+            extra: {...fresh.extra, cached: Date.now()},
         };
+        let stringified = JSON.stringify({
+            ...calendar,
+            events: fresh.events.map(event => ({
+                ...event,
+                start: event.start!.tz('UTC').format(),
+                end: event.end!.tz('UTC').format()
+            }))
+        });
         const promise = new Promise<void>((resolve, reject) => {
-            this.redis.setex(CALENDAR_KEY(id), CACHE_DURATION, JSON.stringify(calendar), err => {
+            this.redis.setex(CALENDAR_KEY(id), CACHE_DURATION, stringified, err => {
                 err ? reject(err) : resolve();
             });
         });

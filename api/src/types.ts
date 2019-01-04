@@ -6,12 +6,12 @@ export type CalendarId = {
     display: string
 };
 
-export type CalendarEvent = {
+export type CalendarEvent<D = Moment> = {
     id: string,
     calendar: string,
     colour: string,
-    start: Moment | null,
-    end: Moment | null,
+    start: D | null,
+    end: D | null,
     subject: string,
     full_subject: string,
     category: string,
@@ -34,9 +34,9 @@ export type NewMeta = {
     filter?: string[]
 };
 
-export type Calendar = {
+export type Calendar<D = Moment> = {
     id?: string,
-    events: Events,
+    events: CalendarEvent<D>[],
     meta: Meta[],
     extra: {}
 }
