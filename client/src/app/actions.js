@@ -150,11 +150,15 @@ export function blurEvent() {
     return {type: 'BLUR_EVENT'};
 }
 
+export function setView(view) {
+    return {type: 'SET_VIEW', view};
+}
+
 export function toggleView() {
     return (dispatch, getState) => {
         const {view} = getState().app;
         const chosen = (view & View.LIST) > 0 ? View.TIMETABLE : View.LIST;
         dispatch({type: 'SET_VIEW', view: chosen});
-        return Promise.resolve(view);
+        return Promise.resolve(chosen);
     }
 }

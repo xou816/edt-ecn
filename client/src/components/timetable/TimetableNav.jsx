@@ -16,6 +16,7 @@ import Button from "@material-ui/core/Button/Button";
 import {T, TranslateDate} from "../Translation";
 import {HideOnMobile, ResponsiveButton} from "../Media";
 import timeviewAware, {View} from "./timeviewAware";
+import withCookies from "react-cookie/cjs/withCookies";
 
 function DateDisplay({week, date, onClick}) {
     return <TranslateDate>{locale => {
@@ -24,6 +25,7 @@ function DateDisplay({week, date, onClick}) {
     }}</TranslateDate>;
 }
 
+@withCookies
 @timeviewAware
 @withStyles(theme => ({
     spread: {
@@ -44,8 +46,13 @@ export class TimetableNav extends React.Component {
         this.ref = null;
     }
 
+    toggleView() {
+        let {cookies, toggleView} = this.props;
+        toggleView().then(view => cookies.set('view', view, {path: '/'}));
+    }
+
     render() {
-        let {calendar, classes, date, onOpenPicker, onClosePicker, makeLink, open, next, prev, view, toggleView} = this.props;
+        let {calendar, classes, date, onOpenPicker, onClosePicker, makeLink, open, next, prev, view} = this.props;
         let icon = ((view & View.LIST) > 0) ? <Dashboard/> : <ViewList/>;
         return (
             <Nav className={classes.nav}>
@@ -61,7 +68,7 @@ export class TimetableNav extends React.Component {
                                     children={<KeyboardArrowRight/>}
                                     to={makeLink(next(date))}/>
                     </HideOnMobile>
-                    <IconButton color="inherit" children={icon} onClick={toggleView}/>
+                    <IconButton color="inherit" children={icon} onClick={() => this.toggleView()}/>
                     <DateDisplay date={date} onClick={onOpenPicker}/>
 
                 </div>

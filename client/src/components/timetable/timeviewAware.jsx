@@ -15,7 +15,7 @@ import {
 } from "date-fns";
 import {withRouter} from 'react-router';
 import {connect} from "react-redux";
-import {toggleView} from "../../app/actions";
+import {setView, toggleView} from "../../app/actions";
 
 const TODAY = setHours(Date.now(), 12);
 const FORMAT = 'uMMdd';
@@ -89,7 +89,7 @@ function position(view) {
 export default function(Component) {
     const connector = connect(
         ({app, browser}) => ({ view: app.view, mobile: browser.greaterThan.small ? View.DESKTOP : View.MOBILE }),
-        dispatch => ({ toggleView: () => dispatch(toggleView()) })
+        dispatch => ({ toggleView: () => dispatch(toggleView()), setView: view => dispatch(setView(view)) })
     );
     return withRouter(connector(({history, match, view, mobile, toggleView, ...others}) => {
         const date = parseDate(match.params.date);
@@ -99,6 +99,7 @@ export default function(Component) {
                           date={date}
                           view={actualView}
                           toggleView={toggleView}
+                          setView={setView}
                           next={next(actualView)}
                           prev={prev(actualView)}
                           position={position(actualView)}

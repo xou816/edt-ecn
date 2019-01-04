@@ -4,7 +4,6 @@ import {NewMeta} from "../types";
 import {calendarToIcs, getCalendarFromMeta} from "../calendar";
 import {createHash} from 'crypto';
 import * as stringify from 'json-stable-stringify';
-import cache, {EXPIRE_RULES} from "./cache";
 
 async function getCalendar(alias: string) {
     const {value} = await getAlias(alias);
@@ -14,7 +13,7 @@ async function getCalendar(alias: string) {
 
 export default function(router: Router): Router {
 
-    router.get('/:id.ics', cache.route({expire: EXPIRE_RULES}), async (req, res) => {
+    router.get('/:id.ics', async (req, res) => {
         res.setHeader('Content-Type', 'text/calendar');
         try {
             const calendar = await getCalendar(req.params.id);
@@ -25,7 +24,7 @@ export default function(router: Router): Router {
         }
     });
 
-    router.get('/:id', cache.route({expire: EXPIRE_RULES}), async (req, res) => {
+    router.get('/:id', async (req, res) => {
         res.setHeader('Content-Type', 'application/json');
         try {
             const calendar = await getCalendar(req.params.id);

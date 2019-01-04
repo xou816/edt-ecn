@@ -15,16 +15,11 @@ import {
     UNKNOWN_SUBJECT
 } from "./types";
 import {CelcatCalendarType} from "./calendars/celcat";
+import CalendarAggregator from './calendars/aggregator';
+import {redis} from './redis';
 
-const CALENDARS = [ufr, centrale];
-
+const AGGREGATOR = new CalendarAggregator([ufr, centrale], redis);
 const WARN_MESSAGE = "(!) Ce calendrier n'est peut être pas à jour. Les filtres sont désactivés par sécurité."
-
-export function listOnlineCalendars(type: CelcatCalendarType): Promise<CalendarId[]> {
-    return Promise.all(CALENDARS.map(celcat => celcat.listCalendars(type)))
-        .then(([eva, evb]) => eva.concat(evb));
-}
-
 const VALID_CAT = ['CM', 'TD', 'TP', 'DS'];
 
 function hashSubject(subject: string) {
@@ -69,8 +64,12 @@ export function getSubjects(calendar: Calendar): Subjects {
         }, []);
 }
 
+export function listOnlineCalendars(type: CelcatCalendarType): Promise<CalendarId[]> {
+    return AGGREGATOR.listCalendars(type);
+}
+
 export function getOnlineCalendar(id: string): Promise<Calendar> {
-    return CALENDARS.find(celcat => celcat.hasCalendar(id))!.getCalendar(id);
+    return AGGREGATOR.getCalendar(id);
 }
 
 // DEPRECATED
@@ -152,7 +151,7 @@ export function createFilterFromMeta(metas: Meta[]): Promise<string> {
         .then((filters: string[]) => filters.join('+'));
 }
 
-// New functions
+// NEW functions
 
 export async function getCalendarFromMeta(metas: NewMeta[]) {
     return metas.reduce(async (acc: Promise<NewCalendar>, meta: NewMeta) => {

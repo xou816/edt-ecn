@@ -91,9 +91,9 @@ export default class extends React.Component {
     }
 
     render() {
-        let {classes, renderDate, active} = this.props;
-        let pos = startOfDay(renderDate).valueOf();
         if (!active) clearTimeout(this.timeout);
+        let {classes, renderDate, currDate, active} = this.props;
+        let pos = !active ? this.date.valueOf() : startOfDay(currDate).valueOf();
         return (
             <Fade in>
                 <ScrollSpy position={pos} matchTag={this.matchTag} onChange={(pos) => this.handleChange(pos)}
@@ -147,6 +147,7 @@ class ScrollSpy extends React.Component {
         this.state = {
             match: null
         };
+        this.postConstructPos = false;
     }
 
     attachEvent(ref, handler) {
@@ -160,9 +161,10 @@ class ScrollSpy extends React.Component {
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         let {position} = this.props;
-        if (position != null && prevProps.position !== position && this.state.match !== position) {
+        if (position != null && (prevProps.position !== position || !this.postConstructPos) && this.state.match !== position) {
             let pos = this.getPos(position);
             if (pos > -1) {
+                this.postConstructPos = true;
                 this.ref.scrollTop = pos + 1;
             }
         }
@@ -209,9 +211,6 @@ class ScrollSpy extends React.Component {
         if (ref !== null) {
             this.elements.push(ref);
             this.tags.push(tag);
-            if (this.state.match === null) {
-                this.setState({match: tag});
-            }
         } else {
             this.elements.shift();
             this.tags.shift();

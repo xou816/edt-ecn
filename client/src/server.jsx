@@ -19,6 +19,8 @@ import {CookiesProvider} from 'react-cookie';
 import Cookies from "universal-cookie/cjs/Cookies";
 import cookiesMiddleware from "universal-cookie-express";
 import {createHash} from 'crypto';
+import {setView} from "./app/actions";
+import {View} from "./components/timetable/timeviewAware";
 
 const cleanCss = new CleanCss({returnPromise: true});
 
@@ -125,16 +127,18 @@ app.get('/service-worker.js', (req, res) => {
 
 app.use((req, res) => {
     const context = {};
+    const cookies = new Cookies(req.headers.cookie);
     const generateClassName = createGenerateClassName();
     const sheetsRegistry = new SheetsRegistry();
     const deviceType = UAParser(req.header('user-agent')).device.type || 'unknown';
     const store = createServerStore(mapDeviceToMedia(deviceType));
+    store.dispatch(setView(parseInt(cookies.get('view') || View.TIMETABLE, 10)));
     const html = renderToString(
         <Provider store={store}>
             <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
                 <MuiThemeProvider theme={theme} sheetsManager={new Map()}>
                     <StaticRouter location={req.url} context={context}>
-                        <CookiesProvider cookies={new Cookies(req.headers.cookie)}>
+                        <CookiesProvider cookies={cookies}>
                             <App/>
                         </CookiesProvider>
                     </StaticRouter>
