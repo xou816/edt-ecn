@@ -81,7 +81,7 @@ export default class extends React.Component {
                         <Typography variant="subtitle1" gutterBottom>
                             <T.DetailedInstructions/>
                         </Typography>
-                        <Button size="small" href="https://calendar.google.com/calendar/r">Google Agenda <OpenInNew fontSize="small"/></Button>
+                        <Button size="small" href={"https://calendar.google.com/calendar/r?cid=" + this.link}>Google Agenda <OpenInNew fontSize="small"/></Button>
                     </Paper>
                 </PageContent>
             </Page>
