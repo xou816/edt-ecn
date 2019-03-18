@@ -111,7 +111,8 @@ export abstract class CelcatCalendar {
         let organizer = get('resources/staff/item');
         let category = get('category');
         let subjects = node.find('resources/module/item')
-            .map(n => (n as Element || {text: () => UNKNOWN_SUBJECT}).text())
+            .map(n => (n as Element).text());
+        if (subjects.length === 0) subjects = [UNKNOWN_SUBJECT];
         let location: string[] = node.find('resources/room/item')
             .map(n => (n as Element).text());
         let day = parseInt(get('day'), 10);
