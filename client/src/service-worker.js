@@ -14,7 +14,7 @@ if (workbox) {
     );
 
     workbox.routing.registerRoute(
-        new RegExp('^' + self.location.origin + '\/api\/calendar\/custom\/([a-z0-9:+\-_]+)$'),
+        new RegExp('^' + self.location.origin + '\/api\/(calendar\/custom|alias)\/([a-z0-9:+\-_]+)$'),
         workbox.strategies.cacheFirst({
             cacheName: 'calendars',
             plugins: [

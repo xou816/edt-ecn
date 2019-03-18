@@ -26,7 +26,6 @@
     "@types/node": "^10.14.1",
     "@types/node-fetch": "^2.1.6",
     "@types/redis": "^2.8.11",
-    "@types/redux": "^3.6.0",
     "typescript": "^3.3.3333"
   },
   "dependencies": {
