@@ -45,7 +45,7 @@ export default class extends React.Component {
         let {classes} = this.props;
         return (
             <Page>
-                <AppBar position="static">
+                <AppBar position="static" elevation={1}>
                     <Tabs value={1}>
                         <Tab component={Link} to="/" label={<Home/>}/>
                         <Tab label={<T.About/>}/>

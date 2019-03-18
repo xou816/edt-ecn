@@ -16,7 +16,7 @@ export class Nav extends React.Component {
     render() {
         let {classes, children} = this.props;
         return (
-            <AppBar position="static">
+            <AppBar position="static" elevation={1}>
                 <Toolbar className={classes.toolbar}>
                     {children}
                 </Toolbar>

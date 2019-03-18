@@ -66,7 +66,7 @@ export abstract class CelcatCalendar {
                     week: node.get('alleventweeks')!.text()
                 }));
                 return doc.find('//event')
-                    .map(node => this.mapNodeToEvent(node, id, desc))
+                    .reduce((list: CalendarEvent[], node) => list.concat(this.mapNodeToEvents(node, id, desc)), [])
                     .sort((a, b) => a.start && b.start ? a.start.valueOf() - b.start.valueOf() : 0);
             })
             .then(events => ({
@@ -101,7 +101,7 @@ export abstract class CelcatCalendar {
     }
 
 
-    private mapNodeToEvent(node: Element, calendar: string, weeks: CelcatWeekDesc): CalendarEvent {
+    private mapNodeToEvents(node: Element, calendar: string, weeks: CelcatWeekDesc): CalendarEvent[] {
 
         const get = nodeGetText(node);
         const attr = nodeGetAttr(node);
@@ -110,7 +110,8 @@ export abstract class CelcatCalendar {
         let description = get('notes');
         let organizer = get('resources/staff/item');
         let category = get('category');
-        let subject = get('resources/module/item', UNKNOWN_SUBJECT);
+        let subjects = node.find('resources/module/item')
+            .map(n => (n as Element || {text: () => UNKNOWN_SUBJECT}).text())
         let location: string[] = node.find('resources/room/item')
             .map(n => (n as Element).text());
         let day = parseInt(get('day'), 10);
@@ -118,8 +119,8 @@ export abstract class CelcatCalendar {
         let start = this.dateFromCourseTime(week, day, get('starttime'), weeks);
         let end = this.dateFromCourseTime(week, day, get('endtime'), weeks);
 
-        return this.mapEvent({
-            id,
+        return subjects.map((subject: string, i) => this.mapEvent({
+            id: id + i.toString(),
             colour,
             start,
             end,
@@ -129,7 +130,7 @@ export abstract class CelcatCalendar {
             organizer,
             category,
             calendar
-        });
+        }));
     }
 
 }

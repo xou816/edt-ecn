@@ -3,7 +3,7 @@ import withStyles from "@material-ui/core/styles/withStyles";
 import {TimetableEvents} from "./TimetableEvents";
 import Typography from "@material-ui/core/Typography/Typography";
 import {Course} from "./Course";
-import {endOfMonth, format, startOfDay, startOfMonth} from "date-fns";
+import {endOfMonth, format, isSameDay, startOfDay, startOfMonth} from "date-fns";
 import {TranslateDate, T} from "../Translation";
 import Fade from "@material-ui/core/Fade";
 import {focusEvent} from "../../app/actions";
@@ -28,6 +28,7 @@ import timeviewAware from "./timeviewAware";
 class DayContainer extends React.Component {
     render() {
         let {date, group, tag, classes, focusEvent} = this.props;
+        let today = isSameDay(date, Date.now());
         return (
             <ScrollSection tag={tag} className={classes.root}>
                 <TranslateDate>
@@ -36,8 +37,8 @@ class DayContainer extends React.Component {
                         let num = format(date, 'd', {locale});
                         return (
                             <div className={classes.day}>
-                                <Typography align="center" children={day}/>
-                                <Typography align="center" children={num}/>
+                                <Typography align="center" children={day} color={today ? 'secondary' : 'textSecondary'}/>
+                                <Typography align="center" children={num} color={today ? 'secondary' : 'textSecondary'}/>
                             </div>
                         );
                     }}
