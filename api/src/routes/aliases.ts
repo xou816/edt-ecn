@@ -1,13 +1,13 @@
 import {Router} from "express";
 import {getAlias, setAliasNoPass} from "../alias";
-import {NewMeta} from "../types";
+import {Meta} from "../types";
 import {calendarToIcs, getCalendarFromMeta} from "../calendar";
 import {createHash} from 'crypto';
 import * as stringify from 'json-stable-stringify';
 
 async function getCalendar(alias: string) {
     const {value} = await getAlias(alias);
-    const meta: NewMeta[] = JSON.parse(value);
+    const meta: Meta[] = JSON.parse(value);
     return getCalendarFromMeta(meta);
 }
 
@@ -41,7 +41,7 @@ export default function(router: Router): Router {
     router.post('/', async (req, res) => {
         res.setHeader('Content-Type', 'application/json');
         try {
-            const json: string = (stringify as any)((req.body as NewMeta[])
+            const json: string = (stringify as any)((req.body as Meta[])
                 .sort((a, b) => a.id < b.id ? -1 : 1));
             const id = createHash('sha1').update(json).digest('hex').substring(0, 10);
             const saved = await setAliasNoPass(id, json);

@@ -1,6 +1,5 @@
 import * as ical from 'ical-generator';
 import {createHash} from 'crypto';
-import {Filter} from './filter';
 import centrale from './calendars/centrale';
 import ufr from './calendars/ufr';
 import {
@@ -9,8 +8,6 @@ import {
     CalendarId,
     Events,
     Meta,
-    NewCalendar,
-    NewMeta,
     Subjects,
     UNKNOWN_SUBJECT
 } from "./types";
@@ -18,8 +15,7 @@ import {CelcatCalendarType} from "./calendars/celcat";
 import CalendarAggregator from './calendars/aggregator';
 import {redis} from './redis';
 
-const AGGREGATOR = new CalendarAggregator([ufr, centrale], redis);
-const WARN_MESSAGE = "(!) Ce calendrier n'est peut être pas à jour. Les filtres sont désactivés par sécurité."
+const AGGREGATOR = new CalendarAggregator([ufr], redis);
 const VALID_CAT = ['CM', 'TD', 'TP', 'DS'];
 
 function hashSubject(subject: string) {
@@ -72,40 +68,9 @@ export function getOnlineCalendar(id: string): Promise<Calendar> {
     return AGGREGATOR.getCalendar(id);
 }
 
-// DEPRECATED
-// These functions use a filtering system where all information about filters to apply is contained in the id
-
-function getSingleCustomCalendar(id: string): Promise<Calendar> {
-    let [calendarId, filterEnc, checksum] = id.split(/[\-_]/);
-    if (filterEnc == null) {
-        return getOnlineCalendar(calendarId);
-    }
-    let filter = Filter.parse(filterEnc);
-    return getOnlineCalendar(calendarId)
-        .then(cal => {
-            let events = cal.events;
-            let subjects = getSubjects(cal);
-            let warn = checksum != null && checkSubjects(filter, subjects, checksum);
-            events = warn ?
-                events.map(event => ({...event, description: event.description + WARN_MESSAGE})) :
-                events
-                    .filter(event => filter.test((subjects
-                        .find(s => s.name === getSubjectFromEvent(event).name) || {id: 999}).id));
-            return {
-                events,
-                meta: [{
-                    id: calendarId,
-                    filter: subjects.map(s => s.id).filter(s => !filter.test(s)),
-                    valid: !warn
-                }],
-                extra: cal.extra
-            }
-        });
-}
-
 export function getCustomCalendar(fullId: string): Promise<Calendar> {
     return fullId.split('+').reduce((p: Promise<Calendar & { blacklist: string[] }>, id: string) => {
-        return p.then(calendar => getSingleCustomCalendar(id)
+        return p.then(calendar => getOnlineCalendar(id)
             .then(newCalendar => ({
                 ...newCalendar,
                 events: newCalendar.events.filter(e => calendar.blacklist.indexOf(e.id) === -1)
@@ -124,37 +89,8 @@ export function getCustomCalendar(fullId: string): Promise<Calendar> {
         });
 }
 
-function makeChecksum(subjects: Subjects, length: number): string {
-    let str = subjects.map(s => s.name).slice(0, length).join(',');
-    return createHash('sha1').update(str).digest('hex').substr(0, 6);
-}
-
-export function checkSubjects(filter: Filter, subjects: Subjects, checksum: string): boolean {
-    const length = filter.length();
-    return checksum !== makeChecksum(subjects, length);
-}
-
-export function createFilter(id: string, indices: number[], subjects: Subjects): string {
-    let filter = Filter.from(indices);
-    return [id, filter.toString(), makeChecksum(subjects, filter.length())].join('-');
-}
-
-export function createFilterFromMeta(metas: Meta[]): Promise<string> {
-    let needFilter = (meta: Meta) => meta.filter != null && meta.filter.length > 0;
-    return metas.reduce((p: Promise<string[]>, meta: Meta) => p.then(filters =>
-            (needFilter(meta) ?
-                getOnlineCalendar(meta.id)
-                    .then(cal => createFilter(meta.id, meta.filter!, getSubjects(cal))) :
-                Promise.resolve(meta.id))
-                .then((f: string) => filters.concat([f]))),
-        Promise.resolve([]))
-        .then((filters: string[]) => filters.join('+'));
-}
-
-// NEW functions
-
-export async function getCalendarFromMeta(metas: NewMeta[]) {
-    return metas.reduce(async (acc: Promise<NewCalendar>, meta: NewMeta) => {
+export async function getCalendarFromMeta(metas: Meta[]) {
+    return metas.reduce(async (acc: Promise<Calendar>, meta: Meta) => {
         const calendar = await acc;
         const current = await getOnlineCalendar(meta.id);
         const filter = meta.filter || [];

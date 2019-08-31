@@ -52,7 +52,11 @@ export abstract class CelcatCalendar {
                         display
                     };
                 })
-                .filter(this.filterCalendars));
+                .filter(this.filterCalendars))
+            .catch(err => {
+                console.trace(err);
+                return [];
+            });
     }
 
 

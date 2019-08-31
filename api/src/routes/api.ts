@@ -27,18 +27,6 @@ export default function apiRouter(router: Router): Router {
             });
     });
 
-    router.post('/custom', (req, res) => {
-        res.setHeader('Content-Type', 'application/json');
-        calendar.createFilterFromMeta(req.body)
-            .then((result: string) => {
-                res.send(JSON.stringify({result}))
-            })
-            .catch(error => {
-                res.status(500);
-                res.send({error: '500 Internal Server Error'});
-            });
-    });
-
     router.get('/custom/:id.ics', (req, res) => {
         res.setHeader('Content-Type', 'text/calendar');
         calendar.getCustomCalendar(req.params.id)

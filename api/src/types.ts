@@ -25,12 +25,6 @@ export type Events = CalendarEvent[];
 
 export type Meta = {
     id: string,
-    filter?: number[],
-    valid: boolean
-};
-
-export type NewMeta = {
-    id: string,
     filter?: string[]
 };
 
@@ -38,12 +32,6 @@ export type Calendar<D = Moment> = {
     id?: string,
     events: CalendarEvent<D>[],
     meta: Meta[],
-    extra: {}
-}
-
-export type NewCalendar = {
-    events: Events,
-    meta: NewMeta[],
     extra: {}
 }
 
