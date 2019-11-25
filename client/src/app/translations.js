@@ -26,7 +26,7 @@ export default {
         ApplySelection: 'Appliquer',
         IcsCalendar: 'Calendrier ICS',
         Instructions: 'Instructions (Google Agenda)',
-        DetailedInstructions: 'Cliquez sur le "+" au dessus de vos agendas, et choisissez "À partir de l\'URL". Copiez alors l\'URL ci-dessus.',
+        DetailedInstructions: 'Cliquez sur le "+" au dessus de vos agendas, et choisissez "À partir de l\'URL". Copiez alors l\'URL ci-dessus. Vous pouvez aussi cliquer directement sur le bouton ci-dessous.',
         ExportCalendar: 'Exporter le calendrier',
         ClickToCopy: 'Cliquer pour copier',
         SwitchLanguage: 'Switch to English',
